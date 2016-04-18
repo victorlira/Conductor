@@ -1032,20 +1032,40 @@ public abstract class Controller {
     }
 
     final void createOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (mAttached && mHasOptionsMenu && !mOptionsMenuHidden) {
-            onCreateOptionsMenu(menu, inflater);
+        if (mAttached) {
+            if (mHasOptionsMenu && !mOptionsMenuHidden) {
+                onCreateOptionsMenu(menu, inflater);
+            }
+
+            for (ChildControllerTransaction child : mChildControllers) {
+                child.controller.createOptionsMenu(menu, inflater);
+            }
         }
     }
 
     final void prepareOptionsMenu(Menu menu) {
-        if (mAttached && mHasOptionsMenu && !mOptionsMenuHidden) {
-            onPrepareOptionsMenu(menu);
+        if (mAttached) {
+            if (mHasOptionsMenu && !mOptionsMenuHidden) {
+                onPrepareOptionsMenu(menu);
+            }
+
+            for (ChildControllerTransaction child : mChildControllers) {
+                child.controller.onPrepareOptionsMenu(menu);
+            }
         }
     }
 
     final boolean optionsItemSelected(MenuItem item) {
-        if (mAttached && mHasOptionsMenu && !mOptionsMenuHidden) {
-            return onOptionsItemSelected(item);
+        if (mAttached) {
+            if (mHasOptionsMenu && !mOptionsMenuHidden && onOptionsItemSelected(item)) {
+                return true;
+            }
+
+            for (ChildControllerTransaction child : mChildControllers) {
+                if (child.controller.onOptionsItemSelected(item)) {
+                    return true;
+                }
+            }
         }
         return false;
     }

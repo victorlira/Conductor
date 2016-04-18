@@ -16,6 +16,22 @@ public class CallState implements Parcelable {
     public int restoreInstanceStateCalls;
     public int saveViewStateCalls;
     public int restoreViewStateCalls;
+    public int onActivityResultCalls;
+    public int onRequestPermissionsResultCalls;
+    public int createOptionsMenuCalls;
+
+    public CallState() {
+        this(false);
+    }
+
+    public CallState(boolean setupForAddedController) {
+        if (setupForAddedController) {
+            changeStartCalls++;
+            changeEndCalls++;
+            createViewCalls++;
+            attachCalls++;
+        }
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -58,6 +74,15 @@ public class CallState implements Parcelable {
         if (restoreViewStateCalls != callState.restoreViewStateCalls) {
             return false;
         }
+        if (onActivityResultCalls != callState.onActivityResultCalls) {
+            return false;
+        }
+        if (onRequestPermissionsResultCalls != callState.onRequestPermissionsResultCalls) {
+            return false;
+        }
+        if (createOptionsMenuCalls != callState.createOptionsMenuCalls) {
+            return false;
+        }
         return restoreInstanceStateCalls == callState.restoreInstanceStateCalls;
     }
 
@@ -74,6 +99,9 @@ public class CallState implements Parcelable {
         result = 31 * result + restoreInstanceStateCalls;
         result = 31 * result + saveViewStateCalls;
         result = 31 * result + restoreViewStateCalls;
+        result = 31 * result + onActivityResultCalls;
+        result = 31 * result + onRequestPermissionsResultCalls;
+        result = 31 * result + createOptionsMenuCalls;
         return result;
     }
 
@@ -91,6 +119,9 @@ public class CallState implements Parcelable {
                 "\n    restoreInstanceStateCalls=" + restoreInstanceStateCalls +
                 "\n    saveViewStateCalls=" + saveViewStateCalls +
                 "\n    restoreViewStateCalls=" + restoreViewStateCalls +
+                "\n    onActivityResultCalls= " + onActivityResultCalls +
+                "\n    onRequestPermissionsResultCalls= " + onRequestPermissionsResultCalls +
+                "\n    createOptionsMenuCalls= " + createOptionsMenuCalls +
                 "}\n";
     }
 
@@ -110,6 +141,9 @@ public class CallState implements Parcelable {
         out.writeInt(restoreInstanceStateCalls);
         out.writeInt(saveViewStateCalls);
         out.writeInt(restoreViewStateCalls);
+        out.writeInt(onActivityResultCalls);
+        out.writeInt(onRequestPermissionsResultCalls);
+        out.writeInt(createOptionsMenuCalls);
     }
 
     public static final Parcelable.Creator<CallState> CREATOR  = new Parcelable.Creator<CallState>() {
@@ -127,6 +161,9 @@ public class CallState implements Parcelable {
             state.restoreInstanceStateCalls = in.readInt();
             state.saveViewStateCalls = in.readInt();
             state.restoreViewStateCalls = in.readInt();
+            state.onActivityResultCalls = in.readInt();
+            state.onRequestPermissionsResultCalls = in.readInt();
+            state.createOptionsMenuCalls = in.readInt();
 
             return state;
         }
