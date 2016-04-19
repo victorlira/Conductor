@@ -4,10 +4,6 @@ ext {
     targetSdkVersion = 23
     buildToolsVersion = '23.0.2'
 
-    versionCode = 1
-    versionName = '1.1.4'
-    publishedVersionName = '1.1.4'
-
     supportV4 = 'com.android.support:support-v4:23.1.1'
     supportDesign = 'com.android.support:design:23.1.1'
     supportAnnotations = 'com.android.support:support-annotations:23.1.1'

@@ -26,8 +26,8 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode rootProject.ext.versionCode
-        versionName rootProject.ext.versionName
+        versionCode Integer.parseInt(project.VERSION_CODE)
+        versionName project.VERSION_NAME
     }
 }
 
@@ -67,4 +67,4 @@ project.afterEvaluate {
 ext.artifactId = 'conductor'
 
 apply from: rootProject.file('dependencies.gradle')
-apply from: rootProject.file('bll-gradle-push.gradle')
+apply from: rootProject.file('gradle-mvn-push.gradle')

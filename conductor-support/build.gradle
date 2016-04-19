@@ -1,3 +1,6 @@
+apply from: rootProject.file('dependencies.gradle')
+apply from: rootProject.file('gradle-mvn-push.gradle')
+
 apply plugin: 'com.android.library'
 
 android {
@@ -16,8 +19,8 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode rootProject.ext.versionCode
-        versionName rootProject.ext.versionName
+        versionCode Integer.parseInt(project.VERSION_CODE)
+        versionName project.VERSION_NAME
     }
 }
 
@@ -28,5 +31,3 @@ dependencies {
 
 ext.artifactId = 'conductor-support'
 
-apply from: rootProject.file('dependencies.gradle')
-apply from: rootProject.file('bll-gradle-push.gradle')
