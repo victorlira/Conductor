@@ -30,6 +30,13 @@ compile 'com.bluelinelabs:conductor-support:1.1.4'
 compile 'com.bluelinelabs:conductor-rxlifecycle:1.1.4'
 ```
 
+SNAPSHOT:
+```gradle
+compile 'com.bluelinelabs:conductor:1.1.5-SNAPSHOT'
+compile 'com.bluelinelabs:conductor-support:1.1.5-SNAPSHOT'
+compile 'com.bluelinelabs:conductor-rxlifecycle:1.1.5-SNAPSHOT'
+```
+
 ## Components to Know
 
               |  Conductor Components
