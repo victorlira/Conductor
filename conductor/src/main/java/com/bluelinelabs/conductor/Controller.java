@@ -45,7 +45,7 @@ public abstract class Controller {
     private static final String KEY_TARGET_INSTANCE_ID = "Controller.target.instanceId";
     private static final String KEY_ARGS = "Controller.args";
     private static final String KEY_NEEDS_ATTACH = "Controller.needsAttach";
-    private static final String KEY_REQUESTED_PERMISSIONS = "Controller.childControllers";
+    private static final String KEY_REQUESTED_PERMISSIONS = "Controller.requestedPermissions";
     private static final String KEY_OVERRIDDEN_PUSH_HANDLER = "Controller.overriddenPushHandler";
     private static final String KEY_OVERRIDDEN_POP_HANDLER = "Controller.overriddenPopHandler";
     private static final String KEY_VIEW_STATE_HIERARCHY = "Controller.viewState.hierarchy";
