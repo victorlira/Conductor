@@ -849,6 +849,11 @@ public abstract class Controller {
     }
 
     final View inflate(@NonNull ViewGroup parent) {
+
+        if (mView != null && mView.getParent() != null && mView.getParent() != parent) {
+            detach(mView, true);
+        }
+
         if (mView == null) {
             for (LifecycleListener lifecycleListener : mLifecycleListeners) {
                 lifecycleListener.preCreateView(this);
