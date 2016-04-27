@@ -192,6 +192,231 @@ public class ControllerLifecycleTests {
     }
 
     @Test
+    public void testLifecycleCallOrder() {
+        final TestController testController = new TestController();
+        final CallState callState = new CallState();
+
+        testController.addLifecycleListener(new LifecycleListener() {
+            @Override
+            public void preCreateView(@NonNull Controller controller) {
+                callState.createViewCalls++;
+                Assert.assertEquals(1, callState.createViewCalls);
+                Assert.assertEquals(0, testController.currentCallState.createViewCalls);
+
+                Assert.assertEquals(0, callState.attachCalls);
+                Assert.assertEquals(0, testController.currentCallState.attachCalls);
+
+                Assert.assertEquals(0, callState.detachCalls);
+                Assert.assertEquals(0, testController.currentCallState.detachCalls);
+
+                Assert.assertEquals(0, callState.destroyViewCalls);
+                Assert.assertEquals(0, testController.currentCallState.destroyViewCalls);
+
+                Assert.assertEquals(0, callState.destroyCalls);
+                Assert.assertEquals(0, testController.currentCallState.destroyCalls);
+            }
+
+            @Override
+            public void postCreateView(@NonNull Controller controller, @NonNull View view) {
+                callState.createViewCalls++;
+                Assert.assertEquals(2, callState.createViewCalls);
+                Assert.assertEquals(1, testController.currentCallState.createViewCalls);
+
+                Assert.assertEquals(0, callState.attachCalls);
+                Assert.assertEquals(0, testController.currentCallState.attachCalls);
+
+                Assert.assertEquals(0, callState.detachCalls);
+                Assert.assertEquals(0, testController.currentCallState.detachCalls);
+
+                Assert.assertEquals(0, callState.destroyViewCalls);
+                Assert.assertEquals(0, testController.currentCallState.destroyViewCalls);
+
+                Assert.assertEquals(0, callState.destroyCalls);
+                Assert.assertEquals(0, testController.currentCallState.destroyCalls);
+            }
+
+            @Override
+            public void preAttach(@NonNull Controller controller, @NonNull View view) {
+                callState.attachCalls++;
+                Assert.assertEquals(2, callState.createViewCalls);
+                Assert.assertEquals(1, testController.currentCallState.createViewCalls);
+
+                Assert.assertEquals(1, callState.attachCalls);
+                Assert.assertEquals(0, testController.currentCallState.attachCalls);
+
+                Assert.assertEquals(0, callState.detachCalls);
+                Assert.assertEquals(0, testController.currentCallState.detachCalls);
+
+                Assert.assertEquals(0, callState.destroyViewCalls);
+                Assert.assertEquals(0, testController.currentCallState.destroyViewCalls);
+
+                Assert.assertEquals(0, callState.destroyCalls);
+                Assert.assertEquals(0, testController.currentCallState.destroyCalls);
+            }
+
+            @Override
+            public void postAttach(@NonNull Controller controller, @NonNull View view) {
+                callState.attachCalls++;
+                Assert.assertEquals(2, callState.createViewCalls);
+                Assert.assertEquals(1, testController.currentCallState.createViewCalls);
+
+                Assert.assertEquals(2, callState.attachCalls);
+                Assert.assertEquals(1, testController.currentCallState.attachCalls);
+
+                Assert.assertEquals(0, callState.detachCalls);
+                Assert.assertEquals(0, testController.currentCallState.detachCalls);
+
+                Assert.assertEquals(0, callState.destroyViewCalls);
+                Assert.assertEquals(0, testController.currentCallState.destroyViewCalls);
+
+                Assert.assertEquals(0, callState.destroyCalls);
+                Assert.assertEquals(0, testController.currentCallState.destroyCalls);
+            }
+
+            @Override
+            public void preDetach(@NonNull Controller controller, @NonNull View view) {
+                callState.detachCalls++;
+                Assert.assertEquals(2, callState.createViewCalls);
+                Assert.assertEquals(1, testController.currentCallState.createViewCalls);
+
+                Assert.assertEquals(2, callState.attachCalls);
+                Assert.assertEquals(1, testController.currentCallState.attachCalls);
+
+                Assert.assertEquals(1, callState.detachCalls);
+                Assert.assertEquals(0, testController.currentCallState.detachCalls);
+
+                Assert.assertEquals(0, callState.destroyViewCalls);
+                Assert.assertEquals(0, testController.currentCallState.destroyViewCalls);
+
+                Assert.assertEquals(0, callState.destroyCalls);
+                Assert.assertEquals(0, testController.currentCallState.destroyCalls);
+            }
+
+            @Override
+            public void postDetach(@NonNull Controller controller, @NonNull View view) {
+                callState.detachCalls++;
+                Assert.assertEquals(2, callState.createViewCalls);
+                Assert.assertEquals(1, testController.currentCallState.createViewCalls);
+
+                Assert.assertEquals(2, callState.attachCalls);
+                Assert.assertEquals(1, testController.currentCallState.attachCalls);
+
+                Assert.assertEquals(2, callState.detachCalls);
+                Assert.assertEquals(1, testController.currentCallState.detachCalls);
+
+                Assert.assertEquals(0, callState.destroyViewCalls);
+                Assert.assertEquals(0, testController.currentCallState.destroyViewCalls);
+
+                Assert.assertEquals(0, callState.destroyCalls);
+                Assert.assertEquals(0, testController.currentCallState.destroyCalls);
+            }
+
+            @Override
+            public void preDestroyView(@NonNull Controller controller, @NonNull View view) {
+                callState.destroyViewCalls++;
+                Assert.assertEquals(2, callState.createViewCalls);
+                Assert.assertEquals(1, testController.currentCallState.createViewCalls);
+
+                Assert.assertEquals(2, callState.attachCalls);
+                Assert.assertEquals(1, testController.currentCallState.attachCalls);
+
+                Assert.assertEquals(2, callState.detachCalls);
+                Assert.assertEquals(1, testController.currentCallState.detachCalls);
+
+                Assert.assertEquals(1, callState.destroyViewCalls);
+                Assert.assertEquals(0, testController.currentCallState.destroyViewCalls);
+
+                Assert.assertEquals(0, callState.destroyCalls);
+                Assert.assertEquals(0, testController.currentCallState.destroyCalls);
+            }
+
+            @Override
+            public void postDestroyView(@NonNull Controller controller) {
+                callState.destroyViewCalls++;
+                Assert.assertEquals(2, callState.createViewCalls);
+                Assert.assertEquals(1, testController.currentCallState.createViewCalls);
+
+                Assert.assertEquals(2, callState.attachCalls);
+                Assert.assertEquals(1, testController.currentCallState.attachCalls);
+
+                Assert.assertEquals(2, callState.detachCalls);
+                Assert.assertEquals(1, testController.currentCallState.detachCalls);
+
+                Assert.assertEquals(2, callState.destroyViewCalls);
+                Assert.assertEquals(1, testController.currentCallState.destroyViewCalls);
+
+                Assert.assertEquals(0, callState.destroyCalls);
+                Assert.assertEquals(0, testController.currentCallState.destroyCalls);
+            }
+
+            @Override
+            public void preDestroy(@NonNull Controller controller) {
+                callState.destroyCalls++;
+                Assert.assertEquals(2, callState.createViewCalls);
+                Assert.assertEquals(1, testController.currentCallState.createViewCalls);
+
+                Assert.assertEquals(2, callState.attachCalls);
+                Assert.assertEquals(1, testController.currentCallState.attachCalls);
+
+                Assert.assertEquals(2, callState.detachCalls);
+                Assert.assertEquals(1, testController.currentCallState.detachCalls);
+
+                Assert.assertEquals(2, callState.destroyViewCalls);
+                Assert.assertEquals(1, testController.currentCallState.destroyViewCalls);
+
+                Assert.assertEquals(1, callState.destroyCalls);
+                Assert.assertEquals(0, testController.currentCallState.destroyCalls);
+            }
+
+            @Override
+            public void postDestroy(@NonNull Controller controller) {
+                callState.destroyCalls++;
+                Assert.assertEquals(2, callState.createViewCalls);
+                Assert.assertEquals(1, testController.currentCallState.createViewCalls);
+
+                Assert.assertEquals(2, callState.attachCalls);
+                Assert.assertEquals(1, testController.currentCallState.attachCalls);
+
+                Assert.assertEquals(2, callState.detachCalls);
+                Assert.assertEquals(1, testController.currentCallState.detachCalls);
+
+                Assert.assertEquals(2, callState.destroyViewCalls);
+                Assert.assertEquals(1, testController.currentCallState.destroyViewCalls);
+
+                Assert.assertEquals(2, callState.destroyCalls);
+                Assert.assertEquals(1, testController.currentCallState.destroyCalls);
+            }
+        });
+
+        mRouter.pushController(RouterTransaction.builder(testController)
+                .pushChangeHandler(new ChangeHandler(new ChangeHandlerListener() {
+                    @Override
+                    public void performChange(@NonNull ViewGroup container, View from, View to, boolean isPush, @NonNull ControllerChangeCompletedListener changeListener) {
+                        container.addView(to);
+                        ViewUtils.setAttached(to, true);
+                        changeListener.onChangeCompleted();
+                    }
+                }))
+                .popChangeHandler(new ChangeHandler(new ChangeHandlerListener() {
+                    @Override
+                    public void performChange(@NonNull ViewGroup container, View from, View to, boolean isPush, @NonNull ControllerChangeCompletedListener changeListener) {
+                        container.removeView(from);
+                        ViewUtils.setAttached(from, false);
+                        changeListener.onChangeCompleted();
+                    }
+                }))
+                .build());
+
+        mRouter.popController(testController);
+
+        Assert.assertEquals(2, callState.createViewCalls);
+        Assert.assertEquals(2, callState.attachCalls);
+        Assert.assertEquals(2, callState.detachCalls);
+        Assert.assertEquals(2, callState.destroyViewCalls);
+        Assert.assertEquals(2, callState.destroyCalls);
+    }
+
+    @Test
     public void testChildLifecycle() {
         Controller parent = new TestController();
         mRouter.pushController(RouterTransaction.builder(parent)

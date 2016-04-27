@@ -812,13 +812,13 @@ public abstract class Controller {
                     container.removeView(child.controller.getView());
                 }
             }
+            
+            for (LifecycleListener lifecycleListener : mLifecycleListeners) {
+                lifecycleListener.postDetach(this, view);
+            }
 
             if (removeViewRef) {
                 removeViewReference();
-            }
-
-            for (LifecycleListener lifecycleListener : mLifecycleListeners) {
-                lifecycleListener.postDetach(this, view);
             }
         } else if (removeViewRef) {
             removeViewReference();
