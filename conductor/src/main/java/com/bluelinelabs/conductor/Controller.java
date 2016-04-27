@@ -71,6 +71,7 @@ public abstract class Controller {
     private ControllerChangeHandler mOverriddenPushHandler;
     private ControllerChangeHandler mOverriddenPopHandler;
     private RetainViewMode mRetainViewMode = RetainViewMode.RELEASE_DETACH;
+    private OnAttachStateChangeListener mOnAttachStateChangeListener;
     private final List<ChildControllerTransaction> mChildControllers = new ArrayList<>();
     private final List<LifecycleListener> mLifecycleListeners = new ArrayList<>();
     private final ArrayList<String> mRequestedPermissions = new ArrayList<>();
@@ -836,6 +837,7 @@ public abstract class Controller {
 
             onDestroyView(mView);
 
+            mView.removeOnAttachStateChangeListener(mOnAttachStateChangeListener);
             mView = null;
 
             for (LifecycleListener lifecycleListener : mLifecycleListeners) {
@@ -849,7 +851,6 @@ public abstract class Controller {
     }
 
     final View inflate(@NonNull ViewGroup parent) {
-
         if (mView != null && mView.getParent() != null && mView.getParent() != parent) {
             detach(mView, true);
         }
@@ -861,9 +862,13 @@ public abstract class Controller {
 
             mView = onCreateView(LayoutInflater.from(parent.getContext()), parent);
 
+            for (LifecycleListener lifecycleListener : mLifecycleListeners) {
+                lifecycleListener.postCreateView(this, mView);
+            }
+
             restoreViewState(mView);
 
-            mView.addOnAttachStateChangeListener(new OnAttachStateChangeListener() {
+            mOnAttachStateChangeListener = new OnAttachStateChangeListener() {
                 @Override
                 public void onViewAttachedToWindow(View v) {
                     if (v == mView) {
@@ -877,11 +882,8 @@ public abstract class Controller {
                     mViewIsAttached = false;
                     detach(v, true);
                 }
-            });
-
-            for (LifecycleListener lifecycleListener : mLifecycleListeners) {
-                lifecycleListener.postCreateView(this, mView);
-            }
+            };
+            mView.addOnAttachStateChangeListener(mOnAttachStateChangeListener);
         }
 
         return mView;
