@@ -101,10 +101,10 @@ public class TargetDisplayController extends BaseController implements TargetTit
 
     private void setImageView() {
         Picasso.with(getActivity())
-                .load(mImageUri)
+                .load(imageUri)
                 .fit()
                 .centerCrop()
-                .into(mImageView);
+                .into(imageView);
     }
 
     private void setTextView() {
