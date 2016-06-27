@@ -12,7 +12,7 @@ import com.bluelinelabs.conductor.Controller;
 import com.bluelinelabs.conductor.demo.R;
 import com.bluelinelabs.conductor.demo.controllers.base.BaseController;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.OnClick;
 
 public class TargetTitleEntryController extends BaseController {
@@ -21,14 +21,13 @@ public class TargetTitleEntryController extends BaseController {
         void onTitlePicked(String option);
     }
 
-    @Bind(R.id.edit_text) EditText mEditText;
+    @BindView(R.id.edit_text) EditText editText;
 
     public <T extends Controller & TargetTitleEntryControllerListener> TargetTitleEntryController(T targetController) {
         setTargetController(targetController);
     }
 
-    public TargetTitleEntryController() {
-    }
+    public TargetTitleEntryController() { }
 
     @Override
     protected void onDetach(@NonNull View view) {
@@ -50,7 +49,7 @@ public class TargetTitleEntryController extends BaseController {
     @OnClick(R.id.btn_use_title) void optionPicked() {
         Controller targetController = getTargetController();
         if (targetController != null) {
-            ((TargetTitleEntryControllerListener)targetController).onTitlePicked(mEditText.getText().toString());
+            ((TargetTitleEntryControllerListener)targetController).onTitlePicked(editText.getText().toString());
             getRouter().popController(this);
         }
     }

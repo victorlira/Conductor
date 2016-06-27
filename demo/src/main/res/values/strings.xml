@@ -34,4 +34,7 @@
     <string name="next_controller_retain">Push Controller, retaining this View</string>
     <string name="next_controller_release">Push Controller, releasing this View</string>
 
+    <!-- Master/Detail Demo -->
+    <string name="rotate_for_two_pane">Rotate your device for a two pane view.</string>
+
 </resources>

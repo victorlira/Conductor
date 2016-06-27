@@ -20,7 +20,7 @@ import com.bluelinelabs.conductor.demo.controllers.TargetTitleEntryController.Ta
 import com.bluelinelabs.conductor.demo.controllers.base.BaseController;
 import com.squareup.picasso.Picasso;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.OnClick;
 
 public class TargetDisplayController extends BaseController implements TargetTitleEntryControllerListener {
@@ -30,11 +30,11 @@ public class TargetDisplayController extends BaseController implements TargetTit
     private static final String KEY_SELECTED_TEXT = "TargetDisplayController.selectedText";
     private static final String KEY_SELECTED_IMAGE = "TargetDisplayController.selectedImage";
 
-    @Bind(R.id.tv_selection) TextView mTvSelection;
-    @Bind(R.id.image_view) ImageView mImageView;
+    @BindView(R.id.tv_selection) TextView tvSelection;
+    @BindView(R.id.image_view) ImageView imageView;
 
-    private String mSelectedText;
-    private Uri mImageUri;
+    private String selectedText;
+    private Uri imageUri;
 
     @NonNull
     @Override
@@ -43,10 +43,9 @@ public class TargetDisplayController extends BaseController implements TargetTit
     }
 
     @OnClick(R.id.btn_pick_title) void launchTitlePicker() {
-        getRouter().pushController(RouterTransaction.builder(new TargetTitleEntryController(this))
+        getRouter().pushController(RouterTransaction.with(new TargetTitleEntryController(this))
                 .pushChangeHandler(new HorizontalChangeHandler())
-                .popChangeHandler(new HorizontalChangeHandler())
-                .build());
+                .popChangeHandler(new HorizontalChangeHandler()));
     }
 
     @OnClick(R.id.btn_pick_image) void launchImagePicker() {
@@ -58,14 +57,14 @@ public class TargetDisplayController extends BaseController implements TargetTit
 
     @Override
     public void onTitlePicked(String option) {
-        mSelectedText = option;
+        selectedText = option;
         setTextView();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SELECT_IMAGE && resultCode == Activity.RESULT_OK) {
-            mImageUri = data.getData();
+            imageUri = data.getData();
             setImageView();
         }
     }
@@ -80,18 +79,18 @@ public class TargetDisplayController extends BaseController implements TargetTit
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(KEY_SELECTED_TEXT, mSelectedText);
-        outState.putString(KEY_SELECTED_IMAGE, mImageUri != null ? mImageUri.toString() : null);
+        outState.putString(KEY_SELECTED_TEXT, selectedText);
+        outState.putString(KEY_SELECTED_IMAGE, imageUri != null ? imageUri.toString() : null);
     }
 
     @Override
     public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        mSelectedText = savedInstanceState.getString(KEY_SELECTED_TEXT);
+        selectedText = savedInstanceState.getString(KEY_SELECTED_TEXT);
 
         String uriString = savedInstanceState.getString(KEY_SELECTED_IMAGE);
         if (!TextUtils.isEmpty(uriString)) {
-            mImageUri = Uri.parse(uriString);
+            imageUri = Uri.parse(uriString);
         }
     }
 
@@ -109,11 +108,11 @@ public class TargetDisplayController extends BaseController implements TargetTit
     }
 
     private void setTextView() {
-        if (mTvSelection != null) {
-            if (!TextUtils.isEmpty(mSelectedText)) {
-                mTvSelection.setText(mSelectedText);
+        if (tvSelection != null) {
+            if (!TextUtils.isEmpty(selectedText)) {
+                tvSelection.setText(selectedText);
             } else {
-                mTvSelection.setText("Press pick title to set this title, or pick image to fill in the image view.");
+                tvSelection.setText("Press pick title to set this title, or pick image to fill in the image view.");
             }
         }
     }

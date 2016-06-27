@@ -14,7 +14,7 @@ import com.bluelinelabs.conductor.demo.controllers.base.BaseController;
 import com.bluelinelabs.conductor.demo.util.BundleBuilder;
 import com.bluelinelabs.conductor.demo.util.ColorUtil;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.OnClick;
 
 public class NavigationDemoController extends BaseController {
@@ -22,20 +22,24 @@ public class NavigationDemoController extends BaseController {
     public static final String TAG_UP_TRANSACTION = "NavigationDemoController.up";
 
     private static final String KEY_INDEX = "NavigationDemoController.index";
+    private static final String KEY_DISPLAY_UP = "NavigationDemoController.displayUp";
 
-    @Bind(R.id.tv_title) TextView mTvTitle;
+    @BindView(R.id.tv_title) TextView tvTitle;
 
-    private int mIndex;
+    private int index;
+    private boolean displayUp;
 
-    public NavigationDemoController(int index) {
+    public NavigationDemoController(int index, boolean displayUpButton) {
         this(new BundleBuilder(new Bundle())
                 .putInt(KEY_INDEX, index)
+                .putBoolean(KEY_DISPLAY_UP, displayUpButton)
                 .build());
     }
 
     public NavigationDemoController(Bundle args) {
         super(args);
-        mIndex = args.getInt(KEY_INDEX);
+        index = args.getInt(KEY_INDEX);
+        displayUp = args.getBoolean(KEY_DISPLAY_UP);
     }
 
     @NonNull
@@ -48,8 +52,12 @@ public class NavigationDemoController extends BaseController {
     protected void onViewBound(@NonNull View view) {
         super.onViewBound(view);
 
-        view.setBackgroundColor(ColorUtil.getMaterialColor(getResources(), mIndex));
-        mTvTitle.setText(getResources().getString(R.string.navigation_title, mIndex));
+        if (!displayUp) {
+            view.findViewById(R.id.btn_up).setVisibility(View.GONE);
+        }
+
+        view.setBackgroundColor(ColorUtil.getMaterialColor(getResources(), index));
+        tvTitle.setText(getResources().getString(R.string.navigation_title, index));
     }
 
     @Override
@@ -58,11 +66,9 @@ public class NavigationDemoController extends BaseController {
     }
 
     @OnClick(R.id.btn_next) void onNextClicked() {
-        getRouter().pushController(RouterTransaction.builder(new NavigationDemoController(mIndex + 1))
+        getRouter().pushController(RouterTransaction.with(new NavigationDemoController(index + 1, displayUp))
                 .pushChangeHandler(new HorizontalChangeHandler())
-                .popChangeHandler(new HorizontalChangeHandler())
-                .build()
-        );
+                .popChangeHandler(new HorizontalChangeHandler()));
     }
 
     @OnClick(R.id.btn_up) void onUpClicked() {

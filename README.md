@@ -20,21 +20,22 @@ Conductor is architecture-agnostic and does not try to force any design decision
 ## Installation
 
 ```gradle
-compile 'com.bluelinelabs:conductor:1.1.6'
+compile 'com.bluelinelabs:conductor:2.0.0'
 
 // If you want the components that go along with
 // Android's support libraries (currently just a PagerAdapter):
-compile 'com.bluelinelabs:conductor-support:1.1.6'
+compile 'com.bluelinelabs:conductor-support:2.0.0'
 
 // If you want RxJava/RxAndroid lifecycle support:
-compile 'com.bluelinelabs:conductor-rxlifecycle:1.1.6'
+compile 'com.bluelinelabs:conductor-rxlifecycle:2.0.0'
 ```
 
 SNAPSHOT:
+
 ```gradle
-compile 'com.bluelinelabs:conductor:1.1.7-SNAPSHOT'
-compile 'com.bluelinelabs:conductor-support:1.1.7-SNAPSHOT'
-compile 'com.bluelinelabs:conductor-rxlifecycle:1.1.7-SNAPSHOT'
+compile 'com.bluelinelabs:conductor:2.0.1-SNAPSHOT'
+compile 'com.bluelinelabs:conductor-support:2.0.1-SNAPSHOT'
+compile 'com.bluelinelabs:conductor-rxlifecycle:2.0.1-SNAPSHOT'
 ```
 
 ## Components to Know
@@ -53,7 +54,7 @@ __ControllerTransaction__ | Transactions are used to define data about adding Co
 ```java
 public class MainActivity extends Activity {
 
-    private Router mRouter;
+    private Router router;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,17 +62,17 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.activity_main);
 
-        ViewGroup container = (ViewGroup)findViewById(R.id.controller_container)
+        ViewGroup container = (ViewGroup)findViewById(R.id.controller_container);
 
-        mRouter = Conductor.attachRouter(this, container, savedInstanceState);
-        if (!mRouter.hasRootController()) {
-            mRouter.setRoot(new HomeController());
+        router = Conductor.attachRouter(this, container, savedInstanceState);
+        if (!router.hasRootController()) {
+            router.setRoot(RouterTransaction.with(new HomeController()));
         }
     }
 
     @Override
     public void onBackPressed() {
-        if (!mRouter.handleBack()) {
+        if (!router.handleBack()) {
             super.onBackPressed();
         }
     }
@@ -112,8 +113,8 @@ The lifecycle of a Controller is significantly simpler to understand than that o
 ### Custom Change Handlers
 `ControllerChangeHandler` can be subclassed in order to perform different functions when changing between two `Controllers`. Two convenience `ControllerChangeHandler` subclasses are included to cover most basic needs: `AnimatorChangeHandler`, which will use an `Animator` object to transition between two views, and `TransitionChangeHandler`, which will use Lollipop's `Transition` framework for transitioning between views.
 
-### Child Controllers
-`addChildController` can be called on a `Controller` in order to add nested `Controller`s. Child `Controller`s will receive all lifecycle callbacks that parents get.
+### Child Routers & Controllers
+`getChildController` can be called on a `Controller` in order to get a nested `Router` into which child `Controller`s can be pushed. This enables creating advanced layouts, such as Master/Detail.
 
 ### RxJava Lifecycle
 If the RxLifecycle dependency has been added, there is an `RxController` available that can be used along with the standard [RxLifecycle library](https://github.com/trello/RxLifecycle). There is also a `ControllerLifecycleProvider` available if you do not wish to use this subclass.

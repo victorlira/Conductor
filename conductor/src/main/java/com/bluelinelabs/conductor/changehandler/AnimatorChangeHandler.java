@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
+import com.bluelinelabs.conductor.Controller;
 import com.bluelinelabs.conductor.ControllerChangeHandler;
 
 /**
@@ -20,8 +21,10 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
 
     public static final long DEFAULT_ANIMATION_DURATION = -1;
 
-    private long mAnimationDuration;
-    private boolean mRemovesFromViewOnPush;
+    private long animationDuration;
+    private boolean removesFromViewOnPush;
+    private boolean canceled;
+    private Animator animator;
 
     public AnimatorChangeHandler() {
         this(DEFAULT_ANIMATION_DURATION, true);
@@ -36,30 +39,40 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
     }
 
     public AnimatorChangeHandler(long duration, boolean removesFromViewOnPush) {
-        mAnimationDuration = duration;
-        mRemovesFromViewOnPush = removesFromViewOnPush;
+        animationDuration = duration;
+        this.removesFromViewOnPush = removesFromViewOnPush;
     }
 
     @Override
     public void saveToBundle(@NonNull Bundle bundle) {
         super.saveToBundle(bundle);
-        bundle.putLong(KEY_DURATION, mAnimationDuration);
-        bundle.putBoolean(KEY_REMOVES_FROM_ON_PUSH, mRemovesFromViewOnPush);
+        bundle.putLong(KEY_DURATION, animationDuration);
+        bundle.putBoolean(KEY_REMOVES_FROM_ON_PUSH, removesFromViewOnPush);
     }
 
     @Override
     public void restoreFromBundle(@NonNull Bundle bundle) {
         super.restoreFromBundle(bundle);
-        mAnimationDuration = bundle.getLong(KEY_DURATION);
-        mRemovesFromViewOnPush = bundle.getBoolean(KEY_REMOVES_FROM_ON_PUSH);
+        animationDuration = bundle.getLong(KEY_DURATION);
+        removesFromViewOnPush = bundle.getBoolean(KEY_REMOVES_FROM_ON_PUSH);
+    }
+
+    @Override
+    public void onAbortPush(@NonNull ControllerChangeHandler newHandler, Controller newTop) {
+        super.onAbortPush(newHandler, newTop);
+
+        canceled = true;
+        if (animator != null) {
+            animator.cancel();
+        }
     }
 
     public long getAnimationDuration() {
-        return mAnimationDuration;
+        return animationDuration;
     }
 
     public boolean removesFromViewOnPush() {
-        return mRemovesFromViewOnPush;
+        return removesFromViewOnPush;
     }
 
     /**
@@ -112,10 +125,15 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
     }
 
     private void performAnimation(@NonNull final ViewGroup container, final View from, View to, final boolean isPush, final boolean toAddedToContainer, @NonNull final ControllerChangeCompletedListener changeListener) {
-        Animator animator = getAnimator(container, from, to, isPush, toAddedToContainer);
+        if (canceled) {
+            changeListener.onChangeCompleted();
+            return;
+        }
 
-        if (mAnimationDuration > 0) {
-            animator.setDuration(mAnimationDuration);
+        animator = getAnimator(container, from, to, isPush, toAddedToContainer);
+
+        if (animationDuration > 0) {
+            animator.setDuration(animationDuration);
         }
 
         animator.addListener(new AnimatorListenerAdapter() {
@@ -126,7 +144,7 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                if (from != null && (!isPush || mRemovesFromViewOnPush)) {
+                if (from != null && (!isPush || removesFromViewOnPush)) {
                     container.removeView(from);
                 }
 

@@ -7,17 +7,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.bluelinelabs.conductor.demo.util.BundleBuilder;
 import com.bluelinelabs.conductor.demo.R;
 import com.bluelinelabs.conductor.demo.controllers.base.BaseController;
+import com.bluelinelabs.conductor.demo.util.BundleBuilder;
 
-import butterknife.Bind;
+import butterknife.BindView;
 
 public class TextController extends BaseController {
 
     private static final String KEY_TEXT = "TextController.text";
 
-    @Bind(R.id.text_view) TextView mTextView;
+    @BindView(R.id.text_view) TextView textView;
 
     public TextController(String text) {
         this(new BundleBuilder(new Bundle())
@@ -39,7 +39,7 @@ public class TextController extends BaseController {
     @Override
     public void onViewBound(@NonNull View view) {
         super.onViewBound(view);
-        mTextView.setText(getArgs().getString(KEY_TEXT));
+        textView.setText(getArgs().getString(KEY_TEXT));
     }
 
 }

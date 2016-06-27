@@ -22,15 +22,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bluelinelabs.conductor.ChildControllerTransaction;
 import com.bluelinelabs.conductor.ControllerChangeHandler;
-import com.bluelinelabs.conductor.ControllerTransaction.ControllerChangeType;
+import com.bluelinelabs.conductor.ControllerChangeType;
 import com.bluelinelabs.conductor.RouterTransaction;
 import com.bluelinelabs.conductor.changehandler.FadeChangeHandler;
 import com.bluelinelabs.conductor.demo.R;
 import com.bluelinelabs.conductor.demo.controllers.base.BaseController;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -39,12 +38,14 @@ public class HomeController extends BaseController {
     public enum HomeDemoModel {
         NAVIGATION("Navigation Demos", R.color.red_300),
         TRANSITIONS("Transition Demos", R.color.blue_grey_300),
-        OVERLAY("Overlay Controller", R.color.purple_300),
         CHILD_CONTROLLERS("Child Controllers", R.color.orange_300),
         VIEW_PAGER("ViewPager", R.color.green_300),
         TARGET_CONTROLLER("Target Controller", R.color.pink_300),
+        MULTIPLE_CHILD_ROUTERS("Multiple Child Routers", R.color.deep_orange_300),
+        MASTER_DETAIL("Master Detail", R.color.grey_300),
         DRAG_DISMISS("Drag Dismiss", R.color.lime_300),
-        RX_LIFECYCLE("Rx Lifecycle", R.color.teal_300);
+        RX_LIFECYCLE("Rx Lifecycle", R.color.teal_300),
+        OVERLAY("Overlay Controller", R.color.purple_300);
 
         String title;
         @ColorRes int color;
@@ -55,7 +56,8 @@ public class HomeController extends BaseController {
         }
     }
 
-    @Bind(R.id.recycler_view) RecyclerView mRecyclerView;
+    @BindView(R.id.recycler_view) RecyclerView recyclerView;
+    @BindView(R.id.overlay_root) ViewGroup overlayRoot;
 
     public HomeController() {
         setHasOptionsMenu(true);
@@ -71,15 +73,15 @@ public class HomeController extends BaseController {
     protected void onViewBound(@NonNull View view) {
         super.onViewBound(view);
 
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
-        mRecyclerView.setAdapter(new HomeAdapter(LayoutInflater.from(view.getContext()), HomeDemoModel.values()));
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        recyclerView.setAdapter(new HomeAdapter(LayoutInflater.from(view.getContext()), HomeDemoModel.values()));
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-       inflater.inflate(R.menu.home, menu);
+        inflater.inflate(R.menu.home, menu);
     }
 
     @Override
@@ -113,11 +115,11 @@ public class HomeController extends BaseController {
             content.append("\n\n");
             content.append(link);
 
-            addChildController(ChildControllerTransaction.builder(new OverlayController(content), R.id.home_root)
-                    .pushChangeHandler(new FadeChangeHandler())
-                    .popChangeHandler(new FadeChangeHandler())
-                    .addToLocalBackstack(true)
-                    .build());
+            getChildRouter(overlayRoot, null)
+                    .setPopsLastView(true)
+                    .setRoot(RouterTransaction.with(new OverlayController(content))
+                            .pushChangeHandler(new FadeChangeHandler())
+                            .popChangeHandler(new FadeChangeHandler()));
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -131,85 +133,91 @@ public class HomeController extends BaseController {
     void onModelRowClick(HomeDemoModel model) {
         switch (model) {
             case NAVIGATION:
-                getRouter().pushController(RouterTransaction.builder(new NavigationDemoController(0))
+                getRouter().pushController(RouterTransaction.with(new NavigationDemoController(0, true))
                         .pushChangeHandler(new FadeChangeHandler())
                         .popChangeHandler(new FadeChangeHandler())
                         .tag(NavigationDemoController.TAG_UP_TRANSACTION)
-                        .build());
+                );
                 break;
             case TRANSITIONS:
                 getRouter().pushController(TransitionDemoController.getRouterTransaction(0, this));
                 break;
             case TARGET_CONTROLLER:
-                getRouter().pushController(RouterTransaction.builder(new TargetDisplayController())
-                        .pushChangeHandler(new FadeChangeHandler())
-                        .popChangeHandler(new FadeChangeHandler())
-                        .build());
+                getRouter().pushController(
+                        RouterTransaction.with(new TargetDisplayController())
+                                .pushChangeHandler(new FadeChangeHandler())
+                                .popChangeHandler(new FadeChangeHandler()));
                 break;
             case VIEW_PAGER:
-                getRouter().pushController(RouterTransaction.builder(new PagerController())
+                getRouter().pushController(RouterTransaction.with(new PagerController())
                         .pushChangeHandler(new FadeChangeHandler())
-                        .popChangeHandler(new FadeChangeHandler())
-                        .build());
+                        .popChangeHandler(new FadeChangeHandler()));
                 break;
             case CHILD_CONTROLLERS:
-                getRouter().pushController(RouterTransaction.builder(new ParentController())
+                getRouter().pushController(RouterTransaction.with(new ParentController())
                         .pushChangeHandler(new FadeChangeHandler())
-                        .popChangeHandler(new FadeChangeHandler())
-                        .build());
+                        .popChangeHandler(new FadeChangeHandler()));
                 break;
             case OVERLAY:
-                addChildController(ChildControllerTransaction.builder(new OverlayController("I'm an Overlay!"), R.id.home_root)
-                        .pushChangeHandler(new FadeChangeHandler())
-                        .popChangeHandler(new FadeChangeHandler())
-                        .addToLocalBackstack(true)
-                        .build());
+                getChildRouter(overlayRoot, null)
+                        .setPopsLastView(true)
+                        .setRoot(RouterTransaction.with(new OverlayController("I'm an overlay!"))
+                                .pushChangeHandler(new FadeChangeHandler())
+                                .popChangeHandler(new FadeChangeHandler()));
                 break;
             case DRAG_DISMISS:
-                getRouter().pushController(RouterTransaction.builder(new DragDismissController())
+                getRouter().pushController(RouterTransaction.with(new DragDismissController())
                         .pushChangeHandler(new FadeChangeHandler(false))
-                        .popChangeHandler(new FadeChangeHandler())
-                        .build());
+                        .popChangeHandler(new FadeChangeHandler()));
                 break;
             case RX_LIFECYCLE:
-                getRouter().pushController(RouterTransaction.builder(new RxLifecycleController())
+                getRouter().pushController(RouterTransaction.with(new RxLifecycleController())
                         .pushChangeHandler(new FadeChangeHandler())
-                        .popChangeHandler(new FadeChangeHandler())
-                        .build());
+                        .popChangeHandler(new FadeChangeHandler()));
+                break;
+            case MULTIPLE_CHILD_ROUTERS:
+                getRouter().pushController(RouterTransaction.with(new MultipleChildRouterController())
+                        .pushChangeHandler(new FadeChangeHandler())
+                        .popChangeHandler(new FadeChangeHandler()));
+                break;
+            case MASTER_DETAIL:
+                getRouter().pushController(RouterTransaction.with(new MasterDetailListController())
+                        .pushChangeHandler(new FadeChangeHandler())
+                        .popChangeHandler(new FadeChangeHandler()));
                 break;
         }
     }
 
     class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
 
-        private final LayoutInflater mInflater;
-        private final HomeDemoModel[] mItems;
+        private final LayoutInflater inflater;
+        private final HomeDemoModel[] items;
 
         public HomeAdapter(LayoutInflater inflater, HomeDemoModel[] items) {
-            mInflater = inflater;
-            mItems = items;
+            this.inflater = inflater;
+            this.items = items;
         }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new ViewHolder(mInflater.inflate(R.layout.row_home, parent, false));
+            return new ViewHolder(inflater.inflate(R.layout.row_home, parent, false));
         }
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.bind(mItems[position]);
+            holder.bind(items[position]);
         }
 
         @Override
         public int getItemCount() {
-            return mItems.length;
+            return items.length;
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
 
-            @Bind(R.id.tv_title) TextView mTvTitle;
-            @Bind(R.id.img_dot) ImageView mImgDot;
-            private HomeDemoModel mModel;
+            @BindView(R.id.tv_title) TextView tvTitle;
+            @BindView(R.id.img_dot) ImageView imgDot;
+            private HomeDemoModel model;
 
             public ViewHolder(View itemView) {
                 super(itemView);
@@ -217,14 +225,14 @@ public class HomeController extends BaseController {
             }
 
             void bind(HomeDemoModel item) {
-                mModel = item;
-                mTvTitle.setText(item.title);
-                mImgDot.getDrawable().setColorFilter(ContextCompat.getColor(getActivity(), item.color), Mode.SRC_ATOP);
+                model = item;
+                tvTitle.setText(item.title);
+                imgDot.getDrawable().setColorFilter(ContextCompat.getColor(getActivity(), item.color), Mode.SRC_ATOP);
             }
 
             @OnClick(R.id.row_root)
             void onRowClick() {
-                onModelRowClick(mModel);
+                onModelRowClick(model);
             }
 
         }

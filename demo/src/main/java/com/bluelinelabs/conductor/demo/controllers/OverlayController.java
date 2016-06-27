@@ -12,13 +12,13 @@ import com.bluelinelabs.conductor.demo.R;
 import com.bluelinelabs.conductor.demo.controllers.base.BaseController;
 import com.bluelinelabs.conductor.demo.util.BundleBuilder;
 
-import butterknife.Bind;
+import butterknife.BindView;
 
 public class OverlayController extends BaseController {
 
     private static final String KEY_TEXT = "OverlayController.text";
 
-    @Bind(R.id.text_view) TextView mTextView;
+    @BindView(R.id.text_view) TextView textView;
 
     public OverlayController(CharSequence text) {
         this(new BundleBuilder(new Bundle())
@@ -39,8 +39,8 @@ public class OverlayController extends BaseController {
     @Override
     public void onViewBound(@NonNull View view) {
         super.onViewBound(view);
-        mTextView.setText(getArgs().getCharSequence(KEY_TEXT));
-        mTextView.setMovementMethod(LinkMovementMethod.getInstance());
+        textView.setText(getArgs().getCharSequence(KEY_TEXT));
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
 }
