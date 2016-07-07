@@ -734,7 +734,7 @@ public abstract class Controller {
         }
     }
 
-    private void detach(@NonNull View view, boolean forceViewRefRemoval) {
+    void detach(@NonNull View view, boolean forceViewRefRemoval) {
         for (ControllerHostedRouter router : childRouters) {
             router.prepareForHostDetach();
         }
@@ -1036,28 +1036,19 @@ public abstract class Controller {
     }
 
     final void createOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (attached) {
-            if (hasOptionsMenu && !optionsMenuHidden) {
-                onCreateOptionsMenu(menu, inflater);
-            }
+        if (attached && hasOptionsMenu && !optionsMenuHidden) {
+            onCreateOptionsMenu(menu, inflater);
         }
     }
 
     final void prepareOptionsMenu(Menu menu) {
-        if (attached) {
-            if (hasOptionsMenu && !optionsMenuHidden) {
-                onPrepareOptionsMenu(menu);
-            }
+        if (attached && hasOptionsMenu && !optionsMenuHidden) {
+            onPrepareOptionsMenu(menu);
         }
     }
 
     final boolean optionsItemSelected(MenuItem item) {
-        if (attached) {
-            if (hasOptionsMenu && !optionsMenuHidden && onOptionsItemSelected(item)) {
-                return true;
-            }
-        }
-        return false;
+        return attached && hasOptionsMenu && !optionsMenuHidden && onOptionsItemSelected(item);
     }
 
     private void monitorChildRouter(ControllerHostedRouter childRouter) {

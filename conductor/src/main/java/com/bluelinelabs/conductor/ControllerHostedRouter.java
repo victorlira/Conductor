@@ -12,7 +12,7 @@ import com.bluelinelabs.conductor.ControllerChangeHandler.ControllerChangeListen
 import java.util.ArrayList;
 import java.util.List;
 
-public class ControllerHostedRouter extends Router {
+class ControllerHostedRouter extends Router {
 
     private final String KEY_HOST_ID = "ControllerHostedRouter.hostId";
     private final String KEY_TAG = "ControllerHostedRouter.tag";
@@ -22,14 +22,14 @@ public class ControllerHostedRouter extends Router {
     @IdRes private int hostId;
     private String tag;
 
-    public ControllerHostedRouter() { }
+    ControllerHostedRouter() { }
 
-    public ControllerHostedRouter(int hostId, String tag) {
+    ControllerHostedRouter(int hostId, String tag) {
         this.hostId = hostId;
         this.tag = tag;
     }
 
-    public final void setHost(@NonNull Controller controller, @NonNull ViewGroup container) {
+    final void setHost(@NonNull Controller controller, @NonNull ViewGroup container) {
         if (hostController != controller || this.container != container) {
             removeHost();
 
@@ -42,9 +42,20 @@ public class ControllerHostedRouter extends Router {
         }
     }
 
-    public final void removeHost() {
+    final void removeHost() {
         if (container != null && container instanceof ControllerChangeListener) {
             removeChangeListener((ControllerChangeListener)container);
+        }
+
+        for (Controller controller : destroyingControllers) {
+            if (controller.getView() != null) {
+                controller.detach(controller.getView(), true);
+            }
+        }
+        for (RouterTransaction transaction : backStack) {
+            if (transaction.controller.getView() != null) {
+                transaction.controller.detach(transaction.controller.getView(), true);
+            }
         }
 
         prepareForContainerRemoval();
@@ -52,7 +63,7 @@ public class ControllerHostedRouter extends Router {
         container = null;
     }
 
-    public final void setDetachFrozen(boolean frozen) {
+    final void setDetachFrozen(boolean frozen) {
         for (RouterTransaction transaction : backStack) {
             transaction.controller.setDetachFrozen(frozen);
         }
@@ -153,11 +164,11 @@ public class ControllerHostedRouter extends Router {
         controller.setParentController(hostController);
     }
 
-    public int getHostId() {
+    int getHostId() {
         return hostId;
     }
 
-    public String getTag() {
+    String getTag() {
         return tag;
     }
 

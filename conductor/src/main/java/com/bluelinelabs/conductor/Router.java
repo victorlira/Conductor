@@ -31,7 +31,7 @@ public abstract class Router {
 
     protected final Backstack backStack = new Backstack();
     private final List<ControllerChangeListener> changeListeners = new ArrayList<>();
-    private final List<Controller> destroyingControllers = new ArrayList<>();
+    final List<Controller> destroyingControllers = new ArrayList<>();
 
     private boolean popsLastView = false;
 
