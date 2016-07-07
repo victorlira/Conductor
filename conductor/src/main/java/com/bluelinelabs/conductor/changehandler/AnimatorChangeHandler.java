@@ -124,7 +124,7 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
         }
     }
 
-    private void performAnimation(@NonNull final ViewGroup container, final View from, View to, final boolean isPush, final boolean toAddedToContainer, @NonNull final ControllerChangeCompletedListener changeListener) {
+    private void performAnimation(@NonNull final ViewGroup container, final View from, final View to, final boolean isPush, final boolean toAddedToContainer, @NonNull final ControllerChangeCompletedListener changeListener) {
         if (canceled) {
             changeListener.onChangeCompleted();
             return;
@@ -140,11 +140,12 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
             @Override
             public void onAnimationCancel(Animator animation) {
                 changeListener.onChangeCompleted();
+                container.removeView(to);
             }
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                if (from != null && (!isPush || removesFromViewOnPush)) {
+                if (from != null && (!isPush || removesFromViewOnPush) && !canceled) {
                     container.removeView(from);
                 }
 
