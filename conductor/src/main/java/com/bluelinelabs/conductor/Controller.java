@@ -910,6 +910,7 @@ public abstract class Controller {
 
                     if (containerView != null && containerView instanceof ViewGroup) {
                         childRouter.setHost(this, (ViewGroup)containerView);
+                        monitorChildRouter(childRouter);
                         childRouter.rebindIfNeeded();
                     }
                 }
