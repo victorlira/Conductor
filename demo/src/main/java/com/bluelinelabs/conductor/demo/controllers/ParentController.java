@@ -71,11 +71,19 @@ public class ParentController extends BaseController {
 
     @Override
     public boolean handleBack() {
-        if (!finishing) {
+        int childControllers = 0;
+        for (Router childRouter : getChildRouters()) {
+            if (childRouter.hasRootController()) {
+                childControllers++;
+            }
+        }
+
+        if (childControllers != NUMBER_OF_CHILDREN || finishing) {
+            return true;
+        } else {
             finishing = true;
             return super.handleBack();
         }
-        return true;
     }
 
     @Override
