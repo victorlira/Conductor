@@ -15,7 +15,6 @@ jdk:
 
 branches:
   only
-    - v2
     - develop
     - master
 

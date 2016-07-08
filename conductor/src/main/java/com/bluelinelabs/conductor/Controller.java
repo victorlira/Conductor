@@ -692,6 +692,8 @@ public abstract class Controller {
     final void activityResumed(Activity activity) {
         if (!attached && view != null && viewIsAttached) {
             attach(view);
+        } else {
+            needsAttach = false;
         }
 
         onActivityResumed(activity);
