@@ -138,7 +138,6 @@ public abstract class ControllerChangeHandler {
             handler.performChange(container, fromView, toView, isPush, new ControllerChangeCompletedListener() {
                 @Override
                 public void onChangeCompleted() {
-
                     if (from != null) {
                         from.changeEnded(handler, fromChangeType);
                     }
