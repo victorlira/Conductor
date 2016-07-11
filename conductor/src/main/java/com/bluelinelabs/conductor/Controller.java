@@ -54,6 +54,7 @@ public abstract class Controller {
     private static final String KEY_OVERRIDDEN_POP_HANDLER = "Controller.overriddenPopHandler";
     private static final String KEY_VIEW_STATE_HIERARCHY = "Controller.viewState.hierarchy";
     private static final String KEY_VIEW_STATE_BUNDLE = "Controller.viewState.bundle";
+    private static final String KEY_RETAIN_VIEW_MODE = "Controller.retainViewMode";
 
     private final Bundle args;
 
@@ -935,6 +936,7 @@ public abstract class Controller {
         outState.putString(KEY_TARGET_INSTANCE_ID, targetInstanceId);
         outState.putStringArrayList(KEY_REQUESTED_PERMISSIONS, requestedPermissions);
         outState.putBoolean(KEY_NEEDS_ATTACH, needsAttach || attached);
+        outState.putInt(KEY_RETAIN_VIEW_MODE, retainViewMode.ordinal());
 
         if (overriddenPushHandler != null) {
             outState.putBundle(KEY_OVERRIDDEN_PUSH_HANDLER, overriddenPushHandler.toBundle());
@@ -971,6 +973,7 @@ public abstract class Controller {
         overriddenPushHandler = ControllerChangeHandler.fromBundle(savedInstanceState.getBundle(KEY_OVERRIDDEN_PUSH_HANDLER));
         overriddenPopHandler = ControllerChangeHandler.fromBundle(savedInstanceState.getBundle(KEY_OVERRIDDEN_POP_HANDLER));
         needsAttach = savedInstanceState.getBoolean(KEY_NEEDS_ATTACH);
+        retainViewMode = RetainViewMode.values()[savedInstanceState.getInt(KEY_RETAIN_VIEW_MODE, 0)];
 
         List<Bundle> childBundles = savedInstanceState.getParcelableArrayList(KEY_CHILD_ROUTERS);
         for (Bundle childBundle : childBundles) {
@@ -1131,6 +1134,7 @@ public abstract class Controller {
 
         public void onSaveViewState(@NonNull Controller controller, @NonNull Bundle outState) { }
         public void onRestoreViewState(@NonNull Controller controller, @NonNull Bundle savedViewState) { }
+
     }
 
 }
