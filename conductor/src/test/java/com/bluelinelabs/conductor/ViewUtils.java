@@ -9,7 +9,7 @@ import java.util.List;
 
 public class ViewUtils {
 
-    static void setAttached(View view, boolean attached) {
+    public static void setAttached(View view, boolean attached) {
         Object listenerInfo = ReflectionHelpers.callInstanceMethod(view, "getListenerInfo");
         List<OnAttachStateChangeListener> listeners = ReflectionHelpers.getField(listenerInfo, "mOnAttachStateChangeListeners");
 
