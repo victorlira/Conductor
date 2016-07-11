@@ -161,6 +161,80 @@ public class ReattachCaseTests {
         Assert.assertFalse(childController.isAttached());
     }
 
+    // Attempt to test https://github.com/bluelinelabs/Conductor/issues/86#issuecomment-231381271
+    @Test
+    public void testReusedChildRouterHandleBackOnOrientation() {
+        TestController controllerA = new TestController();
+        TestController controllerB = new TestController();
+        TestController childController = new TestController();
+
+        router.pushController(RouterTransaction.with(controllerA)
+                .pushChangeHandler(getPushHandler())
+                .popChangeHandler(getPopHandler()));
+
+        Assert.assertTrue(controllerA.isAttached());
+        Assert.assertFalse(controllerB.isAttached());
+        Assert.assertFalse(childController.isAttached());
+
+        router.pushController(RouterTransaction.with(controllerB)
+                .pushChangeHandler(getPushHandler())
+                .popChangeHandler(getPopHandler()));
+
+        Router childRouter = controllerB.getChildRouter((ViewGroup)controllerB.getView().findViewById(TestController.VIEW_ID), null);
+        childRouter.setPopsLastView(true);
+        childRouter.pushController(RouterTransaction.with(childController)
+                .pushChangeHandler(getPushHandler())
+                .popChangeHandler(getPopHandler()));
+
+        Assert.assertFalse(controllerA.isAttached());
+        Assert.assertTrue(controllerB.isAttached());
+        Assert.assertTrue(childController.isAttached());
+
+        router.handleBack();
+
+        Assert.assertFalse(controllerA.isAttached());
+        Assert.assertTrue(controllerB.isAttached());
+        Assert.assertFalse(childController.isAttached());
+
+        childController = new TestController();
+        childRouter.pushController(RouterTransaction.with(childController)
+                .pushChangeHandler(getPushHandler())
+                .popChangeHandler(getPopHandler()));
+
+        Assert.assertFalse(controllerA.isAttached());
+        Assert.assertTrue(controllerB.isAttached());
+        Assert.assertTrue(childController.isAttached());
+
+        rotateDevice();
+
+        Assert.assertFalse(controllerA.isAttached());
+        Assert.assertTrue(controllerB.isAttached());
+        Assert.assertTrue(childController.isAttached());
+
+        router.handleBack();
+
+        childController = new TestController();
+        childRouter.pushController(RouterTransaction.with(childController)
+                .pushChangeHandler(getPushHandler())
+                .popChangeHandler(getPopHandler()));
+
+        Assert.assertFalse(controllerA.isAttached());
+        Assert.assertTrue(controllerB.isAttached());
+        Assert.assertTrue(childController.isAttached());
+
+        router.handleBack();
+
+        Assert.assertFalse(controllerA.isAttached());
+        Assert.assertTrue(controllerB.isAttached());
+        Assert.assertFalse(childController.isAttached());
+
+        router.handleBack();
+
+        Assert.assertTrue(controllerA.isAttached());
+        Assert.assertFalse(controllerB.isAttached());
+        Assert.assertFalse(childController.isAttached());
+    }
+
     private void sleepWakeDevice() {
         activityController.saveInstanceState(new Bundle()).pause();
         activityController.resume();
