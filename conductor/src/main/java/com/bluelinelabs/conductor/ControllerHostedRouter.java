@@ -70,6 +70,12 @@ class ControllerHostedRouter extends Router {
     }
 
     @Override
+    void destroy() {
+        setDetachFrozen(false);
+        super.destroy();
+    }
+
+    @Override
     public Activity getActivity() {
         return hostController != null ? hostController.getActivity() : null;
     }
