@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.bluelinelabs.conductor.Controller.LifecycleListener;
-import com.bluelinelabs.conductor.ControllerChangeHandler.ControllerChangeCompletedListener;
+import com.bluelinelabs.conductor.MockChangeHandler.ChangeHandlerListener;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -377,22 +377,8 @@ public class ControllerLifecycleTests {
         });
 
         router.pushController(RouterTransaction.with(testController)
-                .pushChangeHandler(new ChangeHandler(new ChangeHandlerListener() {
-                    @Override
-                    public void performChange(@NonNull ViewGroup container, View from, View to, boolean isPush, @NonNull ControllerChangeCompletedListener changeListener) {
-                        container.addView(to);
-                        ViewUtils.setAttached(to, true);
-                        changeListener.onChangeCompleted();
-                    }
-                }))
-                .popChangeHandler(new ChangeHandler(new ChangeHandlerListener() {
-                    @Override
-                    public void performChange(@NonNull ViewGroup container, View from, View to, boolean isPush, @NonNull ControllerChangeCompletedListener changeListener) {
-                        container.removeView(from);
-                        ViewUtils.setAttached(from, false);
-                        changeListener.onChangeCompleted();
-                    }
-                })));
+                .pushChangeHandler(new MockChangeHandler())
+                .popChangeHandler(new MockChangeHandler()));
 
         router.popController(testController);
 
@@ -407,14 +393,7 @@ public class ControllerLifecycleTests {
     public void testChildLifecycle() {
         Controller parent = new TestController();
         router.pushController(RouterTransaction.with(parent)
-                .pushChangeHandler(new ChangeHandler(new ChangeHandlerListener() {
-                    @Override
-                    public void performChange(@NonNull ViewGroup container, View from, View to, boolean isPush, @NonNull ControllerChangeCompletedListener changeListener) {
-                        container.addView(to);
-                        ViewUtils.setAttached(to, true);
-                        changeListener.onChangeCompleted();
-                    }
-                })));
+                .pushChangeHandler(new MockChangeHandler()));
 
         TestController child = new TestController();
         attachLifecycleListener(child);
@@ -440,22 +419,8 @@ public class ControllerLifecycleTests {
     public void testChildLifecycle2() {
         Controller parent = new TestController();
         router.pushController(RouterTransaction.with(parent)
-                .pushChangeHandler(new ChangeHandler(new ChangeHandlerListener() {
-                    @Override
-                    public void performChange(@NonNull ViewGroup container, View from, View to, boolean isPush, @NonNull ControllerChangeCompletedListener changeListener) {
-                        container.addView(to);
-                        ViewUtils.setAttached(to, true);
-                        changeListener.onChangeCompleted();
-                    }
-                }))
-                .popChangeHandler(new ChangeHandler(new ChangeHandlerListener() {
-                    @Override
-                    public void performChange(@NonNull ViewGroup container, View from, View to, boolean isPush, @NonNull ControllerChangeCompletedListener changeListener) {
-                        container.removeView(from);
-                        ViewUtils.setAttached(from, false);
-                        changeListener.onChangeCompleted();
-                    }
-                })));
+                .pushChangeHandler(new MockChangeHandler())
+                .popChangeHandler(new MockChangeHandler()));
 
         TestController child = new TestController();
         attachLifecycleListener(child);
@@ -477,44 +442,47 @@ public class ControllerLifecycleTests {
         assertCalls(expectedCallState, child);
     }
 
-    private ChangeHandler getPushHandler(final CallState expectedCallState, final TestController controller) {
-        return new ChangeHandler(new ChangeHandlerListener() {
+    private MockChangeHandler getPushHandler(final CallState expectedCallState, final TestController controller) {
+        return new MockChangeHandler(new ChangeHandlerListener() {
             @Override
-            public void performChange(@NonNull ViewGroup container, View from, View to, boolean isPush, @NonNull ControllerChangeCompletedListener changeListener) {
+            void willStartChange() {
                 expectedCallState.changeStartCalls++;
                 expectedCallState.createViewCalls++;
                 assertCalls(expectedCallState, controller);
+            }
 
-                container.addView(to);
-                ViewUtils.setAttached(to, true);
-
+            @Override
+            void didAttachOrDetach() {
                 expectedCallState.attachCalls++;
                 assertCalls(expectedCallState, controller);
+            }
 
-                changeListener.onChangeCompleted();
-
+            @Override
+            void didEndChange() {
                 expectedCallState.changeEndCalls++;
                 assertCalls(expectedCallState, controller);
             }
         });
     }
 
-    private ChangeHandler getPopHandler(final CallState expectedCallState, final TestController controller) {
-        return new ChangeHandler(new ChangeHandlerListener() {
+    private MockChangeHandler getPopHandler(final CallState expectedCallState, final TestController controller) {
+        return new MockChangeHandler(new ChangeHandlerListener() {
             @Override
-            public void performChange(@NonNull ViewGroup container, View from, View to, boolean isPush, @NonNull ControllerChangeCompletedListener changeListener) {
+            void willStartChange() {
                 expectedCallState.changeStartCalls++;
                 assertCalls(expectedCallState, controller);
-                container.removeView(from);
-                ViewUtils.setAttached(from, false);
+            }
 
+            @Override
+            void didAttachOrDetach() {
                 expectedCallState.destroyViewCalls++;
                 expectedCallState.detachCalls++;
                 expectedCallState.destroyCalls++;
                 assertCalls(expectedCallState, controller);
+            }
 
-                changeListener.onChangeCompleted();
-
+            @Override
+            void didEndChange() {
                 expectedCallState.changeEndCalls++;
                 assertCalls(expectedCallState, controller);
             }
@@ -583,26 +551,6 @@ public class ControllerLifecycleTests {
                 currentCallState.restoreViewStateCalls++;
             }
         });
-    }
-
-    interface ChangeHandlerListener {
-        void performChange(@NonNull ViewGroup container, View from, View to, boolean isPush, @NonNull ControllerChangeCompletedListener changeListener);
-    }
-
-    public static class ChangeHandler extends ControllerChangeHandler {
-
-        private ChangeHandlerListener listener;
-
-        public ChangeHandler() { }
-
-        public ChangeHandler(ChangeHandlerListener listener) {
-            this.listener = listener;
-        }
-
-        @Override
-        public void performChange(@NonNull ViewGroup container, View from, View to, boolean isPush, @NonNull ControllerChangeCompletedListener changeListener) {
-            listener.performChange(container, from, to, isPush, changeListener);
-        }
     }
 
 }

@@ -92,4 +92,9 @@ public class ActivityHostedRouter extends Router {
     List<Router> getSiblingRouters() {
         return lifecycleHandler.getRouters();
     }
+
+    @Override
+    Router getRootRouter() {
+        return this;
+    }
 }

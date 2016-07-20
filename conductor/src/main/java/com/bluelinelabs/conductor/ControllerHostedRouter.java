@@ -185,4 +185,13 @@ class ControllerHostedRouter extends Router {
         list.addAll(hostController.getRouter().getSiblingRouters());
         return list;
     }
+
+    @Override
+    Router getRootRouter() {
+        if (hostController != null && hostController.getRouter() != null) {
+            return hostController.getRouter().getRootRouter();
+        } else {
+            return this;
+        }
+    }
 }

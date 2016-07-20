@@ -638,4 +638,5 @@ public abstract class Router {
     abstract void requestPermissions(String instanceId, String[] permissions, int requestCode);
     abstract boolean hasHost();
     abstract List<Router> getSiblingRouters();
+    abstract Router getRootRouter();
 }

@@ -313,7 +313,10 @@ public abstract class Controller {
      * @return This Controller's target
      */
     public final Controller getTargetController() {
-        return targetInstanceId != null ? router.getControllerWithInstanceId(targetInstanceId) : null;
+        if (targetInstanceId != null) {
+            return router.getRootRouter().getControllerWithInstanceId(targetInstanceId);
+        }
+        return null;
     }
 
     /**
