@@ -845,17 +845,13 @@ public abstract class Controller {
         return view;
     }
 
-    final void performDestroy() {
+    private void performDestroy() {
         if (!destroyed) {
             for (LifecycleListener lifecycleListener : lifecycleListeners) {
                 lifecycleListener.preDestroy(this);
             }
 
             destroyed = true;
-
-            if (router != null) {
-                router.unregisterForActivityResults(instanceId);
-            }
 
             onDestroy();
 
@@ -871,8 +867,12 @@ public abstract class Controller {
         destroy(false);
     }
 
-    final void destroy(boolean removeViews) {
+    private void destroy(boolean removeViews) {
         isBeingDestroyed = true;
+
+        if (router != null) {
+            router.unregisterForActivityResults(instanceId);
+        }
 
         for (ControllerHostedRouter childRouter : childRouters) {
             childRouter.destroy();
@@ -885,7 +885,7 @@ public abstract class Controller {
         }
     }
 
-    final void saveViewState(@NonNull View view) {
+    private void saveViewState(@NonNull View view) {
         hasSavedViewState = true;
 
         viewState = new Bundle();
@@ -903,7 +903,7 @@ public abstract class Controller {
         }
     }
 
-    final void restoreViewState(@NonNull View view) {
+    private void restoreViewState(@NonNull View view) {
         if (viewState != null) {
             view.restoreHierarchyState(viewState.getSparseParcelableArray(KEY_VIEW_STATE_HIERARCHY));
             onRestoreViewState(view, viewState.getBundle(KEY_VIEW_STATE_BUNDLE));
