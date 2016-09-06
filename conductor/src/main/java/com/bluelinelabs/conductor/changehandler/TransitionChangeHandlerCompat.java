@@ -77,4 +77,12 @@ public class TransitionChangeHandlerCompat extends ControllerChangeHandler {
         fallbackChangeHandler.restoreFromBundle(bundle.getBundle(KEY_FALLBACK_HANDLER_STATE));
     }
 
+    @Override
+    public boolean removesFromViewOnPush() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return transitionChangeHandler.removesFromViewOnPush();
+        } else {
+            return fallbackChangeHandler.removesFromViewOnPush();
+        }
+    }
 }

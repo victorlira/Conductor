@@ -76,4 +76,8 @@ public abstract class TransitionChangeHandler extends ControllerChangeHandler {
         }
     }
 
+    @Override
+    public final boolean removesFromViewOnPush() {
+        return true;
+    }
 }

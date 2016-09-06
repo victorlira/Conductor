@@ -52,7 +52,7 @@ class ControllerHostedRouter extends Router {
                 controller.detach(controller.getView(), true);
             }
         }
-        for (RouterTransaction transaction : backStack) {
+        for (RouterTransaction transaction : backstack) {
             if (transaction.controller.getView() != null) {
                 transaction.controller.detach(transaction.controller.getView(), true);
             }
@@ -64,7 +64,7 @@ class ControllerHostedRouter extends Router {
     }
 
     final void setDetachFrozen(boolean frozen) {
-        for (RouterTransaction transaction : backStack) {
+        for (RouterTransaction transaction : backstack) {
             transaction.controller.setDetachFrozen(frozen);
         }
     }

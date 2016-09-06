@@ -71,6 +71,7 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
         return animationDuration;
     }
 
+    @Override
     public boolean removesFromViewOnPush() {
         return removesFromViewOnPush;
     }
@@ -99,7 +100,7 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
         if (addingToView) {
             if (isPush || from == null) {
                 container.addView(to);
-            } else {
+            } else if (to.getParent() == null) {
                 container.addView(to, container.indexOfChild(from));
             }
 
@@ -157,6 +158,7 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
                 }
             }
         });
+
         animator.start();
     }
 

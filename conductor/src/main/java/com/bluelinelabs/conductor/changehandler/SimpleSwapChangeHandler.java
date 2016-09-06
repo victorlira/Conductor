@@ -49,4 +49,8 @@ public class SimpleSwapChangeHandler extends ControllerChangeHandler {
         changeListener.onChangeCompleted();
     }
 
+    @Override
+    public boolean removesFromViewOnPush() {
+        return removesFromViewOnPush;
+    }
 }

@@ -2,6 +2,7 @@ package com.bluelinelabs.conductor;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -28,10 +29,10 @@ public abstract class ControllerChangeHandler {
     /**
      * Responsible for swapping Views from one Controller to another.
      *
-     * @param container The container these Views are hosted in.
-     * @param from The previous View in the container, if any.
-     * @param to The next View that should be put in the container, if any.
-     * @param isPush True if this is a push transaction, false if it's a pop.
+     * @param container      The container these Views are hosted in.
+     * @param from           The previous View in the container, if any.
+     * @param to             The next View that should be put in the container, if any.
+     * @param isPush         True if this is a push transaction, false if it's a pop.
      * @param changeListener This listener must be called when any transitions or animations are completed.
      */
     public abstract void performChange(@NonNull ViewGroup container, View from, View to, boolean isPush, @NonNull ControllerChangeCompletedListener changeListener);
@@ -59,7 +60,7 @@ public abstract class ControllerChangeHandler {
      * popped before it has completed.
      *
      * @param newHandler the change handler that has caused this push to be aborted
-     * @param newTop the controller that will now be at the top of the backstack
+     * @param newTop     the controller that will now be at the top of the backstack
      */
     public void onAbortPush(@NonNull ControllerChangeHandler newHandler, Controller newTop) { }
 
@@ -102,9 +103,9 @@ public abstract class ControllerChangeHandler {
         if (container != null) {
             final ControllerChangeHandler handler = inHandler != null ? inHandler : new SimpleSwapChangeHandler();
 
-            if (isPush) {
+            if (isPush && to != null) {
                 inProgressPushHandlers.put(to.getInstanceId(), handler);
-            } else if (from != null) {
+            } else if (!isPush && from != null) {
                 ControllerChangeHandler handlerForPush = inProgressPushHandlers.get(from.getInstanceId());
                 if (handlerForPush != null) {
                     handlerForPush.onAbortPush(handler, to);
@@ -155,6 +156,10 @@ public abstract class ControllerChangeHandler {
         }
     }
 
+    public boolean removesFromViewOnPush() {
+        return true;
+    }
+
     /**
      * A listener interface useful for allowing external classes to be notified of change events.
      */
@@ -162,21 +167,22 @@ public abstract class ControllerChangeHandler {
         /**
          * Called when a {@link ControllerChangeHandler} has started changing {@link Controller}s
          *
-         * @param to The new Controller
-         * @param from The old Controller
-         * @param isPush True if this is a push operation, or false if it's a pop.
+         * @param to        The new Controller
+         * @param from      The old Controller
+         * @param isPush    True if this is a push operation, or false if it's a pop.
          * @param container The containing ViewGroup
-         * @param handler The change handler being used.
+         * @param handler   The change handler being used.
          */
         void onChangeStarted(Controller to, Controller from, boolean isPush, ViewGroup container, ControllerChangeHandler handler);
 
         /**
          * Called when a {@link ControllerChangeHandler} has completed changing {@link Controller}s
-         * @param to The new Controller
-         * @param from The old Controller
-         * @param isPush True if this was a push operation, or false if it's a pop.
+         *
+         * @param to        The new Controller
+         * @param from      The old Controller
+         * @param isPush    True if this was a push operation, or false if it's a pop.
          * @param container The containing ViewGroup
-         * @param handler The change handler that was used.
+         * @param handler   The change handler that was used.
          */
         void onChangeCompleted(Controller to, Controller from, boolean isPush, ViewGroup container, ControllerChangeHandler handler);
     }
