@@ -1,7 +1,10 @@
 package com.bluelinelabs.conductor.demo.controllers.base;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 
+import com.bluelinelabs.conductor.ControllerChangeHandler;
+import com.bluelinelabs.conductor.ControllerChangeType;
 import com.bluelinelabs.conductor.demo.DemoApplication;
 
 public abstract class RefWatchingController extends ButterKnifeController {
@@ -11,10 +14,24 @@ public abstract class RefWatchingController extends ButterKnifeController {
         super(args);
     }
 
+    private boolean hasExited;
+
     @Override
     public void onDestroy() {
         super.onDestroy();
-        DemoApplication.refWatcher.watch(this);
+
+        if (hasExited) {
+            DemoApplication.refWatcher.watch(this);
+        }
     }
 
+    @Override
+    protected void onChangeEnded(@NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
+        super.onChangeEnded(changeHandler, changeType);
+
+        hasExited = !changeType.isEnter;
+        if (isDestroyed()) {
+            DemoApplication.refWatcher.watch(this);
+        }
+    }
 }
