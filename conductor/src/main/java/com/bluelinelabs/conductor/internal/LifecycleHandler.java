@@ -29,6 +29,7 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
 
     private static final String KEY_PERMISSION_REQUEST_CODES = "LifecycleHandler.permissionRequests";
     private static final String KEY_ACTIVITY_REQUEST_CODES = "LifecycleHandler.activityRequests";
+    private static final String KEY_ROUTER_STATE_PREFIX = "LifecycleHandler.routerState";
 
     private Activity activity;
     private boolean hasRegisteredCallbacks;
@@ -69,7 +70,10 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
             router.setHost(this, container);
 
             if (savedInstanceState != null) {
-                router.restoreInstanceState(savedInstanceState);
+                Bundle routerSavedState = savedInstanceState.getBundle(KEY_ROUTER_STATE_PREFIX + router.getContainerId());
+                if (routerSavedState != null) {
+                    router.restoreInstanceState(routerSavedState);
+                }
             }
             routerMap.put(getRouterHashKey(container), router);
         } else {
@@ -303,7 +307,9 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
     public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
         if (this.activity == activity) {
             for (Router router : routerMap.values()) {
-                router.saveInstanceState(outState);
+                Bundle bundle = new Bundle();
+                router.saveInstanceState(bundle);
+                outState.putBundle(KEY_ROUTER_STATE_PREFIX + router.getContainerId(), bundle);
             }
         }
     }
