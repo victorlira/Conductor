@@ -173,7 +173,7 @@ public abstract class Router {
 
     /**
      * If set to true, this router will handle back presses by performing a change handler on the last controller and view
-     * in the stack. This defaults to false so that the developer can either finish its containing Activity or otherwise 
+     * in the stack. This defaults to false so that the developer can either finish its containing Activity or otherwise
      * hide its parent view without any strange artifacting.
      */
     public Router setPopsLastView(boolean popsLastView) {
@@ -249,9 +249,16 @@ public abstract class Router {
         pushToBackstack(transaction);
 
         for (int i = visibleTransactions.size() - 1; i > 0; i--) {
-            performControllerChange(null, visibleTransactions.get(i).controller, true, transaction.pushChangeHandler());
+            if (visibleTransactions.get(i).controller.getView() == null) {
+                ControllerChangeHandler.abortPush(visibleTransactions.get(i).controller, transaction.controller, transaction.pushChangeHandler());
+            } else {
+                performControllerChange(null, visibleTransactions.get(i).controller, true, transaction.pushChangeHandler());
+            }
         }
 
+        if (rootTransaction != null && rootTransaction.controller.getView() == null) {
+            ControllerChangeHandler.abortPush(rootTransaction.controller, transaction.controller, transaction.pushChangeHandler());
+        }
         performControllerChange(transaction, rootTransaction, true);
     }
 

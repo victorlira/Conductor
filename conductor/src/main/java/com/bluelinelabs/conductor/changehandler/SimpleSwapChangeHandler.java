@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bluelinelabs.conductor.Controller;
 import com.bluelinelabs.conductor.ControllerChangeHandler;
 
 /**
@@ -15,6 +16,8 @@ public class SimpleSwapChangeHandler extends ControllerChangeHandler {
     private static final String KEY_REMOVES_FROM_ON_PUSH = "SimpleSwapChangeHandler.removesFromViewOnPush";
 
     private boolean removesFromViewOnPush;
+
+    private boolean canceled;
 
     public SimpleSwapChangeHandler() {
         this(true);
@@ -37,13 +40,22 @@ public class SimpleSwapChangeHandler extends ControllerChangeHandler {
     }
 
     @Override
-    public void performChange(@NonNull ViewGroup container, View from, View to, boolean isPush, @NonNull final ControllerChangeCompletedListener changeListener) {
-        if (from != null && (!isPush || removesFromViewOnPush)) {
-            container.removeView(from);
-        }
+    public void onAbortPush(@NonNull ControllerChangeHandler newHandler, Controller newTop) {
+        super.onAbortPush(newHandler, newTop);
 
-        if (to != null && to.getParent() == null) {
-            container.addView(to);
+        canceled = true;
+    }
+
+    @Override
+    public void performChange(@NonNull ViewGroup container, View from, View to, boolean isPush, @NonNull final ControllerChangeCompletedListener changeListener) {
+        if (!canceled) {
+            if (from != null && (!isPush || removesFromViewOnPush)) {
+                container.removeView(from);
+            }
+
+            if (to != null && to.getParent() == null) {
+                container.addView(to);
+            }
         }
 
         changeListener.onChangeCompleted();

@@ -2,7 +2,6 @@ package com.bluelinelabs.conductor;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -95,6 +94,14 @@ public abstract class ControllerChangeHandler {
         }
     }
 
+    public static void abortPush(Controller toAbort, Controller newController, ControllerChangeHandler newChangeHandler) {
+        ControllerChangeHandler handlerForPush = inProgressPushHandlers.get(toAbort.getInstanceId());
+        if (handlerForPush != null) {
+            handlerForPush.onAbortPush(newChangeHandler, newController);
+            inProgressPushHandlers.remove(toAbort.getInstanceId());
+        }
+    }
+
     public static void executeChange(final Controller to, final Controller from, boolean isPush, ViewGroup container, ControllerChangeHandler inHandler) {
         executeChange(to, from, isPush, container, inHandler, new ArrayList<ControllerChangeListener>());
     }
@@ -106,11 +113,7 @@ public abstract class ControllerChangeHandler {
             if (isPush && to != null) {
                 inProgressPushHandlers.put(to.getInstanceId(), handler);
             } else if (!isPush && from != null) {
-                ControllerChangeHandler handlerForPush = inProgressPushHandlers.get(from.getInstanceId());
-                if (handlerForPush != null) {
-                    handlerForPush.onAbortPush(handler, to);
-                    inProgressPushHandlers.remove(from.getInstanceId());
-                }
+                abortPush(from, to, handler);
             }
 
             for (ControllerChangeListener listener : listeners) {
