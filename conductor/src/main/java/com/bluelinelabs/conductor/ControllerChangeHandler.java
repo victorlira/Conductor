@@ -63,6 +63,12 @@ public abstract class ControllerChangeHandler {
      */
     public void onAbortPush(@NonNull ControllerChangeHandler newHandler, Controller newTop) { }
 
+    /**
+     * Will be called on change handlers that push a controller if the controller being pushed is
+     * needs to be attached immediately, without any animations or transitions.
+     */
+    public void completeImmediately() { }
+
     final Bundle toBundle() {
         Bundle bundle = new Bundle();
         bundle.putString(KEY_CLASS_NAME, getClass().getName());
@@ -91,6 +97,13 @@ public abstract class ControllerChangeHandler {
             return changeHandler;
         } else {
             return null;
+        }
+    }
+
+    public static void completePushImmediately(String controllerInstanceId) {
+        ControllerChangeHandler changeHandler = inProgressPushHandlers.get(controllerInstanceId);
+        if (changeHandler != null) {
+            changeHandler.completeImmediately();
         }
     }
 

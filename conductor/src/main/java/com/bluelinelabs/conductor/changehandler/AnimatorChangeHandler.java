@@ -24,6 +24,7 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
     private long animationDuration;
     private boolean removesFromViewOnPush;
     private boolean canceled;
+    private boolean needsImmediateCompletion;
     private Animator animator;
 
     public AnimatorChangeHandler() {
@@ -62,6 +63,16 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
         super.onAbortPush(newHandler, newTop);
 
         canceled = true;
+        if (animator != null) {
+            animator.cancel();
+        }
+    }
+
+    @Override
+    public void completeImmediately() {
+        super.completeImmediately();
+
+        needsImmediateCompletion = true;
         if (animator != null) {
             animator.cancel();
         }
@@ -140,6 +151,10 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationCancel(Animator animation) {
+                if (from != null && (!isPush || removesFromViewOnPush) && needsImmediateCompletion) {
+                    container.removeView(from);
+                }
+
                 changeListener.onChangeCompleted();
                 animator.removeListener(this);
             }
