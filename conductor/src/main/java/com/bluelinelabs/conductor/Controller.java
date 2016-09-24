@@ -24,6 +24,7 @@ import com.bluelinelabs.conductor.ControllerChangeHandler.ControllerChangeListen
 import com.bluelinelabs.conductor.internal.ClassUtils;
 import com.bluelinelabs.conductor.internal.RouterRequiringFunc;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -84,6 +85,7 @@ public abstract class Controller {
     private final ArrayList<String> requestedPermissions = new ArrayList<>();
     private final ArrayList<RouterRequiringFunc> onRouterSetListeners = new ArrayList<>();
     private final Deque<Controller> childBackstack = new ArrayDeque<>();
+    private WeakReference<View> destroyedView;
 
     private final ControllerChangeListener childRouterChangeListener = new ControllerChangeListener() {
         @Override
@@ -783,6 +785,10 @@ public abstract class Controller {
 
             view.removeOnAttachStateChangeListener(onAttachStateChangeListener);
             viewIsAttached = false;
+
+            if (isBeingDestroyed) {
+                destroyedView = new WeakReference<>(view);
+            }
             view = null;
 
             for (LifecycleListener lifecycleListener : lifecycleListeners) {
@@ -1027,6 +1033,13 @@ public abstract class Controller {
 
         for (LifecycleListener lifecycleListener : lifecycleListeners) {
             lifecycleListener.onChangeEnd(this, changeHandler, changeType);
+        }
+
+        if (isBeingDestroyed && !viewIsAttached && !attached && destroyedView != null) {
+            View view = destroyedView.get();
+            if (view.getParent() == router.container) {
+                router.container.removeView(view);
+            }
         }
     }
 

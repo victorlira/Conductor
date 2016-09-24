@@ -239,6 +239,8 @@ public abstract class Router {
      *                    and its push and pop {@link ControllerChangeHandler}, and its tag.
      */
     public void setRoot(@NonNull RouterTransaction transaction) {
+        ControllerChangeHandler newHandler = transaction.pushChangeHandler() != null ? transaction.pushChangeHandler() : new SimpleSwapChangeHandler();
+
         List<RouterTransaction> visibleTransactions = getVisibleTransactions(backstack.iterator());
         RouterTransaction rootTransaction = visibleTransactions.size() > 0 ? visibleTransactions.get(0) : null;
 
@@ -250,14 +252,14 @@ public abstract class Router {
 
         for (int i = visibleTransactions.size() - 1; i > 0; i--) {
             if (visibleTransactions.get(i).controller.getView() == null) {
-                ControllerChangeHandler.abortPush(visibleTransactions.get(i).controller, transaction.controller, transaction.pushChangeHandler());
+                ControllerChangeHandler.abortPush(visibleTransactions.get(i).controller, transaction.controller, newHandler);
             } else {
-                performControllerChange(null, visibleTransactions.get(i).controller, true, transaction.pushChangeHandler());
+                performControllerChange(null, visibleTransactions.get(i).controller, true, newHandler);
             }
         }
 
         if (rootTransaction != null && rootTransaction.controller.getView() == null) {
-            ControllerChangeHandler.abortPush(rootTransaction.controller, transaction.controller, transaction.pushChangeHandler());
+            ControllerChangeHandler.abortPush(rootTransaction.controller, transaction.controller, newHandler);
         }
         performControllerChange(transaction, rootTransaction, true);
     }
