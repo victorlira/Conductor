@@ -157,6 +157,7 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
 
                 changeListener.onChangeCompleted();
                 animator.removeListener(this);
+                animator = null;
             }
 
             @Override
@@ -171,6 +172,8 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
                 if (isPush && from != null) {
                     resetFromView(from);
                 }
+
+                animator = null;
             }
         });
 
