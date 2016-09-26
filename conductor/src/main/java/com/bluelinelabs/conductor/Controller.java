@@ -1037,7 +1037,7 @@ public abstract class Controller {
 
         if (isBeingDestroyed && !viewIsAttached && !attached && destroyedView != null) {
             View view = destroyedView.get();
-            if (view.getParent() == router.container) {
+            if (router.container != null && view.getParent() == router.container) {
                 router.container.removeView(view);
             }
         }
@@ -1078,13 +1078,15 @@ public abstract class Controller {
     }
 
     private void onChildControllerPushed(Controller controller) {
-        childBackstack.add(controller);
-        controller.addLifecycleListener(new LifecycleListener() {
-            @Override
-            public void postDestroy(@NonNull Controller controller) {
-                childBackstack.remove(controller);
-            }
-        });
+        if (!childBackstack.contains(controller)) {
+            childBackstack.add(controller);
+            controller.addLifecycleListener(new LifecycleListener() {
+                @Override
+                public void postDestroy(@NonNull Controller controller) {
+                    childBackstack.remove(controller);
+                }
+            });
+        }
     }
 
     final void setParentController(Controller controller) {
