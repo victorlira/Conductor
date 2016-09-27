@@ -162,18 +162,20 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                if (from != null && (!isPush || removesFromViewOnPush) && !canceled) {
-                    container.removeView(from);
+                if (!canceled && animator != null) {
+                    if (from != null && (!isPush || removesFromViewOnPush)) {
+                        container.removeView(from);
+                    }
+
+                    changeListener.onChangeCompleted();
+                    animator.removeListener(this);
+
+                    if (isPush && from != null) {
+                        resetFromView(from);
+                    }
+
+                    animator = null;
                 }
-
-                changeListener.onChangeCompleted();
-                animator.removeListener(this);
-
-                if (isPush && from != null) {
-                    resetFromView(from);
-                }
-
-                animator = null;
             }
         });
 
