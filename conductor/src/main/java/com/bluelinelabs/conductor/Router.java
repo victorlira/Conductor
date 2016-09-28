@@ -481,7 +481,9 @@ public abstract class Router {
 
     public void prepareForHostDetach() {
         for (RouterTransaction transaction : backstack) {
-            ControllerChangeHandler.completePushImmediately(transaction.controller.getInstanceId());
+            if (ControllerChangeHandler.completePushImmediately(transaction.controller.getInstanceId())) {
+                transaction.controller.setNeedsAttach();
+            }
             transaction.controller.prepareForHostDetach();
         }
     }
@@ -615,7 +617,7 @@ public abstract class Router {
         ControllerChangeHandler.executeChange(to, from, isPush, container, changeHandler, changeListeners);
     }
 
-    void pushToBackstack(@NonNull RouterTransaction entry) {
+    private void pushToBackstack(@NonNull RouterTransaction entry) {
         backstack.push(entry);
     }
 

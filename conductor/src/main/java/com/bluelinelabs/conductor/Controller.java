@@ -647,6 +647,10 @@ public abstract class Controller {
         return false;
     }
 
+    final void setNeedsAttach() {
+        needsAttach = true;
+    }
+
     final void prepareForHostDetach() {
         needsAttach = needsAttach || attached;
 

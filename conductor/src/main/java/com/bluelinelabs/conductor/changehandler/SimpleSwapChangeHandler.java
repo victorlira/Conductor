@@ -3,6 +3,7 @@ package com.bluelinelabs.conductor.changehandler;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
+import android.view.View.OnAttachStateChangeListener;
 import android.view.ViewGroup;
 
 import com.bluelinelabs.conductor.Controller;
@@ -11,13 +12,16 @@ import com.bluelinelabs.conductor.ControllerChangeHandler;
 /**
  * A {@link ControllerChangeHandler} that will instantly swap Views with no animations or transitions.
  */
-public class SimpleSwapChangeHandler extends ControllerChangeHandler {
+public class SimpleSwapChangeHandler extends ControllerChangeHandler implements OnAttachStateChangeListener {
 
     private static final String KEY_REMOVES_FROM_ON_PUSH = "SimpleSwapChangeHandler.removesFromViewOnPush";
 
     private boolean removesFromViewOnPush;
 
     private boolean canceled;
+
+    private ViewGroup container;
+    private ControllerChangeCompletedListener changeListener;
 
     public SimpleSwapChangeHandler() {
         this(true);
@@ -47,7 +51,18 @@ public class SimpleSwapChangeHandler extends ControllerChangeHandler {
     }
 
     @Override
-    public void performChange(@NonNull ViewGroup container, View from, View to, boolean isPush, @NonNull final ControllerChangeCompletedListener changeListener) {
+    public void completeImmediately() {
+        if (changeListener != null) {
+            changeListener.onChangeCompleted();
+            changeListener = null;
+
+            container.removeOnAttachStateChangeListener(this);
+            container = null;
+        }
+    }
+
+    @Override
+    public void performChange(@NonNull ViewGroup container, View from, View to, boolean isPush, @NonNull ControllerChangeCompletedListener changeListener) {
         if (!canceled) {
             if (from != null && (!isPush || removesFromViewOnPush)) {
                 container.removeView(from);
@@ -58,11 +73,32 @@ public class SimpleSwapChangeHandler extends ControllerChangeHandler {
             }
         }
 
-        changeListener.onChangeCompleted();
+        if (container.getWindowToken() != null) {
+            changeListener.onChangeCompleted();
+        } else {
+            this.changeListener = changeListener;
+            this.container = container;
+            container.addOnAttachStateChangeListener(this);
+        }
+
     }
 
     @Override
     public boolean removesFromViewOnPush() {
         return removesFromViewOnPush;
     }
+
+    @Override
+    public void onViewAttachedToWindow(View v) {
+        v.removeOnAttachStateChangeListener(this);
+
+        if (changeListener != null) {
+            changeListener.onChangeCompleted();
+            changeListener = null;
+            container = null;
+        }
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(View v) { }
 }

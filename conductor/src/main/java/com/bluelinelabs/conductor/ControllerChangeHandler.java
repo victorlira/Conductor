@@ -100,11 +100,14 @@ public abstract class ControllerChangeHandler {
         }
     }
 
-    public static void completePushImmediately(String controllerInstanceId) {
+    static boolean completePushImmediately(String controllerInstanceId) {
         ControllerChangeHandler changeHandler = inProgressPushHandlers.get(controllerInstanceId);
         if (changeHandler != null) {
             changeHandler.completeImmediately();
+            inProgressPushHandlers.remove(controllerInstanceId);
+            return true;
         }
+        return false;
     }
 
     public static void abortPush(Controller toAbort, Controller newController, ControllerChangeHandler newChangeHandler) {
