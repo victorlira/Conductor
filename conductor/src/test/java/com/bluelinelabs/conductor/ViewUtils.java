@@ -10,6 +10,10 @@ import java.util.List;
 public class ViewUtils {
 
     public static void setAttached(View view, boolean attached) {
+        if (view instanceof AttachFakingFrameLayout) {
+            ((AttachFakingFrameLayout)view).setAttached(attached);
+        }
+
         Object listenerInfo = ReflectionHelpers.callInstanceMethod(view, "getListenerInfo");
         List<OnAttachStateChangeListener> listeners = ReflectionHelpers.getField(listenerInfo, "mOnAttachStateChangeListeners");
 

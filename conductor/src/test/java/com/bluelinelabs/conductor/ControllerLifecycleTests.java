@@ -5,7 +5,6 @@ import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import com.bluelinelabs.conductor.Controller.LifecycleListener;
 import com.bluelinelabs.conductor.MockChangeHandler.ChangeHandlerListener;
@@ -32,8 +31,9 @@ public class ControllerLifecycleTests {
         activityController = Robolectric.buildActivity(TestActivity.class).create(savedInstanceState).start();
 
         @IdRes int containerId = 4;
-        FrameLayout routerContainer = new FrameLayout(activityController.get());
+        AttachFakingFrameLayout routerContainer = new AttachFakingFrameLayout(activityController.get());
         routerContainer.setId(containerId);
+        routerContainer.setAttached(true);
 
         router = Conductor.attachRouter(activityController.get(), routerContainer, savedInstanceState);
         if (!router.hasRootController()) {

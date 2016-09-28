@@ -29,7 +29,7 @@ public class TestController extends Controller {
     @Override
     protected View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
         currentCallState.createViewCalls++;
-        FrameLayout view = new FrameLayout(inflater.getContext());
+        FrameLayout view = new AttachFakingFrameLayout(inflater.getContext());
         view.setId(VIEW_ID);
 
         FrameLayout childContainer1 = new FrameLayout(inflater.getContext());

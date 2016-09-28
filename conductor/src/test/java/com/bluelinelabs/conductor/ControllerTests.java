@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import com.bluelinelabs.conductor.Controller.RetainViewMode;
 
@@ -30,8 +29,9 @@ public class ControllerTests {
         activityController = Robolectric.buildActivity(TestActivity.class).create(savedInstanceState).start();
 
         @IdRes int containerId = 4;
-        FrameLayout routerContainer = new FrameLayout(activityController.get());
+        AttachFakingFrameLayout routerContainer = new AttachFakingFrameLayout(activityController.get());
         routerContainer.setId(containerId);
+        routerContainer.setAttached(true);
 
         router = Conductor.attachRouter(activityController.get(), routerContainer, savedInstanceState);
         if (!router.hasRootController()) {
@@ -51,7 +51,7 @@ public class ControllerTests {
         // Test View getting released w/ RELEASE_DETACH
         controller.setRetainViewMode(RetainViewMode.RELEASE_DETACH);
         Assert.assertNull(controller.getView());
-        View view = controller.inflate(new FrameLayout(router.getActivity()));
+        View view = controller.inflate(new AttachFakingFrameLayout(router.getActivity()));
         Assert.assertNotNull(controller.getView());
         ViewUtils.setAttached(view, true);
         Assert.assertNotNull(controller.getView());
@@ -60,7 +60,7 @@ public class ControllerTests {
 
         // Test View getting retained w/ RETAIN_DETACH
         controller.setRetainViewMode(RetainViewMode.RETAIN_DETACH);
-        view = controller.inflate(new FrameLayout(router.getActivity()));
+        view = controller.inflate(new AttachFakingFrameLayout(router.getActivity()));
         Assert.assertNotNull(controller.getView());
         ViewUtils.setAttached(view, true);
         Assert.assertNotNull(controller.getView());
