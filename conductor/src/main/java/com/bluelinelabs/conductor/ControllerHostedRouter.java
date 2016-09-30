@@ -47,7 +47,8 @@ class ControllerHostedRouter extends Router {
             removeChangeListener((ControllerChangeListener)container);
         }
 
-        for (Controller controller : destroyingControllers) {
+        final List<Controller> controllersToDestroy = new ArrayList<>(destroyingControllers);
+        for (Controller controller : controllersToDestroy) {
             if (controller.getView() != null) {
                 controller.detach(controller.getView(), true);
             }
