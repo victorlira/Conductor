@@ -80,6 +80,10 @@ public abstract class ControllerChangeHandler {
         return bundle;
     }
 
+    final ControllerChangeHandler copy() {
+        return fromBundle(toBundle());
+    }
+
     private void ensureDefaultConstructor() {
         try {
             getClass().getConstructor();
