@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -645,6 +646,14 @@ public abstract class Controller {
      */
     public boolean onOptionsItemSelected(MenuItem item) {
         return false;
+    }
+
+    /**
+     * Returns a bundle for the view's state, which would have been created in {@link #onSaveViewState(View, Bundle)}.
+     */
+    @Nullable
+    public Bundle getViewStateBundle() {
+        return viewState;
     }
 
     final void setNeedsAttach() {
