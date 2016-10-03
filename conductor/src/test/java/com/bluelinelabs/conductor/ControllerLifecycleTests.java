@@ -1,7 +1,6 @@
 package com.bluelinelabs.conductor;
 
 import android.os.Bundle;
-import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,29 +12,26 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-import org.robolectric.util.ActivityController;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
 public class ControllerLifecycleTests {
 
-    private ActivityController<TestActivity> activityController;
     private Router router;
 
+    private ActivityProxy activityProxy;
     private CallState currentCallState;
 
-    public void createActivityController(Bundle savedInstanceState) {
-        activityController = Robolectric.buildActivity(TestActivity.class).create(savedInstanceState).start();
+    public void createActivityController(Bundle savedInstanceState, boolean includeStartAndResume) {
+        activityProxy = new ActivityProxy().create(savedInstanceState);
 
-        @IdRes int containerId = 4;
-        AttachFakingFrameLayout routerContainer = new AttachFakingFrameLayout(activityController.get());
-        routerContainer.setId(containerId);
-        routerContainer.setAttached(true);
+        if (includeStartAndResume) {
+            activityProxy.start().resume();
+        }
 
-        router = Conductor.attachRouter(activityController.get(), routerContainer, savedInstanceState);
+        router = Conductor.attachRouter(activityProxy.getActivity(), activityProxy.getView(), savedInstanceState);
         if (!router.hasRootController()) {
             router.setRoot(RouterTransaction.with(new TestController()));
         }
@@ -43,7 +39,7 @@ public class ControllerLifecycleTests {
 
     @Before
     public void setup() {
-        createActivityController(null);
+        createActivityController(null, true);
 
         currentCallState = new CallState();
     }
@@ -82,18 +78,20 @@ public class ControllerLifecycleTests {
 
         assertCalls(expectedCallState, controller);
 
-        activityController.pause();
+        activityProxy.getActivity().isDestroying = true;
+        activityProxy.pause();
 
         assertCalls(expectedCallState, controller);
 
-        activityController.stop();
+        activityProxy.stop();
 
-        assertCalls(expectedCallState, controller);
-
-        activityController.destroy();
-
+        expectedCallState.saveViewStateCalls++;
         expectedCallState.detachCalls++;
         expectedCallState.destroyViewCalls++;
+        assertCalls(expectedCallState, controller);
+
+        activityProxy.destroy();
+
         expectedCallState.destroyCalls++;
         assertCalls(expectedCallState, controller);
     }
@@ -112,33 +110,32 @@ public class ControllerLifecycleTests {
 
         assertCalls(expectedCallState, controller);
 
-        activityController.get().isChangingConfigurations = true;
+        activityProxy.getActivity().isChangingConfigurations = true;
 
         Bundle bundle = new Bundle();
-        activityController.saveInstanceState(bundle);
+        activityProxy.saveInstanceState(bundle);
 
         expectedCallState.saveViewStateCalls++;
         expectedCallState.saveInstanceStateCalls++;
         assertCalls(expectedCallState, controller);
 
-        activityController.pause();
+        activityProxy.pause();
         assertCalls(expectedCallState, controller);
 
-        activityController.stop();
-        assertCalls(expectedCallState, controller);
-
-        activityController.destroy();
+        activityProxy.stop();
         expectedCallState.detachCalls++;
         expectedCallState.destroyViewCalls++;
         assertCalls(expectedCallState, controller);
 
-        createActivityController(bundle);
+        activityProxy.destroy();
+        assertCalls(expectedCallState, controller);
+
+        createActivityController(bundle, false);
         controller = (TestController)router.getControllerWithTag("root");
 
         expectedCallState.restoreInstanceStateCalls++;
         expectedCallState.restoreViewStateCalls++;
         expectedCallState.changeStartCalls++;
-        expectedCallState.changeEndCalls++;
         expectedCallState.createViewCalls++;
 
         // Lifecycle listener isn't attached during restore, grab the current views from the controller for this stuff...
@@ -147,10 +144,19 @@ public class ControllerLifecycleTests {
         currentCallState.changeStartCalls = controller.currentCallState.changeStartCalls;
         currentCallState.changeEndCalls = controller.currentCallState.changeEndCalls;
         currentCallState.createViewCalls = controller.currentCallState.createViewCalls;
+        currentCallState.attachCalls = controller.currentCallState.attachCalls;
 
         assertCalls(expectedCallState, controller);
 
-        activityController.resume();
+        activityProxy.start().resume();
+        currentCallState.changeEndCalls = controller.currentCallState.changeEndCalls;
+        currentCallState.attachCalls = controller.currentCallState.attachCalls;
+        expectedCallState.changeEndCalls++;
+        expectedCallState.attachCalls++;
+
+        assertCalls(expectedCallState, controller);
+
+        activityProxy.resume();
         assertCalls(expectedCallState, controller);
     }
 
@@ -167,16 +173,16 @@ public class ControllerLifecycleTests {
 
         assertCalls(expectedCallState, controller);
 
-        activityController.pause();
+        activityProxy.pause();
 
         Bundle bundle = new Bundle();
-        activityController.saveInstanceState(bundle);
+        activityProxy.saveInstanceState(bundle);
 
         expectedCallState.saveInstanceStateCalls++;
         expectedCallState.saveViewStateCalls++;
         assertCalls(expectedCallState, controller);
 
-        activityController.resume();
+        activityProxy.resume();
     }
 
     @Test

@@ -3,7 +3,6 @@ package com.bluelinelabs.conductor;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.IdRes;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -13,27 +12,19 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-import org.robolectric.util.ActivityController;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
 public class ControllerTests {
 
-    private ActivityController<TestActivity> activityController;
+    private ActivityProxy activityProxy;
     private Router router;
 
     public void createActivityController(Bundle savedInstanceState) {
-        activityController = Robolectric.buildActivity(TestActivity.class).create(savedInstanceState).start();
-
-        @IdRes int containerId = 4;
-        AttachFakingFrameLayout routerContainer = new AttachFakingFrameLayout(activityController.get());
-        routerContainer.setId(containerId);
-        routerContainer.setAttached(true);
-
-        router = Conductor.attachRouter(activityController.get(), routerContainer, savedInstanceState);
+        activityProxy = new ActivityProxy().create(savedInstanceState).start().resume();
+        router = Conductor.attachRouter(activityProxy.getActivity(), activityProxy.getView(), savedInstanceState);
         if (!router.hasRootController()) {
             router.setRoot(RouterTransaction.with(new TestController()));
         }
@@ -53,18 +44,18 @@ public class ControllerTests {
         Assert.assertNull(controller.getView());
         View view = controller.inflate(new AttachFakingFrameLayout(router.getActivity()));
         Assert.assertNotNull(controller.getView());
-        ViewUtils.setAttached(view, true);
+        ViewUtils.reportAttached(view, true);
         Assert.assertNotNull(controller.getView());
-        ViewUtils.setAttached(view, false);
+        ViewUtils.reportAttached(view, false);
         Assert.assertNull(controller.getView());
 
         // Test View getting retained w/ RETAIN_DETACH
         controller.setRetainViewMode(RetainViewMode.RETAIN_DETACH);
         view = controller.inflate(new AttachFakingFrameLayout(router.getActivity()));
         Assert.assertNotNull(controller.getView());
-        ViewUtils.setAttached(view, true);
+        ViewUtils.reportAttached(view, true);
         Assert.assertNotNull(controller.getView());
-        ViewUtils.setAttached(view, false);
+        ViewUtils.reportAttached(view, false);
         Assert.assertNotNull(controller.getView());
 
         // Ensure re-setting RELEASE_DETACH releases
@@ -78,7 +69,6 @@ public class ControllerTests {
         CallState expectedCallState = new CallState(true);
 
         router.pushController(RouterTransaction.with(controller));
-        ViewUtils.setAttached(controller.getView(), true);
 
         // Ensure that calling onActivityResult w/o requesting a result doesn't do anything
         router.onActivityResult(1, Activity.RESULT_OK, null);
@@ -103,10 +93,8 @@ public class ControllerTests {
         TestController child = new TestController();
 
         router.pushController(RouterTransaction.with(parent));
-        ViewUtils.setAttached(parent.getView(), true);
         parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID), null)
                 .setRoot(RouterTransaction.with(child));
-        ViewUtils.setAttached(child.getView(), true);
 
         CallState childExpectedCallState = new CallState(true);
         CallState parentExpectedCallState = new CallState(true);
@@ -139,7 +127,6 @@ public class ControllerTests {
         CallState expectedCallState = new CallState(true);
 
         router.pushController(RouterTransaction.with(controller));
-        ViewUtils.setAttached(controller.getView(), true);
 
         // Ensure that calling handleRequestedPermission w/o requesting a result doesn't do anything
         router.onRequestPermissionsResult("anotherId", 1, requestedPermissions, new int[] {1});
@@ -163,10 +150,8 @@ public class ControllerTests {
         TestController child = new TestController();
 
         router.pushController(RouterTransaction.with(parent));
-        ViewUtils.setAttached(parent.getView(), true);
         parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID), null)
                 .setRoot(RouterTransaction.with(child));
-        ViewUtils.setAttached(child.getView(), true);
 
         CallState childExpectedCallState = new CallState(true);
         CallState parentExpectedCallState = new CallState(true);
@@ -193,7 +178,6 @@ public class ControllerTests {
         CallState expectedCallState = new CallState(true);
 
         router.pushController(RouterTransaction.with(controller));
-        ViewUtils.setAttached(controller.getView(), true);
 
         // Ensure that calling onCreateOptionsMenu w/o declaring that we have one doesn't do anything
         router.onCreateOptionsMenu(null, null);
@@ -230,10 +214,8 @@ public class ControllerTests {
         TestController child = new TestController();
 
         router.pushController(RouterTransaction.with(parent));
-        ViewUtils.setAttached(parent.getView(), true);
         parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID), null)
                 .setRoot(RouterTransaction.with(child));
-        ViewUtils.setAttached(child.getView(), true);
 
         CallState childExpectedCallState = new CallState(true);
         CallState parentExpectedCallState = new CallState(true);
@@ -285,6 +267,7 @@ public class ControllerTests {
         Assert.assertNull(child2.getParentController());
 
         Router childRouter = parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID), null);
+        childRouter.setPopsLastView(true);
         childRouter.setRoot(RouterTransaction.with(child1));
 
         Assert.assertEquals(1, parent.getChildRouters().size());

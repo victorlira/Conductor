@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import com.bluelinelabs.conductor.changehandler.SimpleSwapChangeHandler;
 import com.bluelinelabs.conductor.internal.ClassUtils;
@@ -24,6 +25,8 @@ public abstract class ControllerChangeHandler {
     private static final String KEY_SAVED_STATE = "ControllerChangeHandler.savedState";
 
     private static final Map<String, ControllerChangeHandler> inProgressPushHandlers = new HashMap<>();
+
+    private boolean forceRemoveViewOnPush;
 
     /**
      * Responsible for swapping Views from one Controller to another.
@@ -174,6 +177,13 @@ public abstract class ControllerChangeHandler {
                     for (ControllerChangeListener listener : listeners) {
                         listener.onChangeCompleted(to, from, isPush, container, inHandler);
                     }
+
+                    if (handler.forceRemoveViewOnPush && fromView != null) {
+                        ViewParent fromParent = fromView.getParent();
+                        if (fromParent != null && fromParent instanceof ViewGroup) {
+                            ((ViewGroup)fromParent).removeView(fromView);
+                        }
+                    }
                 }
             });
         }
@@ -181,6 +191,10 @@ public abstract class ControllerChangeHandler {
 
     public boolean removesFromViewOnPush() {
         return true;
+    }
+
+    public void setForceRemoveViewOnPush(boolean force) {
+        forceRemoveViewOnPush = force;
     }
 
     /**

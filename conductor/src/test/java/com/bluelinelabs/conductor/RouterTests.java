@@ -1,15 +1,14 @@
 package com.bluelinelabs.conductor;
 
-import android.app.Activity;
-import android.widget.FrameLayout;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
@@ -19,8 +18,8 @@ public class RouterTests {
 
     @Before
     public void setup() {
-        Activity activity = Robolectric.buildActivity(TestActivity.class).create().get();
-        router = Conductor.attachRouter(activity, new FrameLayout(activity), null);
+        ActivityProxy activityProxy = new ActivityProxy().create(null).start().resume();
+        router = Conductor.attachRouter(activityProxy.getActivity(), activityProxy.getView(), null);
     }
 
     @Test
@@ -172,6 +171,151 @@ public class RouterTests {
         Assert.assertEquals(controller1, router.getControllerWithTag(controller1Tag));
         Assert.assertNull(router.getControllerWithTag(controller2Tag));
         Assert.assertEquals(controller3, router.getControllerWithTag(controller3Tag));
+    }
+
+    @Test
+    public void testSetBackstack() {
+        RouterTransaction rootTransaction = RouterTransaction.with(new TestController());
+        RouterTransaction middleTransaction = RouterTransaction.with(new TestController());
+        RouterTransaction topTransaction = RouterTransaction.with(new TestController());
+
+        List<RouterTransaction> backstack = new ArrayList<>();
+        backstack.add(rootTransaction);
+        backstack.add(middleTransaction);
+        backstack.add(topTransaction);
+
+        router.setBackstack(backstack, null);
+
+        Assert.assertEquals(3, router.getBackstackSize());
+
+        List<RouterTransaction> fetchedBackstack = router.getBackstack();
+        Assert.assertEquals(rootTransaction, fetchedBackstack.get(0));
+        Assert.assertEquals(middleTransaction, fetchedBackstack.get(1));
+        Assert.assertEquals(topTransaction, fetchedBackstack.get(2));
+    }
+
+    @Test
+    public void testNewSetBackstack() {
+        router.setRoot(RouterTransaction.with(new TestController()));
+
+        Assert.assertEquals(1, router.getBackstackSize());
+
+        RouterTransaction rootTransaction = RouterTransaction.with(new TestController());
+        RouterTransaction middleTransaction = RouterTransaction.with(new TestController());
+        RouterTransaction topTransaction = RouterTransaction.with(new TestController());
+
+        List<RouterTransaction> backstack = new ArrayList<>();
+        backstack.add(rootTransaction);
+        backstack.add(middleTransaction);
+        backstack.add(topTransaction);
+
+        router.setBackstack(backstack, null);
+
+        Assert.assertEquals(3, router.getBackstackSize());
+
+        List<RouterTransaction> fetchedBackstack = router.getBackstack();
+        Assert.assertEquals(rootTransaction, fetchedBackstack.get(0));
+        Assert.assertEquals(middleTransaction, fetchedBackstack.get(1));
+        Assert.assertEquals(topTransaction, fetchedBackstack.get(2));
+    }
+
+    @Test
+    public void testNewSetBackstackWithNoRemoveViewOnPush() {
+        RouterTransaction oldRootTransaction = RouterTransaction.with(new TestController());
+        RouterTransaction oldTopTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(new MockChangeHandler(false));
+
+        router.setRoot(oldRootTransaction);
+        router.pushController(oldTopTransaction);
+        Assert.assertEquals(2, router.getBackstackSize());
+
+        Assert.assertTrue(oldRootTransaction.controller.isAttached());
+        Assert.assertTrue(oldTopTransaction.controller.isAttached());
+
+        RouterTransaction rootTransaction = RouterTransaction.with(new TestController());
+        RouterTransaction middleTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(new MockChangeHandler(false));
+        RouterTransaction topTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(new MockChangeHandler(false));
+
+        List<RouterTransaction> backstack = new ArrayList<>();
+        backstack.add(rootTransaction);
+        backstack.add(middleTransaction);
+        backstack.add(topTransaction);
+
+        router.setBackstack(backstack, null);
+
+        Assert.assertEquals(3, router.getBackstackSize());
+
+        List<RouterTransaction> fetchedBackstack = router.getBackstack();
+        Assert.assertEquals(rootTransaction, fetchedBackstack.get(0));
+        Assert.assertEquals(middleTransaction, fetchedBackstack.get(1));
+        Assert.assertEquals(topTransaction, fetchedBackstack.get(2));
+
+        Assert.assertFalse(oldRootTransaction.controller.isAttached());
+        Assert.assertFalse(oldTopTransaction.controller.isAttached());
+        Assert.assertTrue(rootTransaction.controller.isAttached());
+        Assert.assertTrue(middleTransaction.controller.isAttached());
+        Assert.assertTrue(topTransaction.controller.isAttached());
+    }
+
+    @Test
+    public void testReplaceTopController() {
+        RouterTransaction rootTransaction = RouterTransaction.with(new TestController());
+        RouterTransaction topTransaction = RouterTransaction.with(new TestController());
+
+        List<RouterTransaction> backstack = new ArrayList<>();
+        backstack.add(rootTransaction);
+        backstack.add(topTransaction);
+
+        router.setBackstack(backstack, null);
+
+        Assert.assertEquals(2, router.getBackstackSize());
+
+        List<RouterTransaction> fetchedBackstack = router.getBackstack();
+        Assert.assertEquals(rootTransaction, fetchedBackstack.get(0));
+        Assert.assertEquals(topTransaction, fetchedBackstack.get(1));
+
+        RouterTransaction newTopTransaction = RouterTransaction.with(new TestController());
+        router.replaceTopController(newTopTransaction);
+
+        Assert.assertEquals(2, router.getBackstackSize());
+
+        fetchedBackstack = router.getBackstack();
+        Assert.assertEquals(rootTransaction, fetchedBackstack.get(0));
+        Assert.assertEquals(newTopTransaction, fetchedBackstack.get(1));
+    }
+
+    @Test
+    public void testReplaceTopControllerWithNoRemoveViewOnPush() {
+        RouterTransaction rootTransaction = RouterTransaction.with(new TestController());
+        RouterTransaction topTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(new MockChangeHandler(false));
+
+        List<RouterTransaction> backstack = new ArrayList<>();
+        backstack.add(rootTransaction);
+        backstack.add(topTransaction);
+
+        router.setBackstack(backstack, null);
+
+        Assert.assertEquals(2, router.getBackstackSize());
+
+        Assert.assertTrue(rootTransaction.controller.isAttached());
+        Assert.assertTrue(topTransaction.controller.isAttached());
+
+        List<RouterTransaction> fetchedBackstack = router.getBackstack();
+        Assert.assertEquals(rootTransaction, fetchedBackstack.get(0));
+        Assert.assertEquals(topTransaction, fetchedBackstack.get(1));
+
+        RouterTransaction newTopTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(new MockChangeHandler(false));
+        router.replaceTopController(newTopTransaction);
+        newTopTransaction.pushChangeHandler().completeImmediately();
+
+        Assert.assertEquals(2, router.getBackstackSize());
+
+        fetchedBackstack = router.getBackstack();
+        Assert.assertEquals(rootTransaction, fetchedBackstack.get(0));
+        Assert.assertEquals(newTopTransaction, fetchedBackstack.get(1));
+
+        Assert.assertTrue(rootTransaction.controller.isAttached());
+        Assert.assertFalse(topTransaction.controller.isAttached());
+        Assert.assertTrue(newTopTransaction.controller.isAttached());
     }
 
 }

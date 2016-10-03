@@ -1,34 +1,24 @@
 package com.bluelinelabs.conductor;
 
 import android.os.Bundle;
-import android.support.annotation.IdRes;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-import org.robolectric.util.ActivityController;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
 public class TargetControllerTests {
 
-    private ActivityController<TestActivity> activityController;
     private Router router;
 
     public void createActivityController(Bundle savedInstanceState) {
-        activityController = Robolectric.buildActivity(TestActivity.class).create(savedInstanceState).start();
-
-        @IdRes int containerId = 4;
-        FrameLayout routerContainer = new FrameLayout(activityController.get());
-        routerContainer.setId(containerId);
-
-        router = Conductor.attachRouter(activityController.get(), routerContainer, savedInstanceState);
+        ActivityProxy activityProxy = new ActivityProxy().create(savedInstanceState).start().resume();
+        router = Conductor.attachRouter(activityProxy.getActivity(), activityProxy.getView(), savedInstanceState);
         if (!router.hasRootController()) {
             router.setRoot(RouterTransaction.with(new TestController()));
         }

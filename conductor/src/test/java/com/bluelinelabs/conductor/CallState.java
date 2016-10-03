@@ -119,9 +119,9 @@ public class CallState implements Parcelable {
                 "\n    restoreInstanceStateCalls=" + restoreInstanceStateCalls +
                 "\n    saveViewStateCalls=" + saveViewStateCalls +
                 "\n    restoreViewStateCalls=" + restoreViewStateCalls +
-                "\n    onActivityResultCalls= " + onActivityResultCalls +
-                "\n    onRequestPermissionsResultCalls= " + onRequestPermissionsResultCalls +
-                "\n    createOptionsMenuCalls= " + createOptionsMenuCalls +
+                "\n    onActivityResultCalls=" + onActivityResultCalls +
+                "\n    onRequestPermissionsResultCalls=" + onRequestPermissionsResultCalls +
+                "\n    createOptionsMenuCalls=" + createOptionsMenuCalls +
                 "}\n";
     }
 

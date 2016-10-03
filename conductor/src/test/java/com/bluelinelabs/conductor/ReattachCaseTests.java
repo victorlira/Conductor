@@ -1,34 +1,25 @@
 package com.bluelinelabs.conductor;
 
 import android.os.Bundle;
-import android.support.annotation.IdRes;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-import org.robolectric.util.ActivityController;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
 public class ReattachCaseTests {
 
-    private ActivityController<TestActivity> activityController;
+    private ActivityProxy activityProxy;
     private Router router;
 
     public void createActivityController(Bundle savedInstanceState) {
-        activityController = Robolectric.buildActivity(TestActivity.class).create(savedInstanceState).start();
-
-        @IdRes int containerId = 4;
-        FrameLayout routerContainer = new FrameLayout(activityController.get());
-        routerContainer.setId(containerId);
-
-        router = Conductor.attachRouter(activityController.get(), routerContainer, savedInstanceState);
+        activityProxy = new ActivityProxy().create(savedInstanceState).start().resume();
+        router = Conductor.attachRouter(activityProxy.getActivity(), activityProxy.getView(), savedInstanceState);
         if (!router.hasRootController()) {
             router.setRoot(RouterTransaction.with(new TestController()));
         }
@@ -63,7 +54,8 @@ public class ReattachCaseTests {
         Assert.assertFalse(controllerA.isAttached());
         Assert.assertTrue(controllerB.isAttached());
 
-        rotateDevice();
+        activityProxy.rotate();
+        router.rebindIfNeeded();
 
         Assert.assertFalse(controllerA.isAttached());
         Assert.assertTrue(controllerB.isAttached());
@@ -102,7 +94,8 @@ public class ReattachCaseTests {
         Assert.assertFalse(childController.isAttached());
         Assert.assertTrue(controllerB.isAttached());
 
-        rotateDevice();
+        activityProxy.rotate();
+        router.rebindIfNeeded();
 
         Assert.assertFalse(controllerA.isAttached());
         Assert.assertFalse(childController.isAttached());
@@ -138,7 +131,8 @@ public class ReattachCaseTests {
         Assert.assertTrue(controllerB.isAttached());
         Assert.assertTrue(childController.isAttached());
 
-        rotateDevice();
+        activityProxy.rotate();
+        router.rebindIfNeeded();
 
         Assert.assertFalse(controllerA.isAttached());
         Assert.assertTrue(controllerB.isAttached());
@@ -201,7 +195,8 @@ public class ReattachCaseTests {
         Assert.assertTrue(controllerB.isAttached());
         Assert.assertTrue(childController.isAttached());
 
-        rotateDevice();
+        activityProxy.rotate();
+        router.rebindIfNeeded();
 
         Assert.assertFalse(controllerA.isAttached());
         Assert.assertTrue(controllerB.isAttached());
@@ -232,18 +227,8 @@ public class ReattachCaseTests {
     }
 
     private void sleepWakeDevice() {
-        activityController.saveInstanceState(new Bundle()).pause();
-        activityController.resume();
-    }
-
-    private void rotateDevice() {
-        @IdRes int containerId = 4;
-        FrameLayout routerContainer = new FrameLayout(activityController.get());
-        routerContainer.setId(containerId);
-
-        activityController.get().isChangingConfigurations = true;
-        activityController.get().recreate();
-        router.rebindIfNeeded();
+        activityProxy.saveInstanceState(new Bundle()).pause();
+        activityProxy.resume();
     }
 
 }

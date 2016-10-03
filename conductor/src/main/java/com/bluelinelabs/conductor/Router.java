@@ -152,8 +152,21 @@ public abstract class Router {
             trackDestroyingController(backstack.pop());
         }
 
+        final ControllerChangeHandler handler = transaction.pushChangeHandler();
+        final boolean oldHandlerRemovedViews = topTransaction.pushChangeHandler() == null || topTransaction.pushChangeHandler().removesFromViewOnPush();
+        final boolean newHandlerRemovesViews = handler == null || handler.removesFromViewOnPush();
+        if (!oldHandlerRemovedViews && newHandlerRemovesViews) {
+            for (RouterTransaction visibleTransaction : getVisibleTransactions(backstack.iterator())) {
+                performControllerChange(null, visibleTransaction.controller, true, handler != null ? handler.copy() : new SimpleSwapChangeHandler());
+            }
+        }
+
         pushToBackstack(transaction);
-        performControllerChange(transaction, topTransaction, true);
+
+        if (handler != null) {
+            handler.setForceRemoveViewOnPush(true);
+        }
+        performControllerChange(transaction.pushChangeHandler(handler), topTransaction, true);
     }
 
     void destroy() {
@@ -319,7 +332,7 @@ public abstract class Router {
      * using the passed {@link ControllerChangeHandler}
      *
      * @param newBackstack The new backstack
-     * @param changeHandler An optional change handler to be used to handle the transition
+     * @param changeHandler An optional change handler to be used to handle the root view of transition
      */
     public void setBackstack(@NonNull List<RouterTransaction> newBackstack, ControllerChangeHandler changeHandler) {
         List<RouterTransaction> oldVisibleTransactions = getVisibleTransactions(backstack.iterator());
@@ -349,13 +362,15 @@ public abstract class Router {
 
                 for (int i = oldVisibleTransactions.size() - 1; i > 0; i--) {
                     RouterTransaction transaction = oldVisibleTransactions.get(i);
-                    performControllerChange(null, transaction.controller, true, handler);
+                    ControllerChangeHandler localHandler = handler.copy();
+                    localHandler.setForceRemoveViewOnPush(true);
+                    performControllerChange(null, transaction.controller, true, localHandler);
                 }
 
                 for (int i = 1; i < newVisibleTransactions.size(); i++) {
                     RouterTransaction transaction = newVisibleTransactions.get(i);
                     handler = transaction.pushChangeHandler() != null ? transaction.pushChangeHandler().copy() : new SimpleSwapChangeHandler();
-                    performControllerChange(transaction.controller, newVisibleTransactions.get(i - 1).controller, true, handler);
+                    performControllerChange(transaction.controller, newVisibleTransactions.get(i - 1).controller, true, handler.copy());
                 }
             }
         }
