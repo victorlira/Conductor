@@ -16,10 +16,13 @@ import com.bluelinelabs.conductor.demo.R;
 import com.bluelinelabs.conductor.demo.controllers.base.BaseController;
 import com.bluelinelabs.conductor.demo.util.ColorUtil;
 
+import java.util.List;
+
 public class ParentController extends BaseController {
 
     private static final int NUMBER_OF_CHILDREN = 5;
     private boolean finishing;
+    private boolean hasShownAll;
 
     @NonNull
     @Override
@@ -47,8 +50,12 @@ public class ParentController extends BaseController {
             childController.addLifecycleListener(new LifecycleListener() {
                 @Override
                 public void onChangeEnd(@NonNull Controller controller, @NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
-                    if (changeType == ControllerChangeType.PUSH_ENTER && index < NUMBER_OF_CHILDREN - 1) {
-                        addChild(index + 1);
+                    if (changeType == ControllerChangeType.PUSH_ENTER && !hasShownAll) {
+                        if (index < NUMBER_OF_CHILDREN - 1) {
+                            addChild(index + 1);
+                        } else {
+                            hasShownAll = true;
+                        }
                     } else if (changeType == ControllerChangeType.POP_EXIT) {
                         if (index > 0) {
                             removeChild(index - 1);
@@ -66,7 +73,10 @@ public class ParentController extends BaseController {
     }
 
     private void removeChild(int index) {
-        removeChildRouter(getChildRouters().get(index));
+        List<Router> childRouters = getChildRouters();
+        if (index < childRouters.size()) {
+            removeChildRouter(childRouters.get(index));
+        }
     }
 
     @Override
