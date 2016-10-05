@@ -14,6 +14,22 @@ import android.view.ViewGroup;
  */
 abstract public class RestoreViewOnCreateController extends Controller {
 
+    /**
+     * Convenience constructor for use when no arguments are needed.
+     */
+    protected RestoreViewOnCreateController() {
+        super(null);
+    }
+
+    /**
+     * Constructor that takes arguments that need to be retained across restarts.
+     *
+     * @param args Any arguments that need to be retained.
+     */
+    protected RestoreViewOnCreateController(Bundle args) {
+        super(args);
+    }
+
     @NonNull
     @Override
     protected final View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
