@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.SparseArray;
 import android.view.Menu;
@@ -27,6 +29,7 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
 
     private static final String FRAGMENT_TAG = "LifecycleHandler";
 
+    private static final String KEY_PENDING_PERMISSION_REQUESTS = "LifecycleHandler.pendingPermissionRequests";
     private static final String KEY_PERMISSION_REQUEST_CODES = "LifecycleHandler.permissionRequests";
     private static final String KEY_ACTIVITY_REQUEST_CODES = "LifecycleHandler.activityRequests";
     private static final String KEY_ROUTER_STATE_PREFIX = "LifecycleHandler.routerState";
@@ -34,9 +37,11 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
     private Activity activity;
     private boolean hasRegisteredCallbacks;
     private boolean destroyed;
+    private boolean attached;
 
     private SparseArray<String> permissionRequestMap = new SparseArray<>();
     private SparseArray<String> activityRequestMap = new SparseArray<>();
+    private ArrayList<PendingPermissionRequest> pendingPermissionRequests = new ArrayList<>();
 
     private final Map<Integer, ActivityHostedRouter> routerMap = new HashMap<>();
 
@@ -110,10 +115,13 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
 
         if (savedInstanceState != null) {
             StringSparseArrayParceler permissionParcel = savedInstanceState.getParcelable(KEY_PERMISSION_REQUEST_CODES);
-            permissionRequestMap = permissionParcel != null ? permissionParcel.getStringSparseArray() : null;
+            permissionRequestMap = permissionParcel != null ? permissionParcel.getStringSparseArray() : new SparseArray<String>();
 
             StringSparseArrayParceler activityParcel = savedInstanceState.getParcelable(KEY_ACTIVITY_REQUEST_CODES);
-            activityRequestMap = activityParcel != null ? activityParcel.getStringSparseArray() : null;
+            activityRequestMap = activityParcel != null ? activityParcel.getStringSparseArray() : new SparseArray<String>();
+
+            ArrayList<PendingPermissionRequest> pendingRequests = savedInstanceState.getParcelableArrayList(KEY_PENDING_PERMISSION_REQUESTS);
+            pendingPermissionRequests = pendingRequests != null ? pendingRequests : new ArrayList<PendingPermissionRequest>();
         }
     }
 
@@ -123,6 +131,7 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
 
         outState.putParcelable(KEY_PERMISSION_REQUEST_CODES, new StringSparseArrayParceler(permissionRequestMap));
         outState.putParcelable(KEY_ACTIVITY_REQUEST_CODES, new StringSparseArrayParceler(activityRequestMap));
+        outState.putParcelableArrayList(KEY_PENDING_PERMISSION_REQUESTS, pendingPermissionRequests);
     }
 
     @Override
@@ -141,19 +150,33 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         destroyed = false;
+        setAttached();
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         destroyed = false;
+        setAttached();
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
 
+        attached = false;
         destroyRouters();
+    }
+
+    private void setAttached() {
+        if (!attached) {
+            attached = true;
+
+            for (int i = pendingPermissionRequests.size() - 1; i >= 0; i--) {
+                PendingPermissionRequest request = pendingPermissionRequests.remove(i);
+                requestPermissions(request.instanceId, request.permissions, request.requestCode);
+            }
+        }
     }
 
     private void destroyRouters() {
@@ -256,8 +279,12 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
 
     @TargetApi(Build.VERSION_CODES.M)
     public void requestPermissions(String instanceId, String[] permissions, int requestCode) {
-        permissionRequestMap.put(requestCode, instanceId);
-        requestPermissions(permissions, requestCode);
+        if (attached) {
+            permissionRequestMap.put(requestCode, instanceId);
+            requestPermissions(permissions, requestCode);
+        } else {
+            pendingPermissionRequests.add(new PendingPermissionRequest(instanceId, permissions, requestCode));
+        }
     }
 
     @Override
@@ -316,4 +343,43 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
 
     @Override
     public void onActivityDestroyed(Activity activity) { }
+
+    private static class PendingPermissionRequest implements Parcelable {
+        final String instanceId;
+        final String[] permissions;
+        final int requestCode;
+
+        public PendingPermissionRequest(String instanceId, String[] permissions, int requestCode) {
+            this.instanceId = instanceId;
+            this.permissions = permissions;
+            this.requestCode = requestCode;
+        }
+
+        private PendingPermissionRequest(Parcel in) {
+            instanceId = in.readString();
+            permissions = in.createStringArray();
+            requestCode = in.readInt();
+        }
+
+        public int describeContents() {
+            return 0;
+        }
+
+        public void writeToParcel(Parcel out, int flags) {
+            out.writeString(instanceId);
+            out.writeStringArray(permissions);
+            out.writeInt(requestCode);
+        }
+
+        public static final Parcelable.Creator<PendingPermissionRequest> CREATOR = new Parcelable.Creator<PendingPermissionRequest>() {
+            public PendingPermissionRequest createFromParcel(Parcel in) {
+                return new PendingPermissionRequest(in);
+            }
+
+            public PendingPermissionRequest[] newArray(int size) {
+                return new PendingPermissionRequest[size];
+            }
+        };
+
+    }
 }
