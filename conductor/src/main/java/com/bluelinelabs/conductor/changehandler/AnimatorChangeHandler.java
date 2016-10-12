@@ -1,6 +1,7 @@
 package com.bluelinelabs.conductor.changehandler;
 
 import android.animation.Animator;
+import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorListenerAdapter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -25,6 +26,7 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
     private boolean removesFromViewOnPush;
     private boolean canceled;
     private boolean needsImmediateCompletion;
+    private boolean completed;
     private Animator animator;
 
     public AnimatorChangeHandler() {
@@ -136,9 +138,23 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
         }
     }
 
+    private void complete(ControllerChangeCompletedListener changeListener, AnimatorListener animatorListener) {
+        if (!completed) {
+            completed = true;
+            changeListener.onChangeCompleted();
+        }
+
+        if (animator != null) {
+            if (animatorListener != null) {
+                animator.removeListener(animatorListener);
+            }
+            animator = null;
+        }
+    }
+
     private void performAnimation(@NonNull final ViewGroup container, final View from, final View to, final boolean isPush, final boolean toAddedToContainer, @NonNull final ControllerChangeCompletedListener changeListener) {
         if (canceled) {
-            changeListener.onChangeCompleted();
+            complete(changeListener, null);
             return;
         }
 
@@ -155,9 +171,7 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
                     container.removeView(from);
                 }
 
-                changeListener.onChangeCompleted();
-                animator.removeListener(this);
-                animator = null;
+                complete(changeListener, this);
             }
 
             @Override
@@ -167,14 +181,11 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
                         container.removeView(from);
                     }
 
-                    changeListener.onChangeCompleted();
-                    animator.removeListener(this);
+                    complete(changeListener, this);
 
                     if (isPush && from != null) {
                         resetFromView(from);
                     }
-
-                    animator = null;
                 }
             }
         });
