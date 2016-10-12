@@ -728,7 +728,8 @@ public abstract class Controller {
     private void attach(@NonNull View view) {
         hasSavedViewState = false;
 
-        for (LifecycleListener lifecycleListener : lifecycleListeners) {
+        List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+        for (LifecycleListener lifecycleListener : listeners) {
             lifecycleListener.preAttach(this, view);
         }
 
@@ -741,7 +742,8 @@ public abstract class Controller {
             router.invalidateOptionsMenu();
         }
 
-        for (LifecycleListener lifecycleListener : lifecycleListeners) {
+        listeners = new ArrayList<>(lifecycleListeners);
+        for (LifecycleListener lifecycleListener : listeners) {
             lifecycleListener.postAttach(this, view);
         }
     }
@@ -754,7 +756,8 @@ public abstract class Controller {
         final boolean removeViewRef = forceViewRefRemoval || retainViewMode == RetainViewMode.RELEASE_DETACH || isBeingDestroyed;
 
         if (attached) {
-            for (LifecycleListener lifecycleListener : lifecycleListeners) {
+            List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+            for (LifecycleListener lifecycleListener : listeners) {
                 lifecycleListener.preDetach(this, view);
             }
 
@@ -765,7 +768,8 @@ public abstract class Controller {
                 router.invalidateOptionsMenu();
             }
 
-            for (LifecycleListener lifecycleListener : lifecycleListeners) {
+            listeners = new ArrayList<>(lifecycleListeners);
+            for (LifecycleListener lifecycleListener : listeners) {
                 lifecycleListener.postDetach(this, view);
             }
         }
@@ -781,7 +785,8 @@ public abstract class Controller {
                 saveViewState(view);
             }
 
-            for (LifecycleListener lifecycleListener : lifecycleListeners) {
+            List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+            for (LifecycleListener lifecycleListener : listeners) {
                 lifecycleListener.preDestroyView(this, view);
             }
 
@@ -795,7 +800,8 @@ public abstract class Controller {
             }
             view = null;
 
-            for (LifecycleListener lifecycleListener : lifecycleListeners) {
+            listeners = new ArrayList<>(lifecycleListeners);
+            for (LifecycleListener lifecycleListener : listeners) {
                 lifecycleListener.postDestroyView(this);
             }
 
@@ -816,13 +822,15 @@ public abstract class Controller {
         }
 
         if (view == null) {
-            for (LifecycleListener lifecycleListener : lifecycleListeners) {
+            List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+            for (LifecycleListener lifecycleListener : listeners) {
                 lifecycleListener.preCreateView(this);
             }
 
             view = onCreateView(LayoutInflater.from(parent.getContext()), parent);
 
-            for (LifecycleListener lifecycleListener : lifecycleListeners) {
+            listeners = new ArrayList<>(lifecycleListeners);
+            for (LifecycleListener lifecycleListener : listeners) {
                 lifecycleListener.postCreateView(this, view);
             }
 
@@ -857,7 +865,8 @@ public abstract class Controller {
 
     private void performDestroy() {
         if (!destroyed) {
-            for (LifecycleListener lifecycleListener : lifecycleListeners) {
+            List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+            for (LifecycleListener lifecycleListener : listeners) {
                 lifecycleListener.preDestroy(this);
             }
 
@@ -867,7 +876,8 @@ public abstract class Controller {
 
             parentController = null;
 
-            for (LifecycleListener lifecycleListener : lifecycleListeners) {
+            listeners = new ArrayList<>(lifecycleListeners);
+            for (LifecycleListener lifecycleListener : listeners) {
                 lifecycleListener.postDestroy(this);
             }
         }
@@ -908,7 +918,8 @@ public abstract class Controller {
         onSaveViewState(view, stateBundle);
         viewState.putBundle(KEY_VIEW_STATE_BUNDLE, stateBundle);
 
-        for (LifecycleListener lifecycleListener : lifecycleListeners) {
+        List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+        for (LifecycleListener lifecycleListener : listeners) {
             lifecycleListener.onSaveViewState(this, viewState);
         }
     }
@@ -930,7 +941,8 @@ public abstract class Controller {
                 }
             }
 
-            for (LifecycleListener lifecycleListener : lifecycleListeners) {
+            List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+            for (LifecycleListener lifecycleListener : listeners) {
                 lifecycleListener.onRestoreViewState(this, viewState);
             }
         }
@@ -969,7 +981,8 @@ public abstract class Controller {
         Bundle savedState = new Bundle();
         onSaveInstanceState(savedState);
 
-        for (LifecycleListener lifecycleListener : lifecycleListeners) {
+        List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+        for (LifecycleListener lifecycleListener : listeners) {
             lifecycleListener.onSaveInstanceState(this, savedState);
         }
 
@@ -1004,7 +1017,8 @@ public abstract class Controller {
         if (savedInstanceState != null && router != null) {
             onRestoreInstanceState(savedInstanceState);
 
-            for (LifecycleListener lifecycleListener : lifecycleListeners) {
+            List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+            for (LifecycleListener lifecycleListener : listeners) {
                 lifecycleListener.onRestoreInstanceState(this, savedInstanceState);
             }
 
@@ -1021,7 +1035,8 @@ public abstract class Controller {
 
         onChangeStarted(changeHandler, changeType);
 
-        for (LifecycleListener lifecycleListener : lifecycleListeners) {
+        List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+        for (LifecycleListener lifecycleListener : listeners) {
             lifecycleListener.onChangeStart(this, changeHandler, changeType);
         }
     }
@@ -1035,7 +1050,8 @@ public abstract class Controller {
 
         onChangeEnded(changeHandler, changeType);
 
-        for (LifecycleListener lifecycleListener : lifecycleListeners) {
+        List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+        for (LifecycleListener lifecycleListener : listeners) {
             lifecycleListener.onChangeEnd(this, changeHandler, changeType);
         }
 
