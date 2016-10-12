@@ -1057,9 +1057,10 @@ public abstract class Controller {
 
         if (isBeingDestroyed && !viewIsAttached && !attached && destroyedView != null) {
             View view = destroyedView.get();
-            if (router.container != null && view.getParent() == router.container) {
+            if (router.container != null && view != null && view.getParent() == router.container) {
                 router.container.removeView(view);
             }
+            destroyedView = null;
         }
     }
 
