@@ -71,7 +71,7 @@ public abstract class TransitionChangeHandler extends ControllerChangeHandler {
         if (from != null) {
             container.removeView(from);
         }
-        if (to != null) {
+        if (to != null && to.getParent() == null) {
             container.addView(to);
         }
     }
