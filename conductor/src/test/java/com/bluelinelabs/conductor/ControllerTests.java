@@ -38,11 +38,12 @@ public class ControllerTests {
     @Test
     public void testViewRetention() {
         Controller controller = new TestController();
+        controller.setRouter(router);
 
         // Test View getting released w/ RELEASE_DETACH
         controller.setRetainViewMode(RetainViewMode.RELEASE_DETACH);
         Assert.assertNull(controller.getView());
-        View view = controller.inflate(new AttachFakingFrameLayout(router.getActivity()));
+        View view = controller.inflate(router.container);
         Assert.assertNotNull(controller.getView());
         ViewUtils.reportAttached(view, true);
         Assert.assertNotNull(controller.getView());
@@ -51,7 +52,7 @@ public class ControllerTests {
 
         // Test View getting retained w/ RETAIN_DETACH
         controller.setRetainViewMode(RetainViewMode.RETAIN_DETACH);
-        view = controller.inflate(new AttachFakingFrameLayout(router.getActivity()));
+        view = controller.inflate(router.container);
         Assert.assertNotNull(controller.getView());
         ViewUtils.reportAttached(view, true);
         Assert.assertNotNull(controller.getView());

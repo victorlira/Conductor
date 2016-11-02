@@ -727,7 +727,7 @@ public abstract class Controller {
     }
 
     private void attach(@NonNull View view) {
-        attachedToUnownedParent = view.getParent() != router.container;
+        attachedToUnownedParent = router == null || view.getParent() != router.container;
         if (attachedToUnownedParent) {
             return;
         }
@@ -755,12 +755,10 @@ public abstract class Controller {
     }
 
     void detach(@NonNull View view, boolean forceViewRefRemoval) {
-        if (attachedToUnownedParent) {
-            return;
-        }
-
-        for (ControllerHostedRouter router : childRouters) {
-            router.prepareForHostDetach();
+        if (!attachedToUnownedParent) {
+            for (ControllerHostedRouter router : childRouters) {
+                router.prepareForHostDetach();
+            }
         }
 
         final boolean removeViewRef = forceViewRefRemoval || retainViewMode == RetainViewMode.RELEASE_DETACH || isBeingDestroyed;
