@@ -74,6 +74,7 @@ public abstract class Controller {
     private String instanceId;
     private String targetInstanceId;
     private boolean needsAttach;
+    private boolean attachedToUnownedParent;
     private boolean hasSavedViewState;
     private boolean isDetachFrozen;
     private ControllerChangeHandler overriddenPushHandler;
@@ -726,6 +727,11 @@ public abstract class Controller {
     }
 
     private void attach(@NonNull View view) {
+        attachedToUnownedParent = view.getParent() != router.container;
+        if (attachedToUnownedParent) {
+            return;
+        }
+
         hasSavedViewState = false;
 
         List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
@@ -749,6 +755,10 @@ public abstract class Controller {
     }
 
     void detach(@NonNull View view, boolean forceViewRefRemoval) {
+        if (attachedToUnownedParent) {
+            return;
+        }
+
         for (ControllerHostedRouter router : childRouters) {
             router.prepareForHostDetach();
         }
