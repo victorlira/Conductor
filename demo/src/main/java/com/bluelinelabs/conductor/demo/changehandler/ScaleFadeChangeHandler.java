@@ -15,7 +15,7 @@ public class ScaleFadeChangeHandler extends AnimatorChangeHandler {
         super(DEFAULT_ANIMATION_DURATION, true);
     }
 
-    @Override
+    @Override @NonNull
     protected Animator getAnimator(@NonNull ViewGroup container, View from, View to, boolean isPush, boolean toAddedToContainer) {
         AnimatorSet animator = new AnimatorSet();
         if (to != null && toAddedToContainer) {

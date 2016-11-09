@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.ViewGroup;
 
 import com.bluelinelabs.conductor.ControllerChangeHandler.ControllerChangeListener;
@@ -24,7 +25,7 @@ class ControllerHostedRouter extends Router {
 
     ControllerHostedRouter() { }
 
-    ControllerHostedRouter(int hostId, String tag) {
+    ControllerHostedRouter(int hostId, @Nullable String tag) {
         this.hostId = hostId;
         this.tag = tag;
     }
@@ -76,20 +77,20 @@ class ControllerHostedRouter extends Router {
         super.destroy();
     }
 
-    @Override
+    @Override @Nullable
     public Activity getActivity() {
         return hostController != null ? hostController.getActivity() : null;
     }
 
     @Override
-    public void onActivityDestroyed(Activity activity) {
+    public void onActivityDestroyed(@NonNull Activity activity) {
         super.onActivityDestroyed(activity);
 
         removeHost();
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (hostController != null && hostController.getRouter() != null) {
             hostController.getRouter().onActivityResult(requestCode, resultCode, data);
         }
@@ -103,42 +104,42 @@ class ControllerHostedRouter extends Router {
     }
 
     @Override
-    void startActivity(Intent intent) {
+    void startActivity(@NonNull Intent intent) {
         if (hostController != null && hostController.getRouter() != null) {
             hostController.getRouter().startActivity(intent);
         }
     }
 
     @Override
-    void startActivityForResult(String instanceId, Intent intent, int requestCode) {
+    void startActivityForResult(@NonNull String instanceId, @NonNull Intent intent, int requestCode) {
         if (hostController != null && hostController.getRouter() != null) {
             hostController.getRouter().startActivityForResult(instanceId, intent, requestCode);
         }
     }
 
     @Override
-    void startActivityForResult(String instanceId, Intent intent, int requestCode, Bundle options) {
+    void startActivityForResult(@NonNull String instanceId, @NonNull Intent intent, int requestCode, @Nullable Bundle options) {
         if (hostController != null && hostController.getRouter() != null) {
             hostController.getRouter().startActivityForResult(instanceId, intent, requestCode, options);
         }
     }
 
     @Override
-    void registerForActivityResult(String instanceId, int requestCode) {
+    void registerForActivityResult(@NonNull String instanceId, int requestCode) {
         if (hostController != null && hostController.getRouter() != null) {
             hostController.getRouter().registerForActivityResult(instanceId, requestCode);
         }
     }
 
     @Override
-    void unregisterForActivityResults(String instanceId) {
+    void unregisterForActivityResults(@NonNull String instanceId) {
         if (hostController != null && hostController.getRouter() != null) {
             hostController.getRouter().unregisterForActivityResults(instanceId);
         }
     }
 
     @Override
-    void requestPermissions(String instanceId, String[] permissions, int requestCode) {
+    void requestPermissions(@NonNull String instanceId, @NonNull String[] permissions, int requestCode) {
         if (hostController != null && hostController.getRouter() != null) {
             hostController.getRouter().requestPermissions(instanceId, permissions, requestCode);
         }
@@ -150,7 +151,7 @@ class ControllerHostedRouter extends Router {
     }
 
     @Override
-    public void saveInstanceState(Bundle outState) {
+    public void saveInstanceState(@NonNull Bundle outState) {
         super.saveInstanceState(outState);
 
         outState.putInt(KEY_HOST_ID, hostId);
@@ -158,7 +159,7 @@ class ControllerHostedRouter extends Router {
     }
 
     @Override
-    public void restoreInstanceState(Bundle savedInstanceState) {
+    public void restoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.restoreInstanceState(savedInstanceState);
 
         hostId = savedInstanceState.getInt(KEY_HOST_ID);
@@ -166,7 +167,7 @@ class ControllerHostedRouter extends Router {
     }
 
     @Override
-    void setControllerRouter(Controller controller) {
+    void setControllerRouter(@NonNull Controller controller) {
         super.setControllerRouter(controller);
         controller.setParentController(hostController);
     }
@@ -175,11 +176,12 @@ class ControllerHostedRouter extends Router {
         return hostId;
     }
 
+    @Nullable
     String getTag() {
         return tag;
     }
 
-    @Override
+    @Override @NonNull
     List<Router> getSiblingRouters() {
         List<Router> list = new ArrayList<>();
         list.addAll(hostController.getChildRouters());
@@ -187,7 +189,7 @@ class ControllerHostedRouter extends Router {
         return list;
     }
 
-    @Override
+    @Override @NonNull
     Router getRootRouter() {
         if (hostController != null && hostController.getRouter() != null) {
             return hostController.getRouter().getRootRouter();

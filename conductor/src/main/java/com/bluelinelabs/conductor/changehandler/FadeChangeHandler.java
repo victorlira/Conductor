@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -26,8 +27,8 @@ public class FadeChangeHandler extends AnimatorChangeHandler {
         super(duration, removesFromViewOnPush);
     }
 
-    @Override
-    protected Animator getAnimator(@NonNull ViewGroup container, View from, View to, boolean isPush, boolean toAddedToContainer) {
+    @Override @NonNull
+    protected Animator getAnimator(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, boolean isPush, boolean toAddedToContainer) {
         AnimatorSet animator = new AnimatorSet();
         if (to != null && toAddedToContainer) {
             animator.play(ObjectAnimator.ofFloat(to, View.ALPHA, 0, 1));

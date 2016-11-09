@@ -26,12 +26,11 @@ abstract public class RestoreViewOnCreateController extends Controller {
      *
      * @param args Any arguments that need to be retained.
      */
-    protected RestoreViewOnCreateController(Bundle args) {
+    protected RestoreViewOnCreateController(@Nullable Bundle args) {
         super(args);
     }
 
-    @NonNull
-    @Override
+    @Override @NonNull
     protected final View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
         return onCreateView(inflater, container, viewState);
     }

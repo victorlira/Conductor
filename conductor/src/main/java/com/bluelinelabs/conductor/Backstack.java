@@ -1,6 +1,8 @@
 package com.bluelinelabs.conductor;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -24,20 +26,23 @@ class Backstack implements Iterable<RouterTransaction> {
         return backStack.size();
     }
 
+    @Nullable
     public RouterTransaction root() {
         return backStack.size() > 0 ? backStack.getLast() : null;
     }
 
-    @Override
+    @Override @NonNull
     public Iterator<RouterTransaction> iterator() {
         return backStack.iterator();
     }
 
+    @NonNull
     public Iterator<RouterTransaction> reverseIterator() {
         return backStack.descendingIterator();
     }
 
-    public List<RouterTransaction> popTo(RouterTransaction transaction) {
+    @NonNull
+    public List<RouterTransaction> popTo(@NonNull RouterTransaction transaction) {
         List<RouterTransaction> popped = new ArrayList<>();
         if (backStack.contains(transaction)) {
             while (backStack.peek() != transaction) {
@@ -50,24 +55,27 @@ class Backstack implements Iterable<RouterTransaction> {
         return popped;
     }
 
+    @NonNull
     public RouterTransaction pop() {
         RouterTransaction popped = backStack.pop();
         popped.controller.destroy();
         return popped;
     }
 
+    @Nullable
     public RouterTransaction peek() {
         return backStack.peek();
     }
 
-    public void remove(RouterTransaction transaction) {
+    public void remove(@NonNull RouterTransaction transaction) {
         backStack.removeFirstOccurrence(transaction);
     }
 
-    public void push(RouterTransaction transaction) {
+    public void push(@NonNull RouterTransaction transaction) {
         backStack.push(transaction);
     }
 
+    @NonNull
     public List<RouterTransaction> popAll() {
         List<RouterTransaction> list = new ArrayList<>();
         while (!isEmpty()) {
@@ -76,7 +84,7 @@ class Backstack implements Iterable<RouterTransaction> {
         return list;
     }
 
-    public void setBackstack(List<RouterTransaction> backstack) {
+    public void setBackstack(@NonNull List<RouterTransaction> backstack) {
         for (RouterTransaction existingTransaction : backStack) {
             boolean contains = false;
             for (RouterTransaction newTransaction : backstack) {
@@ -97,7 +105,7 @@ class Backstack implements Iterable<RouterTransaction> {
         }
     }
 
-    public void saveInstanceState(Bundle outState) {
+    public void saveInstanceState(@NonNull Bundle outState) {
         ArrayList<Bundle> entryBundles = new ArrayList<>(backStack.size());
         for (RouterTransaction entry : backStack) {
             entryBundles.add(entry.saveInstanceState());
@@ -106,7 +114,7 @@ class Backstack implements Iterable<RouterTransaction> {
         outState.putParcelableArrayList(KEY_ENTRIES, entryBundles);
     }
 
-    public void restoreInstanceState(Bundle savedInstanceState) {
+    public void restoreInstanceState(@NonNull Bundle savedInstanceState) {
         ArrayList<Bundle> entryBundles = savedInstanceState.getParcelableArrayList(KEY_ENTRIES);
         if (entryBundles != null) {
             Collections.reverse(entryBundles);

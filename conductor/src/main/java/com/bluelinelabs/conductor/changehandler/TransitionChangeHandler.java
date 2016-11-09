@@ -3,6 +3,7 @@ package com.bluelinelabs.conductor.changehandler;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.transition.Transition;
 import android.transition.Transition.TransitionListener;
 import android.transition.TransitionManager;
@@ -29,17 +30,17 @@ public abstract class TransitionChangeHandler extends ControllerChangeHandler {
      * @param isPush True if this is a push transaction, false if it's a pop.
      */
     @NonNull
-    protected abstract Transition getTransition(@NonNull ViewGroup container, View from, View to, boolean isPush);
+    protected abstract Transition getTransition(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, boolean isPush);
 
     @Override
-    public void onAbortPush(@NonNull ControllerChangeHandler newHandler, Controller newTop) {
+    public void onAbortPush(@NonNull ControllerChangeHandler newHandler, @Nullable Controller newTop) {
         super.onAbortPush(newHandler, newTop);
 
         canceled = true;
     }
 
     @Override
-    public void performChange(@NonNull final ViewGroup container, View from, View to, boolean isPush, @NonNull final ControllerChangeCompletedListener changeListener) {
+    public void performChange(@NonNull final ViewGroup container, @Nullable View from, @Nullable View to, boolean isPush, @NonNull final ControllerChangeCompletedListener changeListener) {
         if (canceled) {
             changeListener.onChangeCompleted();
             return;

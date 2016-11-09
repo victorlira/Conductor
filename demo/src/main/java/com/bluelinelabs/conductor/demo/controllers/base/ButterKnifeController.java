@@ -34,7 +34,7 @@ public abstract class ButterKnifeController extends RxController {
     protected void onViewBound(@NonNull View view) { }
 
     @Override
-    protected void onDestroyView(View view) {
+    protected void onDestroyView(@NonNull View view) {
         super.onDestroyView(view);
         unbinder.unbind();
         unbinder = null;

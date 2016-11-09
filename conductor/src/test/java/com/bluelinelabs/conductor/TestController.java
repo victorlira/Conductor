@@ -68,7 +68,7 @@ public class TestController extends Controller {
     }
 
     @Override
-    protected void onDestroyView(View view) {
+    protected void onDestroyView(@NonNull View view) {
         super.onDestroyView(view);
         currentCallState.destroyViewCalls++;
     }

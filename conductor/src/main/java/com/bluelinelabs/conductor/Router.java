@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -41,6 +42,7 @@ public abstract class Router {
     /**
      * Returns this Router's host Activity
      */
+    @Nullable
     public abstract Activity getActivity();
 
     /**
@@ -51,7 +53,7 @@ public abstract class Router {
      * @param resultCode The Activity's onActivityResult resultCode
      * @param data The Activity's onActivityResult data
      */
-    public abstract void onActivityResult(int requestCode, int resultCode, Intent data);
+    public abstract void onActivityResult(int requestCode, int resultCode, @Nullable Intent data);
 
     /**
      * This should be called by the host Activity when its onRequestPermissionsResult method is called. The call will be forwarded
@@ -62,7 +64,7 @@ public abstract class Router {
      * @param permissions The Activity's onRequestPermissionsResult permissions
      * @param grantResults The Activity's onRequestPermissionsResult grantResults
      */
-    public void onRequestPermissionsResult(String instanceId, int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(@NonNull String instanceId, int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Controller controller = getControllerWithInstanceId(instanceId);
         if (controller != null) {
             controller.requestPermissionsResult(requestCode, permissions, grantResults);
@@ -77,6 +79,7 @@ public abstract class Router {
      */
     public boolean handleBack() {
         if (!backstack.isEmpty()) {
+            //noinspection ConstantConditions
             if (backstack.peek().controller.handleBack()) {
                 return true;
             } else if (popCurrentController()) {
@@ -93,7 +96,11 @@ public abstract class Router {
      * @return Whether or not this Router still has controllers remaining on it after popping.
      */
     public boolean popCurrentController() {
-        return popController(backstack.peek().controller);
+        RouterTransaction transaction = backstack.peek();
+        if (transaction == null) {
+            throw new IllegalStateException("Trying to pop the current controller when there are none on the backstack.");
+        }
+        return popController(transaction.controller);
     }
 
     /**
@@ -102,7 +109,7 @@ public abstract class Router {
      * @param controller The controller that should be popped from this Router
      * @return Whether or not this Router still has controllers remaining on it after popping.
      */
-    public boolean popController(Controller controller) {
+    public boolean popController(@NonNull Controller controller) {
         RouterTransaction topController = backstack.peek();
         boolean poppingTopController = topController != null && topController.controller == controller;
 
@@ -153,11 +160,13 @@ public abstract class Router {
         }
 
         final ControllerChangeHandler handler = transaction.pushChangeHandler();
-        final boolean oldHandlerRemovedViews = topTransaction.pushChangeHandler() == null || topTransaction.pushChangeHandler().removesFromViewOnPush();
-        final boolean newHandlerRemovesViews = handler == null || handler.removesFromViewOnPush();
-        if (!oldHandlerRemovedViews && newHandlerRemovesViews) {
-            for (RouterTransaction visibleTransaction : getVisibleTransactions(backstack.iterator())) {
-                performControllerChange(null, visibleTransaction.controller, true, handler != null ? handler.copy() : new SimpleSwapChangeHandler());
+        if (topTransaction != null) {
+            final boolean oldHandlerRemovedViews = topTransaction.pushChangeHandler() == null || topTransaction.pushChangeHandler().removesFromViewOnPush();
+            final boolean newHandlerRemovesViews = handler == null || handler.removesFromViewOnPush();
+            if (!oldHandlerRemovedViews && newHandlerRemovesViews) {
+                for (RouterTransaction visibleTransaction : getVisibleTransactions(backstack.iterator())) {
+                    performControllerChange(null, visibleTransaction.controller, true, handler != null ? handler.copy() : new SimpleSwapChangeHandler());
+                }
             }
         }
 
@@ -189,6 +198,7 @@ public abstract class Router {
      * in the stack. This defaults to false so that the developer can either finish its containing Activity or otherwise
      * hide its parent view without any strange artifacting.
      */
+    @NonNull
     public Router setPopsLastView(boolean popsLastView) {
         this.popsLastView = popsLastView;
         return this;
@@ -209,8 +219,9 @@ public abstract class Router {
      * @param changeHandler The {@link ControllerChangeHandler} to handle this transaction
      * @return Whether or not any {@link Controller}s were popped in order to get to the root transaction
      */
-    public boolean popToRoot(ControllerChangeHandler changeHandler) {
+    public boolean popToRoot(@Nullable ControllerChangeHandler changeHandler) {
         if (backstack.size() > 1) {
+            //noinspection ConstantConditions
             popToTransaction(backstack.root(), changeHandler);
             return true;
         } else {
@@ -235,7 +246,7 @@ public abstract class Router {
      * @param changeHandler The {@link ControllerChangeHandler} to handle this transaction
      * @return Whether or not the {@link Controller} with the passed tag is now at the top
      */
-    public boolean popToTag(@NonNull String tag, ControllerChangeHandler changeHandler) {
+    public boolean popToTag(@NonNull String tag, @Nullable ControllerChangeHandler changeHandler) {
         for (RouterTransaction transaction : backstack) {
             if (tag.equals(transaction.tag())) {
                 popToTransaction(transaction, changeHandler);
@@ -283,7 +294,8 @@ public abstract class Router {
      * @param instanceId The instance ID being searched for
      * @return The matching Controller, if one exists
      */
-    public Controller getControllerWithInstanceId(String instanceId) {
+    @Nullable
+    public Controller getControllerWithInstanceId(@NonNull String instanceId) {
         for (RouterTransaction transaction : backstack) {
             Controller controllerWithId = transaction.controller.findController(instanceId);
             if (controllerWithId != null) {
@@ -299,7 +311,8 @@ public abstract class Router {
      * @param tag The tag being searched for
      * @return The matching Controller, if one exists
      */
-    public Controller getControllerWithTag(String tag) {
+    @Nullable
+    public Controller getControllerWithTag(@NonNull String tag) {
         for (RouterTransaction transaction : backstack) {
             if (tag.equals(transaction.tag())) {
                 return transaction.controller;
@@ -318,6 +331,7 @@ public abstract class Router {
     /**
      * Returns the current backstack, ordered from root to most recently pushed.
      */
+    @NonNull
     public List<RouterTransaction> getBackstack() {
         List<RouterTransaction> list = new ArrayList<>();
         Iterator<RouterTransaction> backstackIterator = backstack.reverseIterator();
@@ -334,7 +348,7 @@ public abstract class Router {
      * @param newBackstack The new backstack
      * @param changeHandler An optional change handler to be used to handle the root view of transition
      */
-    public void setBackstack(@NonNull List<RouterTransaction> newBackstack, ControllerChangeHandler changeHandler) {
+    public void setBackstack(@NonNull List<RouterTransaction> newBackstack, @Nullable ControllerChangeHandler changeHandler) {
         List<RouterTransaction> oldVisibleTransactions = getVisibleTransactions(backstack.iterator());
 
         removeAllExceptVisibleAndUnowned();
@@ -370,7 +384,7 @@ public abstract class Router {
                 for (int i = 1; i < newVisibleTransactions.size(); i++) {
                     RouterTransaction transaction = newVisibleTransactions.get(i);
                     handler = transaction.pushChangeHandler() != null ? transaction.pushChangeHandler().copy() : new SimpleSwapChangeHandler();
-                    performControllerChange(transaction.controller, newVisibleTransactions.get(i - 1).controller, true, handler.copy());
+                    performControllerChange(transaction.controller, newVisibleTransactions.get(i - 1).controller, true, handler);
                 }
             }
         }
@@ -394,7 +408,7 @@ public abstract class Router {
      *
      * @param changeListener The listener
      */
-    public void addChangeListener(ControllerChangeListener changeListener) {
+    public void addChangeListener(@NonNull ControllerChangeListener changeListener) {
         if (!changeListeners.contains(changeListener)) {
             changeListeners.add(changeListener);
         }
@@ -405,7 +419,7 @@ public abstract class Router {
      *
      * @param changeListener The listener to be removed
      */
-    public void removeChangeListener(ControllerChangeListener changeListener) {
+    public void removeChangeListener(@NonNull ControllerChangeListener changeListener) {
         changeListeners.remove(changeListener);
     }
 
@@ -423,14 +437,14 @@ public abstract class Router {
         }
     }
 
-    public final void onActivityResult(String instanceId, int requestCode, int resultCode, Intent data) {
+    public final void onActivityResult(@NonNull String instanceId, int requestCode, int resultCode, @Nullable Intent data) {
         Controller controller = getControllerWithInstanceId(instanceId);
         if (controller != null) {
             controller.onActivityResult(requestCode, resultCode, data);
         }
     }
 
-    public final void onActivityStarted(Activity activity) {
+    public final void onActivityStarted(@NonNull Activity activity) {
         for (RouterTransaction transaction : backstack) {
             transaction.controller.activityStarted(activity);
 
@@ -440,7 +454,7 @@ public abstract class Router {
         }
     }
 
-    public final void onActivityResumed(Activity activity) {
+    public final void onActivityResumed(@NonNull Activity activity) {
         for (RouterTransaction transaction : backstack) {
             transaction.controller.activityResumed(activity);
 
@@ -450,7 +464,7 @@ public abstract class Router {
         }
     }
 
-    public final void onActivityPaused(Activity activity) {
+    public final void onActivityPaused(@NonNull Activity activity) {
         for (RouterTransaction transaction : backstack) {
             transaction.controller.activityPaused(activity);
 
@@ -460,7 +474,7 @@ public abstract class Router {
         }
     }
 
-    public final void onActivityStopped(Activity activity) {
+    public final void onActivityStopped(@NonNull Activity activity) {
         for (RouterTransaction transaction : backstack) {
             transaction.controller.activityStopped(activity);
 
@@ -470,7 +484,7 @@ public abstract class Router {
         }
     }
 
-    public void onActivityDestroyed(Activity activity) {
+    public void onActivityDestroyed(@NonNull Activity activity) {
         prepareForContainerRemoval();
         changeListeners.clear();
 
@@ -503,7 +517,7 @@ public abstract class Router {
         }
     }
 
-    public void saveInstanceState(Bundle outState) {
+    public void saveInstanceState(@NonNull Bundle outState) {
         prepareForHostDetach();
 
         Bundle backstackState = new Bundle();
@@ -513,7 +527,7 @@ public abstract class Router {
         outState.putBoolean(KEY_POPS_LAST_VIEW, popsLastView);
     }
 
-    public void restoreInstanceState(Bundle savedInstanceState) {
+    public void restoreInstanceState(@NonNull Bundle savedInstanceState) {
         Bundle backstackBundle = savedInstanceState.getParcelable(KEY_BACKSTACK);
         backstack.restoreInstanceState(backstackBundle);
         popsLastView = savedInstanceState.getBoolean(KEY_POPS_LAST_VIEW);
@@ -524,7 +538,7 @@ public abstract class Router {
         }
     }
 
-    public final void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public final void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         for (RouterTransaction transaction : backstack) {
             transaction.controller.createOptionsMenu(menu, inflater);
 
@@ -534,7 +548,7 @@ public abstract class Router {
         }
     }
 
-    public final void onPrepareOptionsMenu(Menu menu) {
+    public final void onPrepareOptionsMenu(@NonNull Menu menu) {
         for (RouterTransaction transaction : backstack) {
             transaction.controller.prepareOptionsMenu(menu);
 
@@ -544,7 +558,7 @@ public abstract class Router {
         }
     }
 
-    public final boolean onOptionsItemSelected(MenuItem item) {
+    public final boolean onOptionsItemSelected(@NonNull MenuItem item) {
         for (RouterTransaction transaction : backstack) {
             if (transaction.controller.optionsItemSelected(item)) {
                 return true;
@@ -559,7 +573,7 @@ public abstract class Router {
         return false;
     }
 
-    private void popToTransaction(@NonNull RouterTransaction transaction, ControllerChangeHandler changeHandler) {
+    private void popToTransaction(@NonNull RouterTransaction transaction, @Nullable ControllerChangeHandler changeHandler) {
         RouterTransaction topTransaction = backstack.peek();
         List<RouterTransaction> poppedTransactions = backstack.popTo(transaction);
         trackDestroyingControllers(poppedTransactions);
@@ -579,6 +593,7 @@ public abstract class Router {
         }
     }
 
+    @NonNull
     final List<Controller> getControllers() {
         List<Controller> controllers = new ArrayList<>();
 
@@ -590,6 +605,7 @@ public abstract class Router {
         return controllers;
     }
 
+    @Nullable
     public final Boolean handleRequestedPermission(@NonNull String permission) {
         for (RouterTransaction transaction : backstack) {
             if (transaction.controller.didRequestPermission(permission)) {
@@ -599,7 +615,7 @@ public abstract class Router {
         return null;
     }
 
-    private void performControllerChange(RouterTransaction to, RouterTransaction from, boolean isPush) {
+    private void performControllerChange(@Nullable RouterTransaction to, @Nullable RouterTransaction from, boolean isPush) {
         if (isPush && to != null) {
             to.onAttachedToRouter();
         }
@@ -620,7 +636,7 @@ public abstract class Router {
         performControllerChange(toController, fromController, isPush, changeHandler);
     }
 
-    private void performControllerChange(final Controller to, final Controller from, boolean isPush, @NonNull ControllerChangeHandler changeHandler) {
+    private void performControllerChange(@Nullable final Controller to, @Nullable final Controller from, boolean isPush, @Nullable ControllerChangeHandler changeHandler) {
         if (to != null) {
             setControllerRouter(to);
         } else if (backstack.size() == 0 && !popsLastView) {
@@ -636,7 +652,7 @@ public abstract class Router {
         backstack.push(entry);
     }
 
-    private void trackDestroyingController(RouterTransaction transaction) {
+    private void trackDestroyingController(@NonNull RouterTransaction transaction) {
         if (!transaction.controller.isDestroyed()) {
             destroyingControllers.add(transaction.controller);
 
@@ -649,7 +665,7 @@ public abstract class Router {
         }
     }
 
-    private void trackDestroyingControllers(List<RouterTransaction> transactions) {
+    private void trackDestroyingControllers(@NonNull List<RouterTransaction> transactions) {
         for (RouterTransaction transaction : transactions) {
             trackDestroyingController(transaction);
         }
@@ -679,7 +695,7 @@ public abstract class Router {
         }
     }
 
-    private void addRouterViewsToList(Router router, List<View> list) {
+    private void addRouterViewsToList(@NonNull Router router, @NonNull List<View> list) {
         for (Controller controller : router.getControllers()) {
             if (controller.getView() != null) {
                 list.add(controller.getView());
@@ -691,7 +707,7 @@ public abstract class Router {
         }
     }
 
-    private List<RouterTransaction> getVisibleTransactions(Iterator<RouterTransaction> backstackIterator) {
+    private List<RouterTransaction> getVisibleTransactions(@NonNull Iterator<RouterTransaction> backstackIterator) {
         List<RouterTransaction> transactions = new ArrayList<>();
         while (backstackIterator.hasNext()) {
             RouterTransaction transaction = backstackIterator.next();
@@ -706,18 +722,18 @@ public abstract class Router {
         return transactions;
     }
 
-    void setControllerRouter(Controller controller) {
+    void setControllerRouter(@NonNull Controller controller) {
         controller.setRouter(this);
     }
 
     abstract void invalidateOptionsMenu();
-    abstract void startActivity(Intent intent);
-    abstract void startActivityForResult(String instanceId, Intent intent, int requestCode);
-    abstract void startActivityForResult(String instanceId, Intent intent, int requestCode, Bundle options);
-    abstract void registerForActivityResult(String instanceId, int requestCode);
-    abstract void unregisterForActivityResults(String instanceId);
-    abstract void requestPermissions(String instanceId, String[] permissions, int requestCode);
+    abstract void startActivity(@NonNull Intent intent);
+    abstract void startActivityForResult(@NonNull String instanceId, @NonNull Intent intent, int requestCode);
+    abstract void startActivityForResult(@NonNull String instanceId, @NonNull Intent intent, int requestCode, @Nullable Bundle options);
+    abstract void registerForActivityResult(@NonNull String instanceId, int requestCode);
+    abstract void unregisterForActivityResults(@NonNull String instanceId);
+    abstract void requestPermissions(@NonNull String instanceId, @NonNull String[] permissions, int requestCode);
     abstract boolean hasHost();
-    abstract List<Router> getSiblingRouters();
-    abstract Router getRootRouter();
+    @NonNull abstract List<Router> getSiblingRouters();
+    @NonNull abstract Router getRootRouter();
 }

@@ -12,6 +12,8 @@ import com.bluelinelabs.conductor.demo.R;
 import com.bluelinelabs.conductor.demo.controllers.base.BaseController;
 import com.bluelinelabs.conductor.support.ControllerPagerAdapter;
 
+import java.util.Locale;
+
 import butterknife.BindView;
 
 public class PagerController extends BaseController {
@@ -27,7 +29,7 @@ public class PagerController extends BaseController {
         pagerAdapter = new ControllerPagerAdapter(this, false) {
             @Override
             public Controller getItem(int position) {
-                return new ChildController(String.format("Child #%d (Swipe to see more)", position), PAGE_COLORS[position], true);
+                return new ChildController(String.format(Locale.getDefault(), "Child #%d (Swipe to see more)", position), PAGE_COLORS[position], true);
             }
 
             @Override
@@ -50,7 +52,7 @@ public class PagerController extends BaseController {
     }
 
     @Override
-    protected void onDestroyView(View view) {
+    protected void onDestroyView(@NonNull View view) {
         viewPager.setAdapter(null);
         super.onDestroyView(view);
     }

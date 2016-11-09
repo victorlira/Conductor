@@ -2,6 +2,7 @@ package com.bluelinelabs.conductor;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * Metadata used for adding {@link Controller}s to a {@link Router}.
@@ -21,6 +22,7 @@ public class RouterTransaction {
     private ControllerChangeHandler popControllerChangeHandler;
     private boolean attachedToRouter;
 
+    @NonNull
     public static RouterTransaction with(@NonNull Controller controller) {
         return new RouterTransaction(controller);
     }
@@ -41,15 +43,18 @@ public class RouterTransaction {
         attachedToRouter = true;
     }
 
+    @NonNull
     public Controller controller() {
         return controller;
     }
 
+    @Nullable
     public String tag() {
         return tag;
     }
 
-    public RouterTransaction tag(String tag) {
+    @NonNull
+    public RouterTransaction tag(@Nullable String tag) {
         if (!attachedToRouter) {
             this.tag = tag;
             return this;
@@ -58,6 +63,7 @@ public class RouterTransaction {
         }
     }
 
+    @Nullable
     public ControllerChangeHandler pushChangeHandler() {
         ControllerChangeHandler handler = controller.getOverriddenPushHandler();
         if (handler == null) {
@@ -66,7 +72,8 @@ public class RouterTransaction {
         return handler;
     }
 
-    public RouterTransaction pushChangeHandler(ControllerChangeHandler handler) {
+    @NonNull
+    public RouterTransaction pushChangeHandler(@Nullable ControllerChangeHandler handler) {
         if (!attachedToRouter) {
             pushControllerChangeHandler = handler;
             return this;
@@ -75,6 +82,7 @@ public class RouterTransaction {
         }
     }
 
+    @Nullable
     public ControllerChangeHandler popChangeHandler() {
         ControllerChangeHandler handler = controller.getOverriddenPopHandler();
         if (handler == null) {
@@ -83,7 +91,8 @@ public class RouterTransaction {
         return handler;
     }
 
-    public RouterTransaction popChangeHandler(ControllerChangeHandler handler) {
+    @NonNull
+    public RouterTransaction popChangeHandler(@Nullable ControllerChangeHandler handler) {
         if (!attachedToRouter) {
             popControllerChangeHandler = handler;
             return this;
@@ -95,6 +104,7 @@ public class RouterTransaction {
     /**
      * Used to serialize this transaction into a Bundle
      */
+    @NonNull
     public Bundle saveInstanceState() {
         Bundle bundle = new Bundle();
 
