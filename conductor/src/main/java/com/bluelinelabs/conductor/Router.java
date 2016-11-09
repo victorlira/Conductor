@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -77,6 +78,7 @@ public abstract class Router {
      *
      * @return Whether or not a back action was handled by the Router
      */
+    @UiThread
     public boolean handleBack() {
         if (!backstack.isEmpty()) {
             //noinspection ConstantConditions
@@ -95,6 +97,7 @@ public abstract class Router {
      *
      * @return Whether or not this Router still has controllers remaining on it after popping.
      */
+    @UiThread
     public boolean popCurrentController() {
         RouterTransaction transaction = backstack.peek();
         if (transaction == null) {
@@ -109,6 +112,7 @@ public abstract class Router {
      * @param controller The controller that should be popped from this Router
      * @return Whether or not this Router still has controllers remaining on it after popping.
      */
+    @UiThread
     public boolean popController(@NonNull Controller controller) {
         RouterTransaction topController = backstack.peek();
         boolean poppingTopController = topController != null && topController.controller == controller;
@@ -141,6 +145,7 @@ public abstract class Router {
      * @param transaction The transaction detailing what should be pushed, including the {@link Controller},
      *                    and its push and pop {@link ControllerChangeHandler}, and its tag.
      */
+    @UiThread
     public void pushController(@NonNull RouterTransaction transaction) {
         RouterTransaction from = backstack.peek();
         pushToBackstack(transaction);
@@ -153,6 +158,7 @@ public abstract class Router {
      * @param transaction The transaction detailing what should be pushed, including the {@link Controller},
      *                    and its push and pop {@link ControllerChangeHandler}, and its tag.
      */
+    @UiThread
     public void replaceTopController(@NonNull RouterTransaction transaction) {
         RouterTransaction topTransaction = backstack.peek();
         if (!backstack.isEmpty()) {
@@ -209,6 +215,7 @@ public abstract class Router {
      *
      * @return Whether or not any {@link Controller}s were popped in order to get to the root transaction
      */
+    @UiThread
     public boolean popToRoot() {
         return popToRoot(null);
     }
@@ -219,6 +226,7 @@ public abstract class Router {
      * @param changeHandler The {@link ControllerChangeHandler} to handle this transaction
      * @return Whether or not any {@link Controller}s were popped in order to get to the root transaction
      */
+    @UiThread
     public boolean popToRoot(@Nullable ControllerChangeHandler changeHandler) {
         if (backstack.size() > 1) {
             //noinspection ConstantConditions
@@ -235,6 +243,7 @@ public abstract class Router {
      * @param tag The tag being popped to
      * @return Whether or not any {@link Controller}s were popped in order to get to the transaction with the passed tag
      */
+    @UiThread
     public boolean popToTag(@NonNull String tag) {
         return popToTag(tag, null);
     }
@@ -246,6 +255,7 @@ public abstract class Router {
      * @param changeHandler The {@link ControllerChangeHandler} to handle this transaction
      * @return Whether or not the {@link Controller} with the passed tag is now at the top
      */
+    @UiThread
     public boolean popToTag(@NonNull String tag, @Nullable ControllerChangeHandler changeHandler) {
         for (RouterTransaction transaction : backstack) {
             if (tag.equals(transaction.tag())) {
@@ -262,6 +272,7 @@ public abstract class Router {
      * @param transaction The transaction detailing what should be pushed, including the {@link Controller},
      *                    and its push and pop {@link ControllerChangeHandler}, and its tag.
      */
+    @UiThread
     public void setRoot(@NonNull RouterTransaction transaction) {
         ControllerChangeHandler newHandler = transaction.pushChangeHandler() != null ? transaction.pushChangeHandler() : new SimpleSwapChangeHandler();
 
@@ -348,6 +359,7 @@ public abstract class Router {
      * @param newBackstack The new backstack
      * @param changeHandler An optional change handler to be used to handle the root view of transition
      */
+    @UiThread
     public void setBackstack(@NonNull List<RouterTransaction> newBackstack, @Nullable ControllerChangeHandler changeHandler) {
         List<RouterTransaction> oldVisibleTransactions = getVisibleTransactions(backstack.iterator());
 
@@ -426,6 +438,7 @@ public abstract class Router {
     /**
      * Attaches this Router's existing backstack to its container if one exists.
      */
+    @UiThread
     public void rebindIfNeeded() {
         Iterator<RouterTransaction> backstackIterator = backstack.reverseIterator();
         while (backstackIterator.hasNext()) {
