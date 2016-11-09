@@ -647,7 +647,7 @@ public abstract class Controller {
      * @param menu The menu into which your options should be placed.
      * @param inflater The inflater that can be used to inflate your menu items.
      */
-    public void onCreateOptionsMenu(@Nullable Menu menu, @Nullable MenuInflater inflater) { }
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) { }
 
     /**
      * Prepare the screen's options menu to be displayed. This is called directly before showing the
@@ -655,7 +655,7 @@ public abstract class Controller {
      *
      * @param menu The menu that will be displayed
      */
-    public void onPrepareOptionsMenu(@Nullable Menu menu) { }
+    public void onPrepareOptionsMenu(@NonNull Menu menu) { }
 
     /**
      * Called when an option menu item has been selected by the user.
@@ -663,7 +663,7 @@ public abstract class Controller {
      * @param item The selected item.
      * @return True if this event has been consumed, false if it has not.
      */
-    public boolean onOptionsItemSelected(@Nullable MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         return false;
     }
 
