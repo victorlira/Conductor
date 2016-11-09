@@ -139,6 +139,10 @@ public abstract class ControllerChangeHandler {
 
             if (isPush && to != null) {
                 inProgressPushHandlers.put(to.getInstanceId(), handler);
+
+                if (from != null) {
+                    completePushImmediately(from.getInstanceId());
+                }
             } else if (!isPush && from != null) {
                 abortPush(from, to, handler);
             }

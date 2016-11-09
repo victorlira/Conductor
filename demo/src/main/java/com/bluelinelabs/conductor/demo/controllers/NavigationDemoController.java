@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.bluelinelabs.conductor.ControllerChangeHandler;
+import com.bluelinelabs.conductor.ControllerChangeType;
 import com.bluelinelabs.conductor.RouterTransaction;
 import com.bluelinelabs.conductor.changehandler.HorizontalChangeHandler;
 import com.bluelinelabs.conductor.demo.R;
@@ -61,8 +63,31 @@ public class NavigationDemoController extends BaseController {
     }
 
     @Override
+    protected void onChangeEnded(@NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
+        super.onChangeEnded(changeHandler, changeType);
+
+        setButtonsEnabled(true);
+    }
+
+    @Override
+    protected void onChangeStarted(@NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
+        super.onChangeStarted(changeHandler, changeType);
+
+        setButtonsEnabled(false);
+    }
+
+    @Override
     protected String getTitle() {
         return "Navigation Demos";
+    }
+
+    private void setButtonsEnabled(boolean enabled) {
+        final View view = getView();
+        if (view != null) {
+            view.findViewById(R.id.btn_next).setEnabled(enabled);
+            view.findViewById(R.id.btn_up).setEnabled(enabled);
+            view.findViewById(R.id.btn_pop_to_root).setEnabled(enabled);
+        }
     }
 
     @OnClick(R.id.btn_next) void onNextClicked() {

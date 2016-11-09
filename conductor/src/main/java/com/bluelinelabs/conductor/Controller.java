@@ -27,11 +27,9 @@ import com.bluelinelabs.conductor.internal.RouterRequiringFunc;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Deque;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
@@ -86,7 +84,7 @@ public abstract class Controller {
     private final List<LifecycleListener> lifecycleListeners = new ArrayList<>();
     private final ArrayList<String> requestedPermissions = new ArrayList<>();
     private final ArrayList<RouterRequiringFunc> onRouterSetListeners = new ArrayList<>();
-    private final Deque<Controller> childBackstack = new ArrayDeque<>();
+    private final List<Controller> childBackstack = new LinkedList<>();
     private WeakReference<View> destroyedView;
 
     private final ControllerChangeListener childRouterChangeListener = new ControllerChangeListener() {
@@ -526,9 +524,8 @@ public abstract class Controller {
      * @return True if this Controller has consumed the back button press, otherwise false
      */
     public boolean handleBack() {
-        Iterator<Controller> childIterator = childBackstack.descendingIterator();
-        while (childIterator.hasNext()) {
-            Controller childController = childIterator.next();
+        for (int i = childBackstack.size() - 1; i >= 0; i--) {
+            Controller childController = childBackstack.get(i);
             if (childController.isAttached() && childController.getRouter().handleBack()) {
                 return true;
             }
@@ -931,7 +928,7 @@ public abstract class Controller {
         if (!attached) {
             removeViewReference();
         } else if (removeViews) {
-            detach(view, false);
+            detach(view, true);
         }
     }
 

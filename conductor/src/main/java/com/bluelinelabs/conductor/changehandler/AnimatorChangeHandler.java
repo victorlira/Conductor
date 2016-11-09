@@ -77,7 +77,7 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
 
         needsImmediateCompletion = true;
         if (animator != null) {
-            animator.cancel();
+            animator.end();
         }
     }
 
