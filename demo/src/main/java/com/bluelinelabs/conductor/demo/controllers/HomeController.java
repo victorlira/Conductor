@@ -27,6 +27,7 @@ import com.bluelinelabs.conductor.ControllerChangeType;
 import com.bluelinelabs.conductor.RouterTransaction;
 import com.bluelinelabs.conductor.changehandler.FadeChangeHandler;
 import com.bluelinelabs.conductor.demo.R;
+import com.bluelinelabs.conductor.demo.controllers.NavigationDemoController.DisplayUpMode;
 import com.bluelinelabs.conductor.demo.controllers.base.BaseController;
 
 import butterknife.BindView;
@@ -115,7 +116,7 @@ public class HomeController extends BaseController {
             content.append("\n\n");
             content.append(link);
 
-            getChildRouter(overlayRoot, null)
+            getChildRouter(overlayRoot)
                     .setPopsLastView(true)
                     .setRoot(RouterTransaction.with(new OverlayController(content))
                             .pushChangeHandler(new FadeChangeHandler())
@@ -133,7 +134,7 @@ public class HomeController extends BaseController {
     void onModelRowClick(HomeDemoModel model) {
         switch (model) {
             case NAVIGATION:
-                getRouter().pushController(RouterTransaction.with(new NavigationDemoController(0, true))
+                getRouter().pushController(RouterTransaction.with(new NavigationDemoController(0, DisplayUpMode.SHOW_FOR_CHILDREN_ONLY))
                         .pushChangeHandler(new FadeChangeHandler())
                         .popChangeHandler(new FadeChangeHandler())
                         .tag(NavigationDemoController.TAG_UP_TRANSACTION)
@@ -159,7 +160,7 @@ public class HomeController extends BaseController {
                         .popChangeHandler(new FadeChangeHandler()));
                 break;
             case OVERLAY:
-                getChildRouter(overlayRoot, null)
+                getChildRouter(overlayRoot)
                         .setPopsLastView(true)
                         .setRoot(RouterTransaction.with(new OverlayController("I'm an overlay!"))
                                 .pushChangeHandler(new FadeChangeHandler())

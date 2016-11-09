@@ -65,7 +65,7 @@ public class TargetControllerTests {
 
         controllerB.setTargetController(controllerA);
 
-        Router childRouter = controllerA.getChildRouter((ViewGroup)controllerA.getView().findViewById(TestController.VIEW_ID), null);
+        Router childRouter = controllerA.getChildRouter((ViewGroup)controllerA.getView().findViewById(TestController.VIEW_ID));
         childRouter.pushController(RouterTransaction.with(controllerB)
                 .pushChangeHandler(new MockChangeHandler())
                 .popChangeHandler(new MockChangeHandler()));
@@ -88,7 +88,7 @@ public class TargetControllerTests {
 
         controllerA.setTargetController(controllerB);
 
-        Router childRouter = controllerA.getChildRouter((ViewGroup)controllerA.getView().findViewById(TestController.VIEW_ID), null);
+        Router childRouter = controllerA.getChildRouter((ViewGroup)controllerA.getView().findViewById(TestController.VIEW_ID));
         childRouter.pushController(RouterTransaction.with(controllerB)
                 .pushChangeHandler(new MockChangeHandler())
                 .popChangeHandler(new MockChangeHandler()));

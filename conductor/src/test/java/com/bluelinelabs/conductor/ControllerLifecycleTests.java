@@ -408,7 +408,7 @@ public class ControllerLifecycleTests {
 
         assertCalls(expectedCallState, child);
 
-        Router childRouter = parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID), null);
+        Router childRouter = parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID));
             childRouter
                 .setRoot(RouterTransaction.with(child)
                         .pushChangeHandler(getPushHandler(expectedCallState, child))
@@ -435,7 +435,7 @@ public class ControllerLifecycleTests {
 
         assertCalls(expectedCallState, child);
 
-        Router childRouter = parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID), null);
+        Router childRouter = parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID));
         childRouter
                 .setRoot(RouterTransaction.with(child)
                         .pushChangeHandler(getPushHandler(expectedCallState, child))

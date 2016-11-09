@@ -71,7 +71,7 @@ public class ReattachCaseTests {
                 .pushChangeHandler(new MockChangeHandler())
                 .popChangeHandler(new MockChangeHandler()));
 
-        Router childRouter = controllerA.getChildRouter((ViewGroup)controllerA.getView().findViewById(TestController.VIEW_ID), null);
+        Router childRouter = controllerA.getChildRouter((ViewGroup)controllerA.getView().findViewById(TestController.VIEW_ID));
         childRouter.pushController(RouterTransaction.with(childController)
             .pushChangeHandler(new MockChangeHandler())
             .popChangeHandler(new MockChangeHandler()));
@@ -121,7 +121,7 @@ public class ReattachCaseTests {
                 .pushChangeHandler(new MockChangeHandler())
                 .popChangeHandler(new MockChangeHandler()));
 
-        Router childRouter = controllerB.getChildRouter((ViewGroup)controllerB.getView().findViewById(TestController.VIEW_ID), null);
+        Router childRouter = controllerB.getChildRouter((ViewGroup)controllerB.getView().findViewById(TestController.VIEW_ID));
         childRouter.setPopsLastView(true);
         childRouter.pushController(RouterTransaction.with(childController)
                 .pushChangeHandler(new MockChangeHandler())
@@ -170,7 +170,7 @@ public class ReattachCaseTests {
                 .pushChangeHandler(new MockChangeHandler())
                 .popChangeHandler(new MockChangeHandler()));
 
-        Router childRouter = controllerB.getChildRouter((ViewGroup)controllerB.getView().findViewById(TestController.VIEW_ID), null);
+        Router childRouter = controllerB.getChildRouter((ViewGroup)controllerB.getView().findViewById(TestController.VIEW_ID));
         childRouter.setPopsLastView(true);
         childRouter.pushController(RouterTransaction.with(childController)
                 .pushChangeHandler(new MockChangeHandler())

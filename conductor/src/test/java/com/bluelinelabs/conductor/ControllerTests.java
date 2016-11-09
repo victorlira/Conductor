@@ -94,7 +94,7 @@ public class ControllerTests {
         TestController child = new TestController();
 
         router.pushController(RouterTransaction.with(parent));
-        parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID), null)
+        parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID))
                 .setRoot(RouterTransaction.with(child));
 
         CallState childExpectedCallState = new CallState(true);
@@ -151,7 +151,7 @@ public class ControllerTests {
         TestController child = new TestController();
 
         router.pushController(RouterTransaction.with(parent));
-        parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID), null)
+        parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID))
                 .setRoot(RouterTransaction.with(child));
 
         CallState childExpectedCallState = new CallState(true);
@@ -215,7 +215,7 @@ public class ControllerTests {
         TestController child = new TestController();
 
         router.pushController(RouterTransaction.with(parent));
-        parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID), null)
+        parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID))
                 .setRoot(RouterTransaction.with(child));
 
         CallState childExpectedCallState = new CallState(true);
@@ -267,7 +267,7 @@ public class ControllerTests {
         Assert.assertNull(child1.getParentController());
         Assert.assertNull(child2.getParentController());
 
-        Router childRouter = parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID), null);
+        Router childRouter = parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID));
         childRouter.setPopsLastView(true);
         childRouter.setRoot(RouterTransaction.with(child1));
 
@@ -278,7 +278,7 @@ public class ControllerTests {
         Assert.assertEquals(parent, child1.getParentController());
         Assert.assertNull(child2.getParentController());
 
-        childRouter = parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID), null);
+        childRouter = parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID));
         childRouter.pushController(RouterTransaction.with(child2));
 
         Assert.assertEquals(1, parent.getChildRouters().size());
@@ -320,8 +320,8 @@ public class ControllerTests {
         Assert.assertNull(child1.getParentController());
         Assert.assertNull(child2.getParentController());
 
-        Router childRouter1 = parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.CHILD_VIEW_ID_1), null);
-        Router childRouter2 = parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.CHILD_VIEW_ID_2), null);
+        Router childRouter1 = parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.CHILD_VIEW_ID_1));
+        Router childRouter2 = parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.CHILD_VIEW_ID_2));
 
         childRouter1.setRoot(RouterTransaction.with(child1));
         childRouter2.setRoot(RouterTransaction.with(child2));
