@@ -40,7 +40,7 @@ public abstract class ControllerPagerAdapter extends PagerAdapter {
     public Object instantiateItem(ViewGroup container, int position) {
         final String name = makeControllerName(container.getId(), getItemId(position));
 
-        Router router = host.getChildRouter(container);
+        Router router = host.getChildRouter(container, name);
         if (savesState && !router.hasRootController()) {
             Bundle routerSavedState = savedPages.get(position);
 

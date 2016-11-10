@@ -168,13 +168,28 @@ public abstract class Controller {
         return args;
     }
 
+    /**
+     * Retrieves the child {@link Router} for the given container. If no child router for this container
+     * exists yet, it will be created.
+     *
+     * @param container The ViewGroup that hosts the child Router
+     */
     @NonNull
     public final Router getChildRouter(@NonNull ViewGroup container) {
         //noinspection deprecation
         return getChildRouter(container, null);
     }
 
-    @Deprecated @NonNull
+    /**
+     * Retrieves the child {@link Router} for the given container/tag combination. If no child router for
+     * this container exists yet, it will be created. Note that multiple routers should not exist
+     * in the same container unless a lot of care is taken to maintain order between them. Avoid using
+     * the same container unless you have a great reason to do so (ex: ViewPagers).
+     *
+     * @param container The ViewGroup that hosts the child Router
+     * @param tag The router's tag
+     */
+    @NonNull
     public final Router getChildRouter(@NonNull ViewGroup container, @Nullable String tag) {
         @IdRes final int containerId = container.getId();
 
