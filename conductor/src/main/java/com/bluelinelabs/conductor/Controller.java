@@ -21,7 +21,7 @@ import android.view.View;
 import android.view.View.OnAttachStateChangeListener;
 import android.view.ViewGroup;
 
-import com.bluelinelabs.conductor.ControllerChangeHandler.ControllerChangeListener;
+import com.bluelinelabs.conductor.Router.OnControllerPushedListener;
 import com.bluelinelabs.conductor.internal.ClassUtils;
 import com.bluelinelabs.conductor.internal.RouterRequiringFunc;
 
@@ -87,16 +87,11 @@ public abstract class Controller {
     private final List<Controller> childBackstack = new LinkedList<>();
     private WeakReference<View> destroyedView;
 
-    private final ControllerChangeListener childRouterChangeListener = new ControllerChangeListener() {
+    private final OnControllerPushedListener onControllerPushedListener = new OnControllerPushedListener() {
         @Override
-        public void onChangeStarted(@Nullable Controller to, @Nullable Controller from, boolean isPush, @NonNull ViewGroup container, @NonNull ControllerChangeHandler handler) {
-            if (isPush) {
-                onChildControllerPushed(to);
-            }
+        public void onControllerPushed(Controller controller) {
+            onChildControllerPushed(controller);
         }
-
-        @Override
-        public void onChangeCompleted(@Nullable Controller to, @Nullable Controller from, boolean isPush, @NonNull ViewGroup container, @NonNull ControllerChangeHandler handler) { }
     };
 
     @NonNull
@@ -1137,7 +1132,7 @@ public abstract class Controller {
     }
 
     private void monitorChildRouter(@NonNull ControllerHostedRouter childRouter) {
-        childRouter.addChangeListener(childRouterChangeListener);
+        childRouter.setOnControllerPushedListener(onControllerPushedListener);
     }
 
     private void onChildControllerPushed(@NonNull Controller controller) {

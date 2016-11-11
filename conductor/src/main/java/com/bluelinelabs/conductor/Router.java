@@ -33,6 +33,7 @@ public abstract class Router {
     private static final String KEY_POPS_LAST_VIEW = "Router.popsLastView";
 
     protected final Backstack backstack = new Backstack();
+    private OnControllerPushedListener onControllerPushedListener;
     private final List<ControllerChangeListener> changeListeners = new ArrayList<>();
     final List<Controller> destroyingControllers = new ArrayList<>();
 
@@ -406,6 +407,12 @@ public abstract class Router {
         }
 
         backstack.setBackstack(newBackstack);
+
+        if (onControllerPushedListener != null) {
+            for (RouterTransaction transaction : newBackstack) {
+                onControllerPushedListener.onControllerPushed(transaction.controller);
+            }
+        }
     }
 
     /**
@@ -600,6 +607,10 @@ public abstract class Router {
         }
     }
 
+    final void setOnControllerPushedListener(OnControllerPushedListener listener) {
+        onControllerPushedListener = listener;
+    }
+
     void prepareForContainerRemoval() {
         if (container != null) {
             container.setOnHierarchyChangeListener(null);
@@ -663,6 +674,10 @@ public abstract class Router {
 
     private void pushToBackstack(@NonNull RouterTransaction entry) {
         backstack.push(entry);
+
+        if (onControllerPushedListener != null) {
+            onControllerPushedListener.onControllerPushed(entry.controller);
+        }
     }
 
     private void trackDestroyingController(@NonNull RouterTransaction transaction) {
@@ -749,4 +764,8 @@ public abstract class Router {
     abstract boolean hasHost();
     @NonNull abstract List<Router> getSiblingRouters();
     @NonNull abstract Router getRootRouter();
+
+    interface OnControllerPushedListener {
+        void onControllerPushed(Controller controller);
+    }
 }
