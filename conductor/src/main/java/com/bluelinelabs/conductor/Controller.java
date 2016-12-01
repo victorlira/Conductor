@@ -895,9 +895,25 @@ public abstract class Controller {
             };
 
             view.addOnAttachStateChangeListener(onAttachStateChangeListener);
+        } else if (retainViewMode == RetainViewMode.RETAIN_DETACH) {
+            restoreChildControllerHosts();
         }
 
         return view;
+    }
+
+    private void restoreChildControllerHosts() {
+        for (ControllerHostedRouter childRouter : childRouters) {
+            if (!childRouter.hasHost()) {
+                View containerView = view.findViewById(childRouter.getHostId());
+
+                if (containerView != null && containerView instanceof ViewGroup) {
+                    childRouter.setHost(this, (ViewGroup)containerView);
+                    monitorChildRouter(childRouter);
+                    childRouter.rebindIfNeeded();
+                }
+            }
+        }
     }
 
     private void performDestroy() {
@@ -966,17 +982,7 @@ public abstract class Controller {
             view.restoreHierarchyState(viewState.getSparseParcelableArray(KEY_VIEW_STATE_HIERARCHY));
             onRestoreViewState(view, viewState.getBundle(KEY_VIEW_STATE_BUNDLE));
 
-            for (ControllerHostedRouter childRouter : childRouters) {
-                if (!childRouter.hasHost()) {
-                    View containerView = view.findViewById(childRouter.getHostId());
-
-                    if (containerView != null && containerView instanceof ViewGroup) {
-                        childRouter.setHost(this, (ViewGroup)containerView);
-                        monitorChildRouter(childRouter);
-                        childRouter.rebindIfNeeded();
-                    }
-                }
-            }
+            restoreChildControllerHosts();
 
             List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
             for (LifecycleListener lifecycleListener : listeners) {
