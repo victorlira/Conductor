@@ -14,8 +14,8 @@ import com.bluelinelabs.conductor.changehandler.HorizontalChangeHandler;
 import com.bluelinelabs.conductor.demo.ActionBarProvider;
 import com.bluelinelabs.conductor.demo.DemoApplication;
 import com.bluelinelabs.conductor.demo.R;
-import com.bluelinelabs.conductor.rxlifecycle.ControllerEvent;
-import com.bluelinelabs.conductor.rxlifecycle.RxController;
+import com.bluelinelabs.conductor.rxlifecycle2.ControllerEvent;
+import com.bluelinelabs.conductor.rxlifecycle2.RxController;
 
 import java.util.concurrent.TimeUnit;
 
@@ -23,13 +23,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import rx.Observable;
-import rx.functions.Action0;
-import rx.functions.Action1;
+import io.reactivex.Observable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 
 // Shamelessly borrowed from the official RxLifecycle demo by Trello and adapted for Conductor Controllers
 // instead of Activities or Fragments.
-public class RxLifecycleController extends RxController {
+public class RxLifecycle2Controller extends RxController {
 
     private static final String TAG = "RxLifecycleController";
 
@@ -38,18 +38,18 @@ public class RxLifecycleController extends RxController {
     private Unbinder unbinder;
     private boolean hasExited;
 
-    public RxLifecycleController() {
+    public RxLifecycle2Controller() {
         Observable.interval(1, TimeUnit.SECONDS)
-                .doOnUnsubscribe(new Action0() {
+                .doOnDispose(new Action() {
                     @Override
-                    public void call() {
-                        Log.i(TAG, "Unsubscribing from constructor");
+                    public void run() {
+                        Log.i(TAG, "Disposing from constructor");
                     }
                 })
                 .compose(this.<Long>bindUntilEvent(ControllerEvent.DESTROY))
-                .subscribe(new Action1<Long>() {
+                .subscribe(new Consumer<Long>() {
                     @Override
-                    public void call(Long num) {
+                    public void accept(Long num) {
                         Log.i(TAG, "Started in constructor, running until onDestroy(): " + num);
                     }
                 });
@@ -66,16 +66,16 @@ public class RxLifecycleController extends RxController {
         tvTitle.setText(getResources().getString(R.string.rxlifecycle_title, TAG));
 
         Observable.interval(1, TimeUnit.SECONDS)
-                .doOnUnsubscribe(new Action0() {
+                .doOnDispose(new Action() {
                     @Override
-                    public void call() {
-                        Log.i(TAG, "Unsubscribing from onCreateView)");
+                    public void run() {
+                        Log.i(TAG, "Disposing from onCreateView)");
                     }
                 })
                 .compose(this.<Long>bindUntilEvent(ControllerEvent.DESTROY_VIEW))
-                .subscribe(new Action1<Long>() {
+                .subscribe(new Consumer<Long>() {
                     @Override
-                    public void call(Long num) {
+                    public void accept(Long num) {
                         Log.i(TAG, "Started in onCreateView(), running until onDestroyView(): " + num);
                     }
                 });
@@ -89,19 +89,19 @@ public class RxLifecycleController extends RxController {
 
         Log.i(TAG, "onAttach() called");
 
-        (((ActionBarProvider)getActivity()).getSupportActionBar()).setTitle("RxLifecycle Demo");
+        (((ActionBarProvider)getActivity()).getSupportActionBar()).setTitle("RxLifecycle2 Demo");
 
         Observable.interval(1, TimeUnit.SECONDS)
-                .doOnUnsubscribe(new Action0() {
+                .doOnDispose(new Action() {
                     @Override
-                    public void call() {
-                        Log.i(TAG, "Unsubscribing from onAttach()");
+                    public void run() {
+                        Log.i(TAG, "Disposing from onAttach()");
                     }
                 })
                 .compose(this.<Long>bindUntilEvent(ControllerEvent.DETACH))
-                .subscribe(new Action1<Long>() {
+                .subscribe(new Consumer<Long>() {
                     @Override
-                    public void call(Long num) {
+                    public void accept(Long num) {
                         Log.i(TAG, "Started in onAttach(), running until onDetach(): " + num);
                     }
                 });
@@ -148,7 +148,7 @@ public class RxLifecycleController extends RxController {
     @OnClick(R.id.btn_next_release_view) void onNextWithReleaseClicked() {
         setRetainViewMode(RetainViewMode.RELEASE_DETACH);
 
-        getRouter().pushController(RouterTransaction.with(new TextController("Logcat should now report that the observables from onAttach() and onViewBound() have been unsubscribed from, while the constructor observable is still running."))
+        getRouter().pushController(RouterTransaction.with(new TextController("Logcat should now report that the observables from onAttach() and onViewBound() have been disposed of, while the constructor observable is still running."))
                 .pushChangeHandler(new HorizontalChangeHandler())
                 .popChangeHandler(new HorizontalChangeHandler()));
     }
@@ -156,7 +156,7 @@ public class RxLifecycleController extends RxController {
     @OnClick(R.id.btn_next_retain_view) void onNextWithRetainClicked() {
         setRetainViewMode(RetainViewMode.RETAIN_DETACH);
 
-        getRouter().pushController(RouterTransaction.with(new TextController("Logcat should now report that the observables from onAttach() has been unsubscribed from, while the constructor and onViewBound() observables are still running."))
+        getRouter().pushController(RouterTransaction.with(new TextController("Logcat should now report that the observables from onAttach() has been disposed of, while the constructor and onViewBound() observables are still running."))
                 .pushChangeHandler(new HorizontalChangeHandler())
                 .popChangeHandler(new HorizontalChangeHandler()));
     }

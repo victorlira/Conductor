@@ -46,6 +46,7 @@ public class HomeController extends BaseController {
         MASTER_DETAIL("Master Detail", R.color.grey_300),
         DRAG_DISMISS("Drag Dismiss", R.color.lime_300),
         RX_LIFECYCLE("Rx Lifecycle", R.color.teal_300),
+        RX_LIFECYCLE_2("Rx Lifecycle 2", R.color.brown_300),
         OVERLAY("Overlay Controller", R.color.purple_300);
 
         String title;
@@ -173,6 +174,11 @@ public class HomeController extends BaseController {
                 break;
             case RX_LIFECYCLE:
                 getRouter().pushController(RouterTransaction.with(new RxLifecycleController())
+                        .pushChangeHandler(new FadeChangeHandler())
+                        .popChangeHandler(new FadeChangeHandler()));
+                break;
+            case RX_LIFECYCLE_2:
+                getRouter().pushController(RouterTransaction.with(new RxLifecycle2Controller())
                         .pushChangeHandler(new FadeChangeHandler())
                         .popChangeHandler(new FadeChangeHandler()));
                 break;
