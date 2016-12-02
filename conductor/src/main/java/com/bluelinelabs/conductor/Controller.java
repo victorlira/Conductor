@@ -130,7 +130,7 @@ public abstract class Controller {
      * @param args Any arguments that need to be retained.
      */
     protected Controller(@Nullable Bundle args) {
-        this.args = args;
+        this.args = args != null ? args : new Bundle();
         instanceId = UUID.randomUUID().toString();
         ensureRequiredConstructor();
     }
@@ -158,7 +158,7 @@ public abstract class Controller {
     /**
      * Returns any arguments that were set in this Controller's constructor
      */
-    @Nullable
+    @NonNull
     public Bundle getArgs() {
         return args;
     }
