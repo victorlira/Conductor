@@ -275,29 +275,9 @@ public abstract class Router {
      */
     @UiThread
     public void setRoot(@NonNull RouterTransaction transaction) {
-        ControllerChangeHandler newHandler = transaction.pushChangeHandler() != null ? transaction.pushChangeHandler() : new SimpleSwapChangeHandler();
-
-        List<RouterTransaction> visibleTransactions = getVisibleTransactions(backstack.iterator());
-        RouterTransaction rootTransaction = visibleTransactions.size() > 0 ? visibleTransactions.get(0) : null;
-
-        removeAllExceptVisibleAndUnowned();
-
-        trackDestroyingControllers(backstack.popAll());
-
-        pushToBackstack(transaction);
-
-        for (int i = visibleTransactions.size() - 1; i > 0; i--) {
-            if (visibleTransactions.get(i).controller.getView() == null) {
-                ControllerChangeHandler.abortPush(visibleTransactions.get(i).controller, transaction.controller, newHandler);
-            } else {
-                performControllerChange(null, visibleTransactions.get(i).controller, true, newHandler);
-            }
-        }
-
-        if (rootTransaction != null && rootTransaction.controller.getView() == null) {
-            ControllerChangeHandler.abortPush(rootTransaction.controller, transaction.controller, newHandler);
-        }
-        performControllerChange(transaction, rootTransaction, true);
+        List<RouterTransaction> transactions = new ArrayList<>();
+        transactions.add(transaction);
+        setBackstack(transactions, transaction.pushChangeHandler());
     }
 
     /**
