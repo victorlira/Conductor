@@ -365,7 +365,7 @@ public abstract class Router {
                 ControllerChangeHandler handler = changeHandler != null ? changeHandler : new SimpleSwapChangeHandler();
 
                 Controller rootController = oldVisibleTransactions.size() > 0 ? oldVisibleTransactions.get(0).controller : null;
-                performControllerChange(newVisibleTransactions.get(0).controller, rootController, true, handler.copy());
+                performControllerChange(newVisibleTransactions.get(0).controller, rootController, true, handler);
 
                 for (int i = oldVisibleTransactions.size() - 1; i > 0; i--) {
                     RouterTransaction transaction = oldVisibleTransactions.get(i);
