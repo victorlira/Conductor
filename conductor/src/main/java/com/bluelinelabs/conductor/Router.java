@@ -344,6 +344,12 @@ public abstract class Router {
     public void setBackstack(@NonNull List<RouterTransaction> newBackstack, @Nullable ControllerChangeHandler changeHandler) {
         List<RouterTransaction> oldVisibleTransactions = getVisibleTransactions(backstack.iterator());
 
+        backstack.setBackstack(newBackstack);
+
+        for (RouterTransaction transaction : backstack) {
+            transaction.onAttachedToRouter();
+        }
+
         removeAllExceptVisibleAndUnowned();
 
         if (newBackstack.size() > 0) {
@@ -381,12 +387,6 @@ public abstract class Router {
                 }
             }
         }
-
-        for (RouterTransaction transaction : backstack) {
-            transaction.onAttachedToRouter();
-        }
-
-        backstack.setBackstack(newBackstack);
 
         if (onControllerPushedListener != null) {
             for (RouterTransaction transaction : newBackstack) {
