@@ -44,6 +44,7 @@ public abstract class Controller {
     private static final String KEY_CLASS_NAME = "Controller.className";
     private static final String KEY_VIEW_STATE = "Controller.viewState";
     private static final String KEY_CHILD_ROUTERS = "Controller.childRouters";
+    private static final String KEY_CHILD_BACKSTACK = "Controller.childBackstack";
     private static final String KEY_SAVED_STATE = "Controller.savedState";
     private static final String KEY_INSTANCE_ID = "Controller.instanceId";
     private static final String KEY_TARGET_INSTANCE_ID = "Controller.target.instanceId";
@@ -1021,6 +1022,12 @@ public abstract class Controller {
         }
         outState.putParcelableArrayList(KEY_CHILD_ROUTERS, childBundles);
 
+        ArrayList<String> childBackstack = new ArrayList<>();
+        for (Controller controller : this.childBackstack) {
+            childBackstack.add(controller.instanceId);
+        }
+        outState.putStringArrayList(KEY_CHILD_BACKSTACK, childBackstack);
+
         Bundle savedState = new Bundle();
         onSaveInstanceState(savedState);
 
@@ -1050,6 +1057,14 @@ public abstract class Controller {
             childRouter.restoreInstanceState(childBundle);
             monitorChildRouter(childRouter);
             childRouters.add(childRouter);
+        }
+
+        List<String> childBackstackIds = savedInstanceState.getStringArrayList(KEY_CHILD_BACKSTACK);
+        for (String controllerId : childBackstackIds) {
+            Controller childController = findController(controllerId);
+            if (childController != null) {
+                childBackstack.add(childController);
+            }
         }
 
         this.savedInstanceState = savedInstanceState.getBundle(KEY_SAVED_STATE);

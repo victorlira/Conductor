@@ -11,34 +11,39 @@ import com.bluelinelabs.conductor.Controller;
 import com.bluelinelabs.conductor.Router;
 import com.bluelinelabs.conductor.RouterTransaction;
 
-/**
- * An adapter for ViewPagers that will handle adding and removing Controllers
- */
-public abstract class ControllerPagerAdapter extends PagerAdapter {
+import java.util.List;
 
-    private static final String KEY_SAVED_PAGES = "ControllerPagerAdapter.savedStates";
-    private static final String KEY_SAVES_STATE = "ControllerPagerAdapter.savesState";
+/**
+ * An adapter for ViewPagers that uses Routers as pages
+ */
+public abstract class RouterPagerAdapter extends PagerAdapter {
+
+    private static final String KEY_SAVED_PAGES = "RouterPagerAdapter.savedStates";
+    private static final String KEY_SAVES_STATE = "RouterPagerAdapter.savesState";
 
     private final Controller host;
     private boolean savesState;
     private SparseArray<Bundle> savedPages = new SparseArray<>();
 
     /**
-     * Creates a new ControllerPagerAdapter using the passed host.
+     * Creates a new RouterPagerAdapter using the passed host.
      */
-    public ControllerPagerAdapter(Controller host, boolean saveControllerState) {
+    public RouterPagerAdapter(Controller host, boolean saveRouterState) {
         this.host = host;
-        savesState = saveControllerState;
+        savesState = saveRouterState;
     }
 
     /**
-     * Return the Controller associated with a specified position.
+     * Called when a router is instantiated. Here the router's root should be set if needed.
+     *
+     * @param router   The router used for the page
+     * @param position The page position to be instantiated.
      */
-    public abstract Controller getItem(int position);
+    public abstract void configureRouter(Router router, int position);
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        final String name = makeControllerName(container.getId(), getItemId(position));
+        final String name = makeRouterName(container.getId(), getItemId(position));
 
         Router router = host.getChildRouter(container, name);
         if (savesState && !router.hasRootController()) {
@@ -49,18 +54,14 @@ public abstract class ControllerPagerAdapter extends PagerAdapter {
             }
         }
 
-        if (!router.hasRootController()) {
-            router.setRoot(RouterTransaction.with(getItem(position)).tag(name));
-        } else {
-            router.rebindIfNeeded();
-        }
-
-        return router.getControllerWithTag(name);
+        router.rebindIfNeeded();
+        configureRouter(router, position);
+        return router;
     }
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
-        Router router = ((Controller)object).getRouter();
+        Router router = (Router)object;
 
         if (savesState) {
             Bundle savedState = new Bundle();
@@ -73,7 +74,14 @@ public abstract class ControllerPagerAdapter extends PagerAdapter {
 
     @Override
     public boolean isViewFromObject(View view, Object object) {
-        return ((Controller)object).getView() == view;
+        Router router = (Router)object;
+        final List<RouterTransaction> backstack = router.getBackstack();
+        for (RouterTransaction transaction : backstack) {
+            if (transaction.controller().getView() == view) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -97,7 +105,7 @@ public abstract class ControllerPagerAdapter extends PagerAdapter {
         return position;
     }
 
-    private static String makeControllerName(int viewId, long id) {
+    private static String makeRouterName(int viewId, long id) {
         return viewId + ":" + id;
     }
 
