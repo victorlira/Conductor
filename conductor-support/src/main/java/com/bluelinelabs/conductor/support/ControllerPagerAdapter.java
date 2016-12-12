@@ -11,6 +11,8 @@ import com.bluelinelabs.conductor.Controller;
 import com.bluelinelabs.conductor.Router;
 import com.bluelinelabs.conductor.RouterTransaction;
 
+import java.util.List;
+
 /**
  * An adapter for ViewPagers that will handle adding and removing Controllers
  */
@@ -38,7 +40,7 @@ public abstract class ControllerPagerAdapter extends PagerAdapter {
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        final String name = makeControllerName(container.getId(), getItemId(position));
+        final String name = makeRouterName(container.getId(), getItemId(position));
 
         Router router = host.getChildRouter(container, name);
         if (savesState && !router.hasRootController()) {
@@ -56,12 +58,12 @@ public abstract class ControllerPagerAdapter extends PagerAdapter {
             router.rebindIfNeeded();
         }
 
-        return router.getControllerWithTag(name);
+        return router;
     }
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
-        Router router = ((Controller)object).getRouter();
+        Router router = (Router)object;
 
         if (savesState) {
             Bundle savedState = new Bundle();
@@ -74,7 +76,14 @@ public abstract class ControllerPagerAdapter extends PagerAdapter {
 
     @Override
     public boolean isViewFromObject(View view, Object object) {
-        return ((Controller)object).getView() == view;
+        Router router = (Router)object;
+        final List<RouterTransaction> backstack = router.getBackstack();
+        for (RouterTransaction transaction : backstack) {
+            if (transaction.controller().getView() == view) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -98,7 +107,7 @@ public abstract class ControllerPagerAdapter extends PagerAdapter {
         return position;
     }
 
-    private static String makeControllerName(int viewId, long id) {
+    private static String makeRouterName(int viewId, long id) {
         return viewId + ":" + id;
     }
 
