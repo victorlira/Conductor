@@ -866,6 +866,9 @@ public abstract class Controller {
             }
 
             view = onCreateView(LayoutInflater.from(parent.getContext()), parent);
+            if (view == parent) {
+                throw new IllegalStateException("Controller's onCreateView method returned the parent ViewGroup. Perhaps you forgot to pass false for LayoutInflater.inflate's attachToRoot parameter?");
+            }
 
             listeners = new ArrayList<>(lifecycleListeners);
             for (LifecycleListener lifecycleListener : listeners) {
