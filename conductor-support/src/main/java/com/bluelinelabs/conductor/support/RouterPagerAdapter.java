@@ -19,18 +19,15 @@ import java.util.List;
 public abstract class RouterPagerAdapter extends PagerAdapter {
 
     private static final String KEY_SAVED_PAGES = "RouterPagerAdapter.savedStates";
-    private static final String KEY_SAVES_STATE = "RouterPagerAdapter.savesState";
 
     private final Controller host;
-    private boolean savesState;
     private SparseArray<Bundle> savedPages = new SparseArray<>();
 
     /**
      * Creates a new RouterPagerAdapter using the passed host.
      */
-    public RouterPagerAdapter(Controller host, boolean saveRouterState) {
+    public RouterPagerAdapter(Controller host) {
         this.host = host;
-        savesState = saveRouterState;
     }
 
     /**
@@ -46,7 +43,7 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
         final String name = makeRouterName(container.getId(), getItemId(position));
 
         Router router = host.getChildRouter(container, name);
-        if (savesState && !router.hasRootController()) {
+        if (!router.hasRootController()) {
             Bundle routerSavedState = savedPages.get(position);
 
             if (routerSavedState != null) {
@@ -63,11 +60,9 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
     public void destroyItem(ViewGroup container, int position, Object object) {
         Router router = (Router)object;
 
-        if (savesState) {
-            Bundle savedState = new Bundle();
-            router.saveInstanceState(savedState);
-            savedPages.put(position, savedState);
-        }
+        Bundle savedState = new Bundle();
+        router.saveInstanceState(savedState);
+        savedPages.put(position, savedState);
 
         host.removeChildRouter(router);
     }
@@ -87,7 +82,6 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
     @Override
     public Parcelable saveState() {
         Bundle bundle = new Bundle();
-        bundle.putBoolean(KEY_SAVES_STATE, savesState);
         bundle.putSparseParcelableArray(KEY_SAVED_PAGES, savedPages);
         return bundle;
     }
@@ -96,7 +90,6 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
     public void restoreState(Parcelable state, ClassLoader loader) {
         Bundle bundle = (Bundle)state;
         if (state != null) {
-            savesState = bundle.getBoolean(KEY_SAVES_STATE, false);
             savedPages = bundle.getSparseParcelableArray(KEY_SAVED_PAGES);
         }
     }
