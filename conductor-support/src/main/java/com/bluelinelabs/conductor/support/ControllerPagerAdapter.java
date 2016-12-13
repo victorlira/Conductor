@@ -2,6 +2,7 @@ package com.bluelinelabs.conductor.support;
 
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.util.SparseArray;
 import android.view.View;
@@ -18,10 +19,13 @@ public abstract class ControllerPagerAdapter extends PagerAdapter {
 
     private static final String KEY_SAVED_PAGES = "ControllerPagerAdapter.savedStates";
     private static final String KEY_SAVES_STATE = "ControllerPagerAdapter.savesState";
+    private static final String KEY_VISIBLE_PAGE_IDS_KEYS = "ControllerPagerAdapter.visiblePageIds.keys";
+    private static final String KEY_VISIBLE_PAGE_IDS_VALUES = "ControllerPagerAdapter.visiblePageIds.values";
 
     private final Controller host;
     private boolean savesState;
     private SparseArray<Bundle> savedPages = new SparseArray<>();
+    private SparseArray<String> visiblePageIds = new SparseArray<>();
 
     /**
      * Creates a new ControllerPagerAdapter using the passed host.
@@ -50,7 +54,9 @@ public abstract class ControllerPagerAdapter extends PagerAdapter {
         }
 
         if (!router.hasRootController()) {
-            router.setRoot(RouterTransaction.with(getItem(position)).tag(name));
+            Controller controller = getItem(position);
+            router.setRoot(RouterTransaction.with(controller).tag(name));
+            visiblePageIds.put(position, controller.getInstanceId());
         } else {
             router.rebindIfNeeded();
         }
@@ -68,6 +74,8 @@ public abstract class ControllerPagerAdapter extends PagerAdapter {
             savedPages.put(position, savedState);
         }
 
+        visiblePageIds.remove(position);
+
         host.removeChildRouter(router);
     }
 
@@ -81,6 +89,16 @@ public abstract class ControllerPagerAdapter extends PagerAdapter {
         Bundle bundle = new Bundle();
         bundle.putBoolean(KEY_SAVES_STATE, savesState);
         bundle.putSparseParcelableArray(KEY_SAVED_PAGES, savedPages);
+
+        int[] visiblePageIdsKeys = new int[visiblePageIds.size()];
+        String[] visiblePageIdsValues = new String[visiblePageIds.size()];
+        for (int i = 0; i < visiblePageIds.size(); i++) {
+            visiblePageIdsKeys[i] = visiblePageIds.keyAt(i);
+            visiblePageIdsValues[i] = visiblePageIds.valueAt(i);
+        }
+        bundle.putIntArray(KEY_VISIBLE_PAGE_IDS_KEYS, visiblePageIdsKeys);
+        bundle.putStringArray(KEY_VISIBLE_PAGE_IDS_VALUES, visiblePageIdsValues);
+
         return bundle;
     }
 
@@ -90,6 +108,26 @@ public abstract class ControllerPagerAdapter extends PagerAdapter {
         if (state != null) {
             savesState = bundle.getBoolean(KEY_SAVES_STATE, false);
             savedPages = bundle.getSparseParcelableArray(KEY_SAVED_PAGES);
+
+            int[] visiblePageIdsKeys = bundle.getIntArray(KEY_VISIBLE_PAGE_IDS_KEYS);
+            String[] visiblePageIdsValues = bundle.getStringArray(KEY_VISIBLE_PAGE_IDS_VALUES);
+            visiblePageIds = new SparseArray<>(visiblePageIdsKeys.length);
+            for (int i = 0; i < visiblePageIdsKeys.length; i++) {
+                visiblePageIds.put(visiblePageIdsKeys[i], visiblePageIdsValues[i]);
+            }
+        }
+    }
+
+    /**
+     * Returns the already instantiated Controller in the specified position, if available.
+     */
+    @Nullable
+    public Controller getController(int position) {
+        String instanceId = visiblePageIds.get(position);
+        if (instanceId != null) {
+            return host.getRouter().getControllerWithInstanceId(instanceId);
+        } else {
+            return null;
         }
     }
 

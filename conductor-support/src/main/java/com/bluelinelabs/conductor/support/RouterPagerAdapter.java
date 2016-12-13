@@ -2,6 +2,7 @@ package com.bluelinelabs.conductor.support;
 
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.util.SparseArray;
 import android.view.View;
@@ -22,6 +23,7 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
 
     private final Controller host;
     private SparseArray<Bundle> savedPages = new SparseArray<>();
+    private SparseArray<Router> visibleRouters = new SparseArray<>();
 
     /**
      * Creates a new RouterPagerAdapter using the passed host.
@@ -53,6 +55,8 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
 
         router.rebindIfNeeded();
         configureRouter(router, position);
+
+        visibleRouters.put(position, router);
         return router;
     }
 
@@ -65,6 +69,8 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
         savedPages.put(position, savedState);
 
         host.removeChildRouter(router);
+
+        visibleRouters.remove(position);
     }
 
     @Override
@@ -92,6 +98,14 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
         if (state != null) {
             savedPages = bundle.getSparseParcelableArray(KEY_SAVED_PAGES);
         }
+    }
+
+    /**
+     * Returns the already instantiated Router in the specified position, if available.
+     */
+    @Nullable
+    public Router getRouter(int position) {
+        return visibleRouters.get(position);
     }
 
     public long getItemId(int position) {
