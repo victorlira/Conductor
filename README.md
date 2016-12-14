@@ -26,8 +26,11 @@ compile 'com.bluelinelabs:conductor:2.0.5'
 // Android's support libraries (currently just a PagerAdapter):
 compile 'com.bluelinelabs:conductor-support:2.0.5'
 
-// If you want RxJava/RxAndroid lifecycle support:
+// If you want RxJava lifecycle support:
 compile 'com.bluelinelabs:conductor-rxlifecycle:2.0.5'
+
+// If you want RxJava2 lifecycle support:
+compile 'com.bluelinelabs:conductor-rxlifecycle2:2.0.5'
 ```
 
 SNAPSHOT:
@@ -36,6 +39,7 @@ SNAPSHOT:
 compile 'com.bluelinelabs:conductor:2.0.6-SNAPSHOT'
 compile 'com.bluelinelabs:conductor-support:2.0.6-SNAPSHOT'
 compile 'com.bluelinelabs:conductor-rxlifecycle:2.0.6-SNAPSHOT'
+compile 'com.bluelinelabs:conductor-rxlifecycle2:2.0.6-SNAPSHOT'
 ```
 
 You also have to add the url to the snapshot repository:
