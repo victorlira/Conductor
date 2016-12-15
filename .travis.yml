@@ -3,14 +3,11 @@ language: android
 android:
   components:
     - tools
-    - build-tools-23.0.3
+    - build-tools-24.0.3
     - android-25
     - extra-android-m2repository
-
-licenses:
-  - 'android-sdk-preview-license-.+'
-  - 'android-sdk-license-.+'
-  - 'google-gdk-license-.+'
+  licenses:
+    - '.+'
 
 script:
   - ./gradlew test
