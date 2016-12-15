@@ -11,11 +11,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 25
+    buildToolsVersion '24.0.3'
 
     lintOptions {
-        abortOnError false
+        abortOnError true
+        ignore 'UnusedResources'
     }
 
     compileOptions {
@@ -26,7 +27,7 @@ android {
     defaultConfig {
         applicationId "com.bluelinelabs.conductor.demo"
         minSdkVersion 16
-        targetSdkVersion 23
+        targetSdkVersion 25
         versionCode 1
         versionName "1.0.0"
     }

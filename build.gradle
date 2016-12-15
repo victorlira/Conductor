@@ -10,12 +10,8 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
-        mavenLocal()
+        mavenCentral()
     }
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.10'
 }
 
 apply from: rootProject.file('dependencies.gradle')
