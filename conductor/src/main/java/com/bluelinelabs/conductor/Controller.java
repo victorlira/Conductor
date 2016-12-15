@@ -751,6 +751,7 @@ public abstract class Controller {
             attach(view);
         } else if (attached) {
             needsAttach = false;
+            hasSavedViewState = false;
         }
 
         onActivityResumed(activity);
