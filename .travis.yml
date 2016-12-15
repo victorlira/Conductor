@@ -6,10 +6,11 @@ android:
     - build-tools-23.0.3
     - android-25
     - extra-android-m2repository
-  licenses:
-    - 'android-sdk-preview-license-.+'
-    - 'android-sdk-license-.+'
-    - 'google-gdk-license-.+'
+
+licenses:
+  - 'android-sdk-preview-license-.+'
+  - 'android-sdk-license-.+'
+  - 'google-gdk-license-.+'
 
 script:
   - ./gradlew test
