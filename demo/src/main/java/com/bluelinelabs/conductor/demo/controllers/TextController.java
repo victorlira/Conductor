@@ -1,5 +1,6 @@
 package com.bluelinelabs.conductor.demo.controllers;
 
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.widget.TextView;
 
 import com.bluelinelabs.conductor.demo.R;
 import com.bluelinelabs.conductor.demo.controllers.base.BaseController;
+import com.bluelinelabs.conductor.demo.util.BundleBuilder;
 
 import butterknife.BindView;
 
@@ -18,10 +20,14 @@ public class TextController extends BaseController {
     @BindView(R.id.text_view) TextView textView;
 
     public TextController(String text) {
-//        this(new BundleBuilder(new Bundle())
-//                .putString(KEY_TEXT, text)
-//                .build()
-//        );
+        this(new BundleBuilder(new Bundle())
+                .putString(KEY_TEXT, text)
+                .build()
+        );
+    }
+
+    public TextController(Bundle args) {
+        super(args);
     }
 
     @NonNull

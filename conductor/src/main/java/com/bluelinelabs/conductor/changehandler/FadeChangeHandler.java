@@ -8,6 +8,8 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bluelinelabs.conductor.ControllerChangeHandler;
+
 /**
  * An {@link AnimatorChangeHandler} that will cross fade two views
  */
@@ -45,4 +47,10 @@ public class FadeChangeHandler extends AnimatorChangeHandler {
     protected void resetFromView(@NonNull View from) {
         from.setAlpha(1);
     }
+
+    @Override @NonNull
+    public ControllerChangeHandler copy() {
+        return new FadeChangeHandler(getAnimationDuration(), removesFromViewOnPush());
+    }
+
 }

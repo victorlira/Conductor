@@ -69,4 +69,13 @@ public class TransitionChangeHandlerCompat extends ControllerChangeHandler {
         return changeHandler.removesFromViewOnPush();
     }
 
+    @Override @NonNull
+    public ControllerChangeHandler copy() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return new TransitionChangeHandlerCompat((TransitionChangeHandler)changeHandler.copy(), null);
+        } else {
+            return new TransitionChangeHandlerCompat(null, changeHandler.copy());
+        }
+    }
+
 }

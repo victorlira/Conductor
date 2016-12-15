@@ -8,6 +8,8 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bluelinelabs.conductor.ControllerChangeHandler;
+
 /**
  * An {@link AnimatorChangeHandler} that will slide the views left or right, depending on if it's a push or pop.
  */
@@ -54,4 +56,10 @@ public class HorizontalChangeHandler extends AnimatorChangeHandler {
     protected void resetFromView(@NonNull View from) {
         from.setTranslationX(0);
     }
+
+    @Override @NonNull
+    public ControllerChangeHandler copy() {
+        return new HorizontalChangeHandler(getAnimationDuration(), removesFromViewOnPush());
+    }
+
 }

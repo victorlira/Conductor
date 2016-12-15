@@ -14,4 +14,9 @@ public class NoOpControllerChangeHandler extends ControllerChangeHandler {
         changeListener.onChangeCompleted();
     }
 
+    @NonNull
+    @Override
+    public ControllerChangeHandler copy() {
+        return new NoOpControllerChangeHandler();
+    }
 }

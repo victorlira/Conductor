@@ -29,6 +29,8 @@ public abstract class ControllerChangeHandler {
 
     private boolean forceRemoveViewOnPush;
 
+    boolean hasBeenUsed;
+
     /**
      * Responsible for swapping Views from one Controller to another.
      *
@@ -73,6 +75,16 @@ public abstract class ControllerChangeHandler {
      */
     public void completeImmediately() { }
 
+    /**
+     * Returns a copy of this ControllerChangeHandler. This method is internally used by the library, so
+     * ensure it will return an exact copy of your handler if overriding. If not overriding, the handler
+     * will be saved and restored from the Bundle format.
+     */
+    @NonNull
+    public ControllerChangeHandler copy() {
+        return fromBundle(toBundle());
+    }
+
     @NonNull
     final Bundle toBundle() {
         Bundle bundle = new Bundle();
@@ -83,11 +95,6 @@ public abstract class ControllerChangeHandler {
         bundle.putBundle(KEY_SAVED_STATE, savedState);
 
         return bundle;
-    }
-
-    @NonNull
-    final ControllerChangeHandler copy() {
-        return fromBundle(toBundle());
     }
 
     private void ensureDefaultConstructor() {
@@ -135,7 +142,15 @@ public abstract class ControllerChangeHandler {
 
     public static void executeChange(@Nullable final Controller to, @Nullable final Controller from, final boolean isPush, @Nullable final ViewGroup container, @Nullable final ControllerChangeHandler inHandler, @NonNull final List<ControllerChangeListener> listeners) {
         if (container != null) {
-            final ControllerChangeHandler handler = inHandler != null ? inHandler : new SimpleSwapChangeHandler();
+            final ControllerChangeHandler handler;
+            if (inHandler == null) {
+                handler = new SimpleSwapChangeHandler();
+            } else if (inHandler.hasBeenUsed) {
+                handler = inHandler.copy();
+            } else {
+                handler = inHandler;
+            }
+            handler.hasBeenUsed = true;
 
             if (isPush && to != null) {
                 inProgressPushHandlers.put(to.getInstanceId(), handler);

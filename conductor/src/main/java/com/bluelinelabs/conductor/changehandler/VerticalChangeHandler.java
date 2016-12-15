@@ -8,6 +8,8 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bluelinelabs.conductor.ControllerChangeHandler;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,5 +50,10 @@ public class VerticalChangeHandler extends AnimatorChangeHandler {
 
     @Override
     protected void resetFromView(@NonNull View from) { }
+
+    @Override @NonNull
+    public ControllerChangeHandler copy() {
+        return new VerticalChangeHandler(getAnimationDuration(), removesFromViewOnPush());
+    }
 
 }

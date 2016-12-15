@@ -9,6 +9,8 @@ import android.transition.Transition;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bluelinelabs.conductor.ControllerChangeHandler;
+
 /**
  * A change handler that will use an AutoTransition.
  */
@@ -18,6 +20,11 @@ public class AutoTransitionChangeHandler extends TransitionChangeHandler {
     @Override @NonNull
     protected Transition getTransition(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, boolean isPush) {
         return new AutoTransition();
+    }
+
+    @Override @NonNull
+    public ControllerChangeHandler copy() {
+        return new AutoTransitionChangeHandler();
     }
 
 }

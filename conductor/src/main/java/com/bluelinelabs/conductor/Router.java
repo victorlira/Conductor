@@ -172,7 +172,7 @@ public abstract class Router {
             final boolean newHandlerRemovesViews = handler == null || handler.removesFromViewOnPush();
             if (!oldHandlerRemovedViews && newHandlerRemovesViews) {
                 for (RouterTransaction visibleTransaction : getVisibleTransactions(backstack.iterator())) {
-                    performControllerChange(null, visibleTransaction.controller, true, handler != null ? handler.copy() : new SimpleSwapChangeHandler());
+                    performControllerChange(null, visibleTransaction.controller, true, handler);
                 }
             }
         }
@@ -368,22 +368,19 @@ public abstract class Router {
             }
 
             if (visibleTransactionsChanged) {
-                ControllerChangeHandler handler = changeHandler != null ? changeHandler : new SimpleSwapChangeHandler();
-
                 Controller rootController = oldVisibleTransactions.size() > 0 ? oldVisibleTransactions.get(0).controller : null;
-                performControllerChange(newVisibleTransactions.get(0).controller, rootController, true, handler);
+                performControllerChange(newVisibleTransactions.get(0).controller, rootController, true, changeHandler);
 
                 for (int i = oldVisibleTransactions.size() - 1; i > 0; i--) {
                     RouterTransaction transaction = oldVisibleTransactions.get(i);
-                    ControllerChangeHandler localHandler = handler.copy();
+                    ControllerChangeHandler localHandler = changeHandler != null ? changeHandler.copy() : new SimpleSwapChangeHandler();
                     localHandler.setForceRemoveViewOnPush(true);
                     performControllerChange(null, transaction.controller, true, localHandler);
                 }
 
                 for (int i = 1; i < newVisibleTransactions.size(); i++) {
                     RouterTransaction transaction = newVisibleTransactions.get(i);
-                    handler = transaction.pushChangeHandler() != null ? transaction.pushChangeHandler().copy() : new SimpleSwapChangeHandler();
-                    performControllerChange(transaction.controller, newVisibleTransactions.get(i - 1).controller, true, handler);
+                    performControllerChange(transaction.controller, newVisibleTransactions.get(i - 1).controller, true, transaction.pushChangeHandler());
                 }
             }
         }
@@ -631,7 +628,7 @@ public abstract class Router {
         } else if (from != null) {
             changeHandler = from.popChangeHandler();
         } else {
-            changeHandler = new SimpleSwapChangeHandler();
+            changeHandler = null;
         }
 
         Controller toController = to != null ? to.controller : null;

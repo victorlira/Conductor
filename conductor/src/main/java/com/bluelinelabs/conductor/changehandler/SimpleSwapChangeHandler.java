@@ -102,4 +102,10 @@ public class SimpleSwapChangeHandler extends ControllerChangeHandler implements 
 
     @Override
     public void onViewDetachedFromWindow(@NonNull View v) { }
+
+    @Override @NonNull
+    public ControllerChangeHandler copy() {
+        return new SimpleSwapChangeHandler(removesFromViewOnPush());
+    }
+
 }
