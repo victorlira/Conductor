@@ -28,8 +28,7 @@ public abstract class ControllerChangeHandler {
     private static final Map<String, ControllerChangeHandler> inProgressPushHandlers = new HashMap<>();
 
     private boolean forceRemoveViewOnPush;
-
-    boolean hasBeenUsed;
+    private boolean hasBeenUsed;
 
     /**
      * Responsible for swapping Views from one Controller to another.
@@ -83,6 +82,16 @@ public abstract class ControllerChangeHandler {
     @NonNull
     public ControllerChangeHandler copy() {
         return fromBundle(toBundle());
+    }
+
+    /**
+     * Returns whether or not this is a reusable ControllerChangeHandler. Defaults to false and should
+     * ONLY be overridden if there are absolutely no side effects to using this handler more than once.
+     * In the case that a handler is not reusable, it will be copied using the {@link #copy()} method
+     * prior to use.
+     */
+    public boolean isReusable() {
+        return false;
     }
 
     @NonNull
@@ -145,7 +154,7 @@ public abstract class ControllerChangeHandler {
             final ControllerChangeHandler handler;
             if (inHandler == null) {
                 handler = new SimpleSwapChangeHandler();
-            } else if (inHandler.hasBeenUsed) {
+            } else if (inHandler.hasBeenUsed && !inHandler.isReusable()) {
                 handler = inHandler.copy();
             } else {
                 handler = inHandler;

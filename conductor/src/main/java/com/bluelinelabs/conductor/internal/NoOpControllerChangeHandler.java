@@ -19,4 +19,9 @@ public class NoOpControllerChangeHandler extends ControllerChangeHandler {
     public ControllerChangeHandler copy() {
         return new NoOpControllerChangeHandler();
     }
+
+    @Override
+    public boolean isReusable() {
+        return true;
+    }
 }

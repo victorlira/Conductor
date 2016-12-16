@@ -1,6 +1,5 @@
 package com.bluelinelabs.conductor;
 
-
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
@@ -81,5 +80,16 @@ public class MockChangeHandler extends ControllerChangeHandler {
     public void restoreFromBundle(@NonNull Bundle bundle) {
         super.restoreFromBundle(bundle);
         removesFromViewOnPush = bundle.getBoolean(KEY_REMOVES_FROM_VIEW_ON_PUSH);
+    }
+
+    @NonNull
+    @Override
+    public ControllerChangeHandler copy() {
+        return new MockChangeHandler(removesFromViewOnPush, listener);
+    }
+
+    @Override
+    public boolean isReusable() {
+        return true;
     }
 }

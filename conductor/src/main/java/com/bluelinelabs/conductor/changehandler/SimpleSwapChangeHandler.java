@@ -108,4 +108,8 @@ public class SimpleSwapChangeHandler extends ControllerChangeHandler implements 
         return new SimpleSwapChangeHandler(removesFromViewOnPush());
     }
 
+    @Override
+    public boolean isReusable() {
+        return true;
+    }
 }
