@@ -150,6 +150,10 @@ public abstract class ControllerChangeHandler {
     }
 
     public static void executeChange(@Nullable final Controller to, @Nullable final Controller from, final boolean isPush, @Nullable final ViewGroup container, @Nullable final ControllerChangeHandler inHandler, @NonNull final List<ControllerChangeListener> listeners) {
+        if (isPush && to != null && to.isDestroyed()) {
+            throw new IllegalStateException("Trying to push a controller that has already been destroyed. (" + to.getClass().getSimpleName() + ")");
+        }
+
         if (container != null) {
             final ControllerChangeHandler handler;
             if (inHandler == null) {
