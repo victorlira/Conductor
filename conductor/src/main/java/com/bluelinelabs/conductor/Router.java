@@ -185,11 +185,11 @@ public abstract class Router {
         performControllerChange(transaction.pushChangeHandler(handler), topTransaction, true);
     }
 
-    void destroy() {
+    void destroy(boolean popViews) {
         popsLastView = true;
         List<RouterTransaction> poppedControllers = backstack.popAll();
 
-        if (poppedControllers.size() > 0) {
+        if (popViews && poppedControllers.size() > 0) {
             trackDestroyingControllers(poppedControllers);
 
             performControllerChange(null, poppedControllers.get(0).controller, false, poppedControllers.get(0).popChangeHandler());

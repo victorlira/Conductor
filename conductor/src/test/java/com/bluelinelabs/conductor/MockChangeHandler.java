@@ -18,19 +18,23 @@ public class MockChangeHandler extends ControllerChangeHandler {
     final ChangeHandlerListener listener;
     boolean removesFromViewOnPush;
 
+    public static MockChangeHandler defaultHandler() {
+        return new MockChangeHandler(true, null);
+    }
+
+    public static MockChangeHandler noRemoveViewOnPushHandler() {
+        return new MockChangeHandler(false, null);
+    }
+
+    public static MockChangeHandler listeningChangeHandler(@NonNull ChangeHandlerListener listener) {
+        return new MockChangeHandler(true , listener);
+    }
+
     public MockChangeHandler() {
-        this(true, null);
+        listener = null;
     }
 
-    public MockChangeHandler(boolean removesViewOnPush) {
-        this(removesViewOnPush, null);
-    }
-
-    public MockChangeHandler(@NonNull ChangeHandlerListener listener) {
-        this(true, listener);
-    }
-
-    public MockChangeHandler(boolean removesFromViewOnPush, ChangeHandlerListener listener) {
+    private MockChangeHandler(boolean removesFromViewOnPush, ChangeHandlerListener listener) {
         this.removesFromViewOnPush = removesFromViewOnPush;
 
         if (listener == null) {

@@ -222,7 +222,7 @@ public class RouterTests {
     @Test
     public void testNewSetBackstackWithNoRemoveViewOnPush() {
         RouterTransaction oldRootTransaction = RouterTransaction.with(new TestController());
-        RouterTransaction oldTopTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(new MockChangeHandler(false));
+        RouterTransaction oldTopTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(MockChangeHandler.noRemoveViewOnPushHandler());
 
         router.setRoot(oldRootTransaction);
         router.pushController(oldTopTransaction);
@@ -232,8 +232,8 @@ public class RouterTests {
         Assert.assertTrue(oldTopTransaction.controller.isAttached());
 
         RouterTransaction rootTransaction = RouterTransaction.with(new TestController());
-        RouterTransaction middleTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(new MockChangeHandler(false));
-        RouterTransaction topTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(new MockChangeHandler(false));
+        RouterTransaction middleTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(MockChangeHandler.noRemoveViewOnPushHandler());
+        RouterTransaction topTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(MockChangeHandler.noRemoveViewOnPushHandler());
 
         List<RouterTransaction> backstack = new ArrayList<>();
         backstack.add(rootTransaction);
@@ -286,7 +286,7 @@ public class RouterTests {
     @Test
     public void testReplaceTopControllerWithNoRemoveViewOnPush() {
         RouterTransaction rootTransaction = RouterTransaction.with(new TestController());
-        RouterTransaction topTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(new MockChangeHandler(false));
+        RouterTransaction topTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(MockChangeHandler.noRemoveViewOnPushHandler());
 
         List<RouterTransaction> backstack = new ArrayList<>();
         backstack.add(rootTransaction);
@@ -303,7 +303,7 @@ public class RouterTests {
         Assert.assertEquals(rootTransaction, fetchedBackstack.get(0));
         Assert.assertEquals(topTransaction, fetchedBackstack.get(1));
 
-        RouterTransaction newTopTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(new MockChangeHandler(false));
+        RouterTransaction newTopTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(MockChangeHandler.noRemoveViewOnPushHandler());
         router.replaceTopController(newTopTransaction);
         newTopTransaction.pushChangeHandler().completeImmediately();
 

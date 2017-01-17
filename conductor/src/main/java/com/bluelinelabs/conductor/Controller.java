@@ -229,7 +229,7 @@ public abstract class Controller {
 
     public final void removeChildRouter(@NonNull Router childRouter) {
         if ((childRouter instanceof ControllerHostedRouter) && childRouters.remove(childRouter)) {
-            childRouter.destroy();
+            childRouter.destroy(true);
         }
     }
 
@@ -969,7 +969,7 @@ public abstract class Controller {
         }
 
         for (ControllerHostedRouter childRouter : childRouters) {
-            childRouter.destroy();
+            childRouter.destroy(false);
         }
 
         if (!attached) {

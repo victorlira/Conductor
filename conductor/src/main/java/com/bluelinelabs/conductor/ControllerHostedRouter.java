@@ -72,9 +72,9 @@ class ControllerHostedRouter extends Router {
     }
 
     @Override
-    void destroy() {
+    void destroy(boolean popViews) {
         setDetachFrozen(false);
-        super.destroy();
+        super.destroy(popViews);
     }
 
     @Override @Nullable

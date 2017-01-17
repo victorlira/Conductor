@@ -383,8 +383,8 @@ public class ControllerLifecycleTests {
         });
 
         router.pushController(RouterTransaction.with(testController)
-                .pushChangeHandler(new MockChangeHandler())
-                .popChangeHandler(new MockChangeHandler()));
+                .pushChangeHandler(MockChangeHandler.defaultHandler())
+                .popChangeHandler(MockChangeHandler.defaultHandler()));
 
         router.popController(testController);
 
@@ -399,7 +399,7 @@ public class ControllerLifecycleTests {
     public void testChildLifecycle() {
         Controller parent = new TestController();
         router.pushController(RouterTransaction.with(parent)
-                .pushChangeHandler(new MockChangeHandler()));
+                .pushChangeHandler(MockChangeHandler.defaultHandler()));
 
         TestController child = new TestController();
         attachLifecycleListener(child);
@@ -425,8 +425,8 @@ public class ControllerLifecycleTests {
     public void testChildLifecycle2() {
         Controller parent = new TestController();
         router.pushController(RouterTransaction.with(parent)
-                .pushChangeHandler(new MockChangeHandler())
-                .popChangeHandler(new MockChangeHandler()));
+                .pushChangeHandler(MockChangeHandler.defaultHandler())
+                .popChangeHandler(MockChangeHandler.defaultHandler()));
 
         TestController child = new TestController();
         attachLifecycleListener(child);
@@ -445,11 +445,15 @@ public class ControllerLifecycleTests {
 
         router.popCurrentController();
 
+        expectedCallState.detachCalls++;
+        expectedCallState.destroyViewCalls++;
+        expectedCallState.destroyCalls++;
+
         assertCalls(expectedCallState, child);
     }
 
     private MockChangeHandler getPushHandler(final CallState expectedCallState, final TestController controller) {
-        return new MockChangeHandler(new ChangeHandlerListener() {
+        return MockChangeHandler.listeningChangeHandler(new ChangeHandlerListener() {
             @Override
             void willStartChange() {
                 expectedCallState.changeStartCalls++;
@@ -472,7 +476,7 @@ public class ControllerLifecycleTests {
     }
 
     private MockChangeHandler getPopHandler(final CallState expectedCallState, final TestController controller) {
-        return new MockChangeHandler(new ChangeHandlerListener() {
+        return MockChangeHandler.listeningChangeHandler(new ChangeHandlerListener() {
             @Override
             void willStartChange() {
                 expectedCallState.changeStartCalls++;
