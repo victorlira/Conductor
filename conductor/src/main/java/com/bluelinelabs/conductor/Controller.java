@@ -18,12 +18,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnAttachStateChangeListener;
 import android.view.ViewGroup;
 
 import com.bluelinelabs.conductor.Router.OnControllerPushedListener;
 import com.bluelinelabs.conductor.internal.ClassUtils;
 import com.bluelinelabs.conductor.internal.RouterRequiringFunc;
+import com.bluelinelabs.conductor.internal.ViewAttachHandler;
+import com.bluelinelabs.conductor.internal.ViewAttachHandler.ViewAttachListener;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
@@ -80,7 +81,7 @@ public abstract class Controller {
     private ControllerChangeHandler overriddenPushHandler;
     private ControllerChangeHandler overriddenPopHandler;
     private RetainViewMode retainViewMode = RetainViewMode.RELEASE_DETACH;
-    private OnAttachStateChangeListener onAttachStateChangeListener;
+    private ViewAttachHandler viewAttachHandler;
     private final List<ControllerHostedRouter> childRouters = new ArrayList<>();
     private final List<LifecycleListener> lifecycleListeners = new ArrayList<>();
     private final ArrayList<String> requestedPermissions = new ArrayList<>();
@@ -847,7 +848,7 @@ public abstract class Controller {
 
             onDestroyView(view);
 
-            view.removeOnAttachStateChangeListener(onAttachStateChangeListener);
+            viewAttachHandler.unregisterAttachListener(view);
             viewIsAttached = false;
 
             if (isBeingDestroyed) {
@@ -894,9 +895,9 @@ public abstract class Controller {
 
             restoreViewState(view);
 
-            onAttachStateChangeListener = new OnAttachStateChangeListener() {
+            viewAttachHandler = new ViewAttachHandler(new ViewAttachListener() {
                 @Override
-                public void onViewAttachedToWindow(View v) {
+                public void onAttached(View v) {
                     if (v == view) {
                         viewIsAttached = true;
                         viewWasDetached = false;
@@ -905,7 +906,7 @@ public abstract class Controller {
                 }
 
                 @Override
-                public void onViewDetachedFromWindow(View v) {
+                public void onDetached(View v) {
                     viewIsAttached = false;
                     viewWasDetached = true;
 
@@ -913,9 +914,8 @@ public abstract class Controller {
                         detach(v, false);
                     }
                 }
-            };
-
-            view.addOnAttachStateChangeListener(onAttachStateChangeListener);
+            });
+            viewAttachHandler.listenForAttach(view);
         } else if (retainViewMode == RetainViewMode.RETAIN_DETACH) {
             restoreChildControllerHosts();
         }
