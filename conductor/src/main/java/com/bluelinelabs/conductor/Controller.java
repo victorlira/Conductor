@@ -982,7 +982,7 @@ public abstract class Controller {
     private void saveViewState(@NonNull View view) {
         hasSavedViewState = true;
 
-        viewState = new Bundle();
+        viewState = new Bundle(getClass().getClassLoader());
 
         SparseArray<Parcelable> hierarchyState = new SparseArray<>();
         view.saveHierarchyState(hierarchyState);
@@ -1063,6 +1063,10 @@ public abstract class Controller {
 
     private void restoreInstanceState(@NonNull Bundle savedInstanceState) {
         viewState = savedInstanceState.getBundle(KEY_VIEW_STATE);
+        if (viewState != null) {
+            viewState.setClassLoader(getClass().getClassLoader());
+        }
+
         instanceId = savedInstanceState.getString(KEY_INSTANCE_ID);
         targetInstanceId = savedInstanceState.getString(KEY_TARGET_INSTANCE_ID);
         requestedPermissions.addAll(savedInstanceState.getStringArrayList(KEY_REQUESTED_PERMISSIONS));
