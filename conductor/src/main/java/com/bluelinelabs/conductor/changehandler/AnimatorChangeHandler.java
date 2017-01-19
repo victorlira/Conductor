@@ -150,6 +150,7 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
             if (animatorListener != null) {
                 animator.removeListener(animatorListener);
             }
+            animator.end();
             animator = null;
         }
     }
