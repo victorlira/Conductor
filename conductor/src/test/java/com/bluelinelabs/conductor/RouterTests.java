@@ -1,14 +1,22 @@
 package com.bluelinelabs.conductor;
 
-import org.junit.Assert;
+import com.bluelinelabs.conductor.util.ActivityProxy;
+import com.bluelinelabs.conductor.util.ListUtils;
+import com.bluelinelabs.conductor.util.MockChangeHandler;
+import com.bluelinelabs.conductor.util.TestController;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
@@ -28,13 +36,13 @@ public class RouterTests {
 
         Controller rootController = new TestController();
 
-        Assert.assertFalse(router.hasRootController());
+        assertFalse(router.hasRootController());
 
         router.setRoot(RouterTransaction.with(rootController).tag(rootTag));
 
-        Assert.assertTrue(router.hasRootController());
+        assertTrue(router.hasRootController());
 
-        Assert.assertEquals(rootController, router.getControllerWithTag(rootTag));
+        assertEquals(rootController, router.getControllerWithTag(rootTag));
     }
 
     @Test
@@ -48,8 +56,8 @@ public class RouterTests {
         router.setRoot(RouterTransaction.with(oldRootController).tag(oldRootTag));
         router.setRoot(RouterTransaction.with(newRootController).tag(newRootTag));
 
-        Assert.assertNull(router.getControllerWithTag(oldRootTag));
-        Assert.assertEquals(newRootController, router.getControllerWithTag(newRootTag));
+        assertNull(router.getControllerWithTag(oldRootTag));
+        assertEquals(newRootController, router.getControllerWithTag(newRootTag));
     }
 
     @Test
@@ -58,8 +66,8 @@ public class RouterTests {
 
         router.pushController(RouterTransaction.with(controller));
 
-        Assert.assertEquals(controller, router.getControllerWithInstanceId(controller.getInstanceId()));
-        Assert.assertNull(router.getControllerWithInstanceId("fake id"));
+        assertEquals(controller, router.getControllerWithInstanceId(controller.getInstanceId()));
+        assertNull(router.getControllerWithInstanceId("fake id"));
     }
 
     @Test
@@ -76,8 +84,8 @@ public class RouterTests {
         router.pushController(RouterTransaction.with(controller2)
                 .tag(controller2Tag));
 
-        Assert.assertEquals(controller1, router.getControllerWithTag(controller1Tag));
-        Assert.assertEquals(controller2, router.getControllerWithTag(controller2Tag));
+        assertEquals(controller1, router.getControllerWithTag(controller1Tag));
+        assertEquals(controller2, router.getControllerWithTag(controller2Tag));
     }
 
     @Test
@@ -91,26 +99,26 @@ public class RouterTests {
         router.pushController(RouterTransaction.with(controller1)
                 .tag(controller1Tag));
 
-        Assert.assertEquals(1, router.getBackstackSize());
+        assertEquals(1, router.getBackstackSize());
 
         router.pushController(RouterTransaction.with(controller2)
                 .tag(controller2Tag));
 
-        Assert.assertEquals(2, router.getBackstackSize());
+        assertEquals(2, router.getBackstackSize());
 
         router.popCurrentController();
 
-        Assert.assertEquals(1, router.getBackstackSize());
+        assertEquals(1, router.getBackstackSize());
 
-        Assert.assertEquals(controller1, router.getControllerWithTag(controller1Tag));
-        Assert.assertNull(router.getControllerWithTag(controller2Tag));
+        assertEquals(controller1, router.getControllerWithTag(controller1Tag));
+        assertNull(router.getControllerWithTag(controller2Tag));
 
         router.popCurrentController();
 
-        Assert.assertEquals(0, router.getBackstackSize());
+        assertEquals(0, router.getBackstackSize());
 
-        Assert.assertNull(router.getControllerWithTag(controller1Tag));
-        Assert.assertNull(router.getControllerWithTag(controller2Tag));
+        assertNull(router.getControllerWithTag(controller1Tag));
+        assertNull(router.getControllerWithTag(controller2Tag));
     }
 
     @Test
@@ -139,11 +147,11 @@ public class RouterTests {
 
         router.popToTag(controller2Tag);
 
-        Assert.assertEquals(2, router.getBackstackSize());
-        Assert.assertEquals(controller1, router.getControllerWithTag(controller1Tag));
-        Assert.assertEquals(controller2, router.getControllerWithTag(controller2Tag));
-        Assert.assertNull(router.getControllerWithTag(controller3Tag));
-        Assert.assertNull(router.getControllerWithTag(controller4Tag));
+        assertEquals(2, router.getBackstackSize());
+        assertEquals(controller1, router.getControllerWithTag(controller1Tag));
+        assertEquals(controller2, router.getControllerWithTag(controller2Tag));
+        assertNull(router.getControllerWithTag(controller3Tag));
+        assertNull(router.getControllerWithTag(controller4Tag));
     }
 
     @Test
@@ -167,10 +175,10 @@ public class RouterTests {
 
         router.popController(controller2);
 
-        Assert.assertEquals(2, router.getBackstackSize());
-        Assert.assertEquals(controller1, router.getControllerWithTag(controller1Tag));
-        Assert.assertNull(router.getControllerWithTag(controller2Tag));
-        Assert.assertEquals(controller3, router.getControllerWithTag(controller3Tag));
+        assertEquals(2, router.getBackstackSize());
+        assertEquals(controller1, router.getControllerWithTag(controller1Tag));
+        assertNull(router.getControllerWithTag(controller2Tag));
+        assertEquals(controller3, router.getControllerWithTag(controller3Tag));
     }
 
     @Test
@@ -179,44 +187,36 @@ public class RouterTests {
         RouterTransaction middleTransaction = RouterTransaction.with(new TestController());
         RouterTransaction topTransaction = RouterTransaction.with(new TestController());
 
-        List<RouterTransaction> backstack = new ArrayList<>();
-        backstack.add(rootTransaction);
-        backstack.add(middleTransaction);
-        backstack.add(topTransaction);
-
+        List<RouterTransaction> backstack = ListUtils.listOf(rootTransaction, middleTransaction, topTransaction);
         router.setBackstack(backstack, null);
 
-        Assert.assertEquals(3, router.getBackstackSize());
+        assertEquals(3, router.getBackstackSize());
 
         List<RouterTransaction> fetchedBackstack = router.getBackstack();
-        Assert.assertEquals(rootTransaction, fetchedBackstack.get(0));
-        Assert.assertEquals(middleTransaction, fetchedBackstack.get(1));
-        Assert.assertEquals(topTransaction, fetchedBackstack.get(2));
+        assertEquals(rootTransaction, fetchedBackstack.get(0));
+        assertEquals(middleTransaction, fetchedBackstack.get(1));
+        assertEquals(topTransaction, fetchedBackstack.get(2));
     }
 
     @Test
     public void testNewSetBackstack() {
         router.setRoot(RouterTransaction.with(new TestController()));
 
-        Assert.assertEquals(1, router.getBackstackSize());
+        assertEquals(1, router.getBackstackSize());
 
         RouterTransaction rootTransaction = RouterTransaction.with(new TestController());
         RouterTransaction middleTransaction = RouterTransaction.with(new TestController());
         RouterTransaction topTransaction = RouterTransaction.with(new TestController());
 
-        List<RouterTransaction> backstack = new ArrayList<>();
-        backstack.add(rootTransaction);
-        backstack.add(middleTransaction);
-        backstack.add(topTransaction);
-
+        List<RouterTransaction> backstack = ListUtils.listOf(rootTransaction, middleTransaction, topTransaction);
         router.setBackstack(backstack, null);
 
-        Assert.assertEquals(3, router.getBackstackSize());
+        assertEquals(3, router.getBackstackSize());
 
         List<RouterTransaction> fetchedBackstack = router.getBackstack();
-        Assert.assertEquals(rootTransaction, fetchedBackstack.get(0));
-        Assert.assertEquals(middleTransaction, fetchedBackstack.get(1));
-        Assert.assertEquals(topTransaction, fetchedBackstack.get(2));
+        assertEquals(rootTransaction, fetchedBackstack.get(0));
+        assertEquals(middleTransaction, fetchedBackstack.get(1));
+        assertEquals(topTransaction, fetchedBackstack.get(2));
     }
 
     @Test
@@ -226,34 +226,30 @@ public class RouterTests {
 
         router.setRoot(oldRootTransaction);
         router.pushController(oldTopTransaction);
-        Assert.assertEquals(2, router.getBackstackSize());
+        assertEquals(2, router.getBackstackSize());
 
-        Assert.assertTrue(oldRootTransaction.controller.isAttached());
-        Assert.assertTrue(oldTopTransaction.controller.isAttached());
+        assertTrue(oldRootTransaction.controller.isAttached());
+        assertTrue(oldTopTransaction.controller.isAttached());
 
         RouterTransaction rootTransaction = RouterTransaction.with(new TestController());
         RouterTransaction middleTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(MockChangeHandler.noRemoveViewOnPushHandler());
         RouterTransaction topTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(MockChangeHandler.noRemoveViewOnPushHandler());
 
-        List<RouterTransaction> backstack = new ArrayList<>();
-        backstack.add(rootTransaction);
-        backstack.add(middleTransaction);
-        backstack.add(topTransaction);
-
+        List<RouterTransaction> backstack = ListUtils.listOf(rootTransaction, middleTransaction, topTransaction);
         router.setBackstack(backstack, null);
 
-        Assert.assertEquals(3, router.getBackstackSize());
+        assertEquals(3, router.getBackstackSize());
 
         List<RouterTransaction> fetchedBackstack = router.getBackstack();
-        Assert.assertEquals(rootTransaction, fetchedBackstack.get(0));
-        Assert.assertEquals(middleTransaction, fetchedBackstack.get(1));
-        Assert.assertEquals(topTransaction, fetchedBackstack.get(2));
+        assertEquals(rootTransaction, fetchedBackstack.get(0));
+        assertEquals(middleTransaction, fetchedBackstack.get(1));
+        assertEquals(topTransaction, fetchedBackstack.get(2));
 
-        Assert.assertFalse(oldRootTransaction.controller.isAttached());
-        Assert.assertFalse(oldTopTransaction.controller.isAttached());
-        Assert.assertTrue(rootTransaction.controller.isAttached());
-        Assert.assertTrue(middleTransaction.controller.isAttached());
-        Assert.assertTrue(topTransaction.controller.isAttached());
+        assertFalse(oldRootTransaction.controller.isAttached());
+        assertFalse(oldTopTransaction.controller.isAttached());
+        assertTrue(rootTransaction.controller.isAttached());
+        assertTrue(middleTransaction.controller.isAttached());
+        assertTrue(topTransaction.controller.isAttached());
     }
 
     @Test
@@ -261,26 +257,23 @@ public class RouterTests {
         RouterTransaction rootTransaction = RouterTransaction.with(new TestController());
         RouterTransaction topTransaction = RouterTransaction.with(new TestController());
 
-        List<RouterTransaction> backstack = new ArrayList<>();
-        backstack.add(rootTransaction);
-        backstack.add(topTransaction);
-
+        List<RouterTransaction> backstack = ListUtils.listOf(rootTransaction, topTransaction);
         router.setBackstack(backstack, null);
 
-        Assert.assertEquals(2, router.getBackstackSize());
+        assertEquals(2, router.getBackstackSize());
 
         List<RouterTransaction> fetchedBackstack = router.getBackstack();
-        Assert.assertEquals(rootTransaction, fetchedBackstack.get(0));
-        Assert.assertEquals(topTransaction, fetchedBackstack.get(1));
+        assertEquals(rootTransaction, fetchedBackstack.get(0));
+        assertEquals(topTransaction, fetchedBackstack.get(1));
 
         RouterTransaction newTopTransaction = RouterTransaction.with(new TestController());
         router.replaceTopController(newTopTransaction);
 
-        Assert.assertEquals(2, router.getBackstackSize());
+        assertEquals(2, router.getBackstackSize());
 
         fetchedBackstack = router.getBackstack();
-        Assert.assertEquals(rootTransaction, fetchedBackstack.get(0));
-        Assert.assertEquals(newTopTransaction, fetchedBackstack.get(1));
+        assertEquals(rootTransaction, fetchedBackstack.get(0));
+        assertEquals(newTopTransaction, fetchedBackstack.get(1));
     }
 
     @Test
@@ -288,34 +281,31 @@ public class RouterTests {
         RouterTransaction rootTransaction = RouterTransaction.with(new TestController());
         RouterTransaction topTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(MockChangeHandler.noRemoveViewOnPushHandler());
 
-        List<RouterTransaction> backstack = new ArrayList<>();
-        backstack.add(rootTransaction);
-        backstack.add(topTransaction);
-
+        List<RouterTransaction> backstack = ListUtils.listOf(rootTransaction, topTransaction);
         router.setBackstack(backstack, null);
 
-        Assert.assertEquals(2, router.getBackstackSize());
+        assertEquals(2, router.getBackstackSize());
 
-        Assert.assertTrue(rootTransaction.controller.isAttached());
-        Assert.assertTrue(topTransaction.controller.isAttached());
+        assertTrue(rootTransaction.controller.isAttached());
+        assertTrue(topTransaction.controller.isAttached());
 
         List<RouterTransaction> fetchedBackstack = router.getBackstack();
-        Assert.assertEquals(rootTransaction, fetchedBackstack.get(0));
-        Assert.assertEquals(topTransaction, fetchedBackstack.get(1));
+        assertEquals(rootTransaction, fetchedBackstack.get(0));
+        assertEquals(topTransaction, fetchedBackstack.get(1));
 
         RouterTransaction newTopTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(MockChangeHandler.noRemoveViewOnPushHandler());
         router.replaceTopController(newTopTransaction);
         newTopTransaction.pushChangeHandler().completeImmediately();
 
-        Assert.assertEquals(2, router.getBackstackSize());
+        assertEquals(2, router.getBackstackSize());
 
         fetchedBackstack = router.getBackstack();
-        Assert.assertEquals(rootTransaction, fetchedBackstack.get(0));
-        Assert.assertEquals(newTopTransaction, fetchedBackstack.get(1));
+        assertEquals(rootTransaction, fetchedBackstack.get(0));
+        assertEquals(newTopTransaction, fetchedBackstack.get(1));
 
-        Assert.assertTrue(rootTransaction.controller.isAttached());
-        Assert.assertFalse(topTransaction.controller.isAttached());
-        Assert.assertTrue(newTopTransaction.controller.isAttached());
+        assertTrue(rootTransaction.controller.isAttached());
+        assertFalse(topTransaction.controller.isAttached());
+        assertTrue(newTopTransaction.controller.isAttached());
     }
 
 }

@@ -7,13 +7,16 @@ import android.widget.LinearLayout;
 
 import com.bluelinelabs.conductor.internal.ViewAttachHandler;
 import com.bluelinelabs.conductor.internal.ViewAttachHandler.ViewAttachListener;
+import com.bluelinelabs.conductor.util.ActivityProxy;
+import com.bluelinelabs.conductor.util.ViewUtils;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
@@ -35,28 +38,28 @@ public class ViewAttachHandlerTests {
         View view = new View(activity);
         viewAttachHandler.listenForAttach(view);
 
-        Assert.assertEquals(0, viewAttachListener.attaches);
-        Assert.assertEquals(0, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.attaches);
+        assertEquals(0, viewAttachListener.detaches);
 
         ViewUtils.reportAttached(view, true);
-        Assert.assertEquals(1, viewAttachListener.attaches);
-        Assert.assertEquals(0, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.attaches);
+        assertEquals(0, viewAttachListener.detaches);
 
         ViewUtils.reportAttached(view, true);
-        Assert.assertEquals(1, viewAttachListener.attaches);
-        Assert.assertEquals(0, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.attaches);
+        assertEquals(0, viewAttachListener.detaches);
 
         ViewUtils.reportAttached(view, false);
-        Assert.assertEquals(1, viewAttachListener.attaches);
-        Assert.assertEquals(1, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.attaches);
+        assertEquals(1, viewAttachListener.detaches);
 
         ViewUtils.reportAttached(view, false);
-        Assert.assertEquals(1, viewAttachListener.attaches);
-        Assert.assertEquals(1, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.attaches);
+        assertEquals(1, viewAttachListener.detaches);
 
         ViewUtils.reportAttached(view, true);
-        Assert.assertEquals(2, viewAttachListener.attaches);
-        Assert.assertEquals(1, viewAttachListener.detaches);
+        assertEquals(2, viewAttachListener.attaches);
+        assertEquals(1, viewAttachListener.detaches);
     }
 
     @Test
@@ -64,28 +67,28 @@ public class ViewAttachHandlerTests {
         View view = new LinearLayout(activity);
         viewAttachHandler.listenForAttach(view);
 
-        Assert.assertEquals(0, viewAttachListener.attaches);
-        Assert.assertEquals(0, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.attaches);
+        assertEquals(0, viewAttachListener.detaches);
 
         ViewUtils.reportAttached(view, true);
-        Assert.assertEquals(1, viewAttachListener.attaches);
-        Assert.assertEquals(0, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.attaches);
+        assertEquals(0, viewAttachListener.detaches);
 
         ViewUtils.reportAttached(view, true);
-        Assert.assertEquals(1, viewAttachListener.attaches);
-        Assert.assertEquals(0, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.attaches);
+        assertEquals(0, viewAttachListener.detaches);
 
         ViewUtils.reportAttached(view, false);
-        Assert.assertEquals(1, viewAttachListener.attaches);
-        Assert.assertEquals(1, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.attaches);
+        assertEquals(1, viewAttachListener.detaches);
 
         ViewUtils.reportAttached(view, false);
-        Assert.assertEquals(1, viewAttachListener.attaches);
-        Assert.assertEquals(1, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.attaches);
+        assertEquals(1, viewAttachListener.detaches);
 
         ViewUtils.reportAttached(view, true);
-        Assert.assertEquals(2, viewAttachListener.attaches);
-        Assert.assertEquals(1, viewAttachListener.detaches);
+        assertEquals(2, viewAttachListener.attaches);
+        assertEquals(1, viewAttachListener.detaches);
     }
 
     @Test
@@ -95,37 +98,37 @@ public class ViewAttachHandlerTests {
         view.addView(child);
         viewAttachHandler.listenForAttach(view);
 
-        Assert.assertEquals(0, viewAttachListener.attaches);
-        Assert.assertEquals(0, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.attaches);
+        assertEquals(0, viewAttachListener.detaches);
 
         ViewUtils.reportAttached(view, true, false);
-        Assert.assertEquals(0, viewAttachListener.attaches);
-        Assert.assertEquals(0, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.attaches);
+        assertEquals(0, viewAttachListener.detaches);
 
         ViewUtils.reportAttached(child, true, false);
-        Assert.assertEquals(1, viewAttachListener.attaches);
-        Assert.assertEquals(0, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.attaches);
+        assertEquals(0, viewAttachListener.detaches);
 
         ViewUtils.reportAttached(view, true, false);
         ViewUtils.reportAttached(child, true, false);
-        Assert.assertEquals(1, viewAttachListener.attaches);
-        Assert.assertEquals(0, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.attaches);
+        assertEquals(0, viewAttachListener.detaches);
 
         ViewUtils.reportAttached(view, false, false);
-        Assert.assertEquals(1, viewAttachListener.attaches);
-        Assert.assertEquals(1, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.attaches);
+        assertEquals(1, viewAttachListener.detaches);
 
         ViewUtils.reportAttached(view, false, false);
-        Assert.assertEquals(1, viewAttachListener.attaches);
-        Assert.assertEquals(1, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.attaches);
+        assertEquals(1, viewAttachListener.detaches);
 
         ViewUtils.reportAttached(view, true, false);
-        Assert.assertEquals(1, viewAttachListener.attaches);
-        Assert.assertEquals(1, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.attaches);
+        assertEquals(1, viewAttachListener.detaches);
 
         ViewUtils.reportAttached(child, true, false);
-        Assert.assertEquals(2, viewAttachListener.attaches);
-        Assert.assertEquals(1, viewAttachListener.detaches);
+        assertEquals(2, viewAttachListener.attaches);
+        assertEquals(1, viewAttachListener.detaches);
     }
 
     private static class CountingViewAttachListener implements ViewAttachListener {

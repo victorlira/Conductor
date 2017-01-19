@@ -344,29 +344,19 @@ public abstract class Router {
     public void setBackstack(@NonNull List<RouterTransaction> newBackstack, @Nullable ControllerChangeHandler changeHandler) {
         List<RouterTransaction> oldVisibleTransactions = getVisibleTransactions(backstack.iterator());
 
-        backstack.setBackstack(newBackstack);
+        removeAllExceptVisibleAndUnowned();
 
+        backstack.setBackstack(newBackstack);
         for (RouterTransaction transaction : backstack) {
             transaction.onAttachedToRouter();
         }
-
-        removeAllExceptVisibleAndUnowned();
 
         if (newBackstack.size() > 0) {
             List<RouterTransaction> reverseNewBackstack = new ArrayList<>(newBackstack);
             Collections.reverse(reverseNewBackstack);
             List<RouterTransaction> newVisibleTransactions = getVisibleTransactions(reverseNewBackstack.iterator());
 
-            boolean visibleTransactionsChanged = newVisibleTransactions.size() != oldVisibleTransactions.size();
-            if (!visibleTransactionsChanged) {
-                for (int i = 0; i < oldVisibleTransactions.size(); i++) {
-                    if (oldVisibleTransactions.get(i).controller != newVisibleTransactions.get(i).controller) {
-                        visibleTransactionsChanged = true;
-                        break;
-                    }
-                }
-            }
-
+            boolean visibleTransactionsChanged = !backstacksAreEqual(newVisibleTransactions, oldVisibleTransactions);
             if (visibleTransactionsChanged) {
                 Controller rootController = oldVisibleTransactions.size() > 0 ? oldVisibleTransactions.get(0).controller : null;
                 performControllerChange(newVisibleTransactions.get(0).controller, rootController, true, changeHandler);
@@ -725,6 +715,20 @@ public abstract class Router {
 
         Collections.reverse(transactions);
         return transactions;
+    }
+
+    private boolean backstacksAreEqual(List<RouterTransaction> lhs, List<RouterTransaction> rhs) {
+        if (lhs.size() != rhs.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < rhs.size(); i++) {
+            if (rhs.get(i).controller() != lhs.get(i).controller()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     void setControllerRouter(@NonNull Controller controller) {
