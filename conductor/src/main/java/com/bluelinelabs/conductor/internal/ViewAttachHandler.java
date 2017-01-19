@@ -59,7 +59,7 @@ public class ViewAttachHandler {
     public void unregisterAttachListener(View view) {
         view.removeOnAttachStateChangeListener(rootOnAttachStateChangeListener);
 
-        if (view instanceof ViewGroup) {
+        if (childOnAttachStateChangeListener != null && view instanceof ViewGroup) {
             findDeepestChild((ViewGroup)view).removeOnAttachStateChangeListener(childOnAttachStateChangeListener);
         }
     }
@@ -84,6 +84,8 @@ public class ViewAttachHandler {
                 if (!attached) {
                     attached = true;
                     attachListener.onAttached();
+                    v.removeOnAttachStateChangeListener(this);
+                    childOnAttachStateChangeListener = null;
                 }
             }
 
