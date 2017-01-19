@@ -217,6 +217,10 @@ public class RouterTests {
         assertEquals(rootTransaction, fetchedBackstack.get(0));
         assertEquals(middleTransaction, fetchedBackstack.get(1));
         assertEquals(topTransaction, fetchedBackstack.get(2));
+
+        assertEquals(router, rootTransaction.controller.getRouter());
+        assertEquals(router, middleTransaction.controller.getRouter());
+        assertEquals(router, topTransaction.controller.getRouter());
     }
 
     @Test

@@ -373,6 +373,11 @@ public abstract class Router {
                     performControllerChange(transaction.controller, newVisibleTransactions.get(i - 1).controller, true, transaction.pushChangeHandler());
                 }
             }
+
+            // Ensure all new controllers have a valid router set
+            for (RouterTransaction transaction : newBackstack) {
+                transaction.controller.setRouter(this);
+            }
         }
 
         if (onControllerPushedListener != null) {
