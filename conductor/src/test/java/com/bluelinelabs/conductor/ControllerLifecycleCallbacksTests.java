@@ -23,7 +23,7 @@ import static org.junit.Assert.assertNull;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
-public class ControllerLifecycleTests {
+public class ControllerLifecycleCallbacksTests {
 
     private Router router;
 
@@ -89,7 +89,7 @@ public class ControllerLifecycleTests {
 
         assertCalls(expectedCallState, controller);
 
-        activityProxy.stop();
+        activityProxy.stop(true);
 
         expectedCallState.saveViewStateCalls++;
         expectedCallState.detachCalls++;
@@ -128,7 +128,7 @@ public class ControllerLifecycleTests {
         activityProxy.pause();
         assertCalls(expectedCallState, controller);
 
-        activityProxy.stop();
+        activityProxy.stop(true);
         expectedCallState.detachCalls++;
         expectedCallState.destroyViewCalls++;
         assertCalls(expectedCallState, controller);

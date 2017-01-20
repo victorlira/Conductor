@@ -268,7 +268,7 @@ public abstract class Controller {
      */
     @Nullable
     public final Activity getActivity() {
-        return router.getActivity();
+        return router != null ? router.getActivity() : null;
     }
 
     /**
