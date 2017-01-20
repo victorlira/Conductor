@@ -22,8 +22,9 @@ public class CircularRevealChangeHandlerCompat extends CircularRevealChangeHandl
             return super.getAnimator(container, from, to, isPush, toAddedToContainer);
         } else {
             AnimatorSet animator = new AnimatorSet();
-            if (to != null && toAddedToContainer) {
-                animator.play(ObjectAnimator.ofFloat(to, View.ALPHA, 0, 1));
+            if (to != null) {
+                float start = toAddedToContainer ? 0 : to.getAlpha();
+                animator.play(ObjectAnimator.ofFloat(to, View.ALPHA, start, 1));
             }
 
             if (from != null) {

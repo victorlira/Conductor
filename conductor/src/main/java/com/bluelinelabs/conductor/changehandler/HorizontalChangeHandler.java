@@ -45,7 +45,9 @@ public class HorizontalChangeHandler extends AnimatorChangeHandler {
                 animatorSet.play(ObjectAnimator.ofFloat(from, View.TRANSLATION_X, from.getWidth()));
             }
             if (to != null) {
-                animatorSet.play(ObjectAnimator.ofFloat(to, View.TRANSLATION_X, -to.getWidth(), 0));
+                // Allow this to have a nice transition when coming off an aborted push animation
+                float fromLeft = from != null ? from.getX() : 0;
+                animatorSet.play(ObjectAnimator.ofFloat(to, View.TRANSLATION_X, fromLeft - to.getWidth(), 0));
             }
         }
 
