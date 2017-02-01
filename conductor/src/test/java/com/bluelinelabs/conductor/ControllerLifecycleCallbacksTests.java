@@ -11,6 +11,7 @@ import com.bluelinelabs.conductor.util.CallState;
 import com.bluelinelabs.conductor.util.MockChangeHandler;
 import com.bluelinelabs.conductor.util.MockChangeHandler.ChangeHandlerListener;
 import com.bluelinelabs.conductor.util.TestController;
+import com.bluelinelabs.conductor.util.ViewUtils;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +20,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 @RunWith(RobolectricTestRunner.class)
@@ -68,6 +70,37 @@ public class ControllerLifecycleCallbacksTests {
 
         assertNull(controller.getView());
 
+        assertCalls(expectedCallState, controller);
+    }
+
+    @Test
+    public void testLifecycleWithActivityStop() {
+        TestController controller = new TestController();
+        attachLifecycleListener(controller);
+
+        CallState expectedCallState = new CallState();
+
+        assertCalls(expectedCallState, controller);
+        router.pushController(RouterTransaction.with(controller)
+                .pushChangeHandler(getPushHandler(expectedCallState, controller)));
+
+        assertCalls(expectedCallState, controller);
+
+        activityProxy.getActivity().isDestroying = true;
+        activityProxy.pause();
+
+        assertCalls(expectedCallState, controller);
+
+        activityProxy.stop(false);
+
+        expectedCallState.detachCalls++;
+        assertCalls(expectedCallState, controller);
+
+        assertNotNull(controller.getView());
+        ViewUtils.reportAttached(controller.getView(), false);
+
+        expectedCallState.saveViewStateCalls++;
+        expectedCallState.destroyViewCalls++;
         assertCalls(expectedCallState, controller);
     }
 

@@ -51,12 +51,12 @@ class ControllerHostedRouter extends Router {
         final List<Controller> controllersToDestroy = new ArrayList<>(destroyingControllers);
         for (Controller controller : controllersToDestroy) {
             if (controller.getView() != null) {
-                controller.detach(controller.getView(), true);
+                controller.detach(controller.getView(), true, false);
             }
         }
         for (RouterTransaction transaction : backstack) {
             if (transaction.controller.getView() != null) {
-                transaction.controller.detach(transaction.controller.getView(), true);
+                transaction.controller.detach(transaction.controller.getView(), true, false);
             }
         }
 

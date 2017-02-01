@@ -744,6 +744,10 @@ public abstract class Controller {
     }
 
     final void activityStarted(@NonNull Activity activity) {
+        if (viewAttachHandler != null) {
+            viewAttachHandler.onActivityStarted();
+        }
+
         onActivityStarted(activity);
     }
 
@@ -763,12 +767,15 @@ public abstract class Controller {
     }
 
     final void activityStopped(@NonNull Activity activity) {
+        if (viewAttachHandler != null) {
+            viewAttachHandler.onActivityStopped();
+        }
         onActivityStopped(activity);
     }
 
     final void activityDestroyed(boolean isChangingConfigurations) {
         if (isChangingConfigurations) {
-            detach(view, true);
+            detach(view, true, false);
         } else {
             destroy(true);
         }
@@ -802,14 +809,14 @@ public abstract class Controller {
         }
     }
 
-    void detach(@NonNull View view, boolean forceViewRefRemoval) {
+    void detach(@NonNull View view, boolean forceViewRefRemoval, boolean blockViewRefRemoval) {
         if (!attachedToUnownedParent) {
             for (ControllerHostedRouter router : childRouters) {
                 router.prepareForHostDetach();
             }
         }
 
-        final boolean removeViewRef = forceViewRefRemoval || retainViewMode == RetainViewMode.RELEASE_DETACH || isBeingDestroyed;
+        final boolean removeViewRef = !blockViewRefRemoval && (forceViewRefRemoval || retainViewMode == RetainViewMode.RELEASE_DETACH || isBeingDestroyed);
 
         if (attached) {
             List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
@@ -874,7 +881,7 @@ public abstract class Controller {
 
     final View inflate(@NonNull ViewGroup parent) {
         if (view != null && view.getParent() != null && view.getParent() != parent) {
-            detach(view, true);
+            detach(view, true, false);
             removeViewReference();
         }
 
@@ -898,21 +905,26 @@ public abstract class Controller {
 
             viewAttachHandler = new ViewAttachHandler(new ViewAttachListener() {
                 @Override
-                public void onAttached(View v) {
-                    if (v == view) {
-                        viewIsAttached = true;
-                        viewWasDetached = false;
-                    }
-                    attach(v);
+                public void onAttached() {
+                    viewIsAttached = true;
+                    viewWasDetached = false;
+                    attach(view);
                 }
 
                 @Override
-                public void onDetached(View v) {
+                public void onDetached(boolean fromActivityStop) {
                     viewIsAttached = false;
                     viewWasDetached = true;
 
                     if (!isDetachFrozen) {
-                        detach(v, false);
+                        detach(view, false, fromActivityStop);
+                    }
+                }
+
+                @Override
+                public void onViewDetachAfterStop() {
+                    if (!isDetachFrozen) {
+                        detach(view, false, false);
                     }
                 }
             });
@@ -976,7 +988,7 @@ public abstract class Controller {
         if (!attached) {
             removeViewReference();
         } else if (removeViews) {
-            detach(view, true);
+            detach(view, true, false);
         }
     }
 
@@ -1156,7 +1168,7 @@ public abstract class Controller {
             }
 
             if (!frozen && view != null && viewWasDetached) {
-                detach(view, false);
+                detach(view, false, false);
             }
         }
     }

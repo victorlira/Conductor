@@ -40,55 +40,107 @@ public class ViewAttachHandlerTests {
 
         assertEquals(0, viewAttachListener.attaches);
         assertEquals(0, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
 
         ViewUtils.reportAttached(view, true);
         assertEquals(1, viewAttachListener.attaches);
         assertEquals(0, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
 
         ViewUtils.reportAttached(view, true);
         assertEquals(1, viewAttachListener.attaches);
         assertEquals(0, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
 
         ViewUtils.reportAttached(view, false);
         assertEquals(1, viewAttachListener.attaches);
         assertEquals(1, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
 
         ViewUtils.reportAttached(view, false);
         assertEquals(1, viewAttachListener.attaches);
         assertEquals(1, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
 
         ViewUtils.reportAttached(view, true);
         assertEquals(2, viewAttachListener.attaches);
         assertEquals(1, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
+
+        viewAttachHandler.onActivityStopped();
+        assertEquals(2, viewAttachListener.attaches);
+        assertEquals(2, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
+
+        ViewUtils.reportAttached(view, false);
+        assertEquals(2, viewAttachListener.attaches);
+        assertEquals(2, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.detachAfterStops);
+
+        ViewUtils.reportAttached(view, true);
+        assertEquals(2, viewAttachListener.attaches);
+        assertEquals(2, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.detachAfterStops);
+
+        viewAttachHandler.onActivityStarted();
+        assertEquals(3, viewAttachListener.attaches);
+        assertEquals(2, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.detachAfterStops);
     }
 
     @Test
     public void testSimpleViewGroupAttachDetach() {
-        View view = new LinearLayout(activity);
+        View view = new View(activity);
         viewAttachHandler.listenForAttach(view);
 
         assertEquals(0, viewAttachListener.attaches);
         assertEquals(0, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
 
         ViewUtils.reportAttached(view, true);
         assertEquals(1, viewAttachListener.attaches);
         assertEquals(0, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
 
         ViewUtils.reportAttached(view, true);
         assertEquals(1, viewAttachListener.attaches);
         assertEquals(0, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
 
         ViewUtils.reportAttached(view, false);
         assertEquals(1, viewAttachListener.attaches);
         assertEquals(1, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
 
         ViewUtils.reportAttached(view, false);
         assertEquals(1, viewAttachListener.attaches);
         assertEquals(1, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
 
         ViewUtils.reportAttached(view, true);
         assertEquals(2, viewAttachListener.attaches);
         assertEquals(1, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
+
+        viewAttachHandler.onActivityStopped();
+        assertEquals(2, viewAttachListener.attaches);
+        assertEquals(2, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
+
+        ViewUtils.reportAttached(view, false);
+        assertEquals(2, viewAttachListener.attaches);
+        assertEquals(2, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.detachAfterStops);
+
+        ViewUtils.reportAttached(view, true);
+        assertEquals(2, viewAttachListener.attaches);
+        assertEquals(2, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.detachAfterStops);
+
+        viewAttachHandler.onActivityStarted();
+        assertEquals(3, viewAttachListener.attaches);
+        assertEquals(2, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.detachAfterStops);
     }
 
     @Test
@@ -100,49 +152,84 @@ public class ViewAttachHandlerTests {
 
         assertEquals(0, viewAttachListener.attaches);
         assertEquals(0, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
 
         ViewUtils.reportAttached(view, true, false);
         assertEquals(0, viewAttachListener.attaches);
         assertEquals(0, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
 
         ViewUtils.reportAttached(child, true, false);
         assertEquals(1, viewAttachListener.attaches);
         assertEquals(0, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
 
         ViewUtils.reportAttached(view, true, false);
         ViewUtils.reportAttached(child, true, false);
         assertEquals(1, viewAttachListener.attaches);
         assertEquals(0, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
 
         ViewUtils.reportAttached(view, false, false);
         assertEquals(1, viewAttachListener.attaches);
         assertEquals(1, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
 
         ViewUtils.reportAttached(view, false, false);
         assertEquals(1, viewAttachListener.attaches);
         assertEquals(1, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
 
         ViewUtils.reportAttached(view, true, false);
         assertEquals(1, viewAttachListener.attaches);
         assertEquals(1, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
 
         ViewUtils.reportAttached(child, true, false);
         assertEquals(2, viewAttachListener.attaches);
         assertEquals(1, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
+
+        viewAttachHandler.onActivityStopped();
+        assertEquals(2, viewAttachListener.attaches);
+        assertEquals(2, viewAttachListener.detaches);
+        assertEquals(0, viewAttachListener.detachAfterStops);
+
+        ViewUtils.reportAttached(view, false, false);
+        assertEquals(2, viewAttachListener.attaches);
+        assertEquals(2, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.detachAfterStops);
+
+        ViewUtils.reportAttached(view, true, false);
+        ViewUtils.reportAttached(child, true, false);
+        assertEquals(2, viewAttachListener.attaches);
+        assertEquals(2, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.detachAfterStops);
+
+        viewAttachHandler.onActivityStarted();
+        assertEquals(3, viewAttachListener.attaches);
+        assertEquals(2, viewAttachListener.detaches);
+        assertEquals(1, viewAttachListener.detachAfterStops);
     }
 
     private static class CountingViewAttachListener implements ViewAttachListener {
         int attaches;
         int detaches;
+        int detachAfterStops;
 
         @Override
-        public void onAttached(View view) {
+        public void onAttached() {
             attaches++;
         }
 
         @Override
-        public void onDetached(View view) {
+        public void onDetached(boolean fromActivityStop) {
             detaches++;
+        }
+
+        @Override
+        public void onViewDetachAfterStop() {
+            detachAfterStops++;
         }
     }
 
