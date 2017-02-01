@@ -42,7 +42,8 @@ public abstract class Router {
     ViewGroup container;
 
     /**
-     * Returns this Router's host Activity
+     * Returns this Router's host Activity or {@code null} if it has either not yet been attached to
+     * an Activity or if the Activity has been destroyed.
      */
     @Nullable
     public abstract Activity getActivity();
@@ -280,10 +281,10 @@ public abstract class Router {
     }
 
     /**
-     * Returns the hosted Controller with the given instance id, if available.
+     * Returns the hosted Controller with the given instance id or {@code null} if no such
+     * Controller exists in this Router.
      *
      * @param instanceId The instance ID being searched for
-     * @return The matching Controller, if one exists
      */
     @Nullable
     public Controller getControllerWithInstanceId(@NonNull String instanceId) {
@@ -297,10 +298,10 @@ public abstract class Router {
     }
 
     /**
-     * Returns the hosted Controller that was pushed with the given tag, if available.
+     * Returns the hosted Controller that was pushed with the given tag or {@code null} if no
+     * such Controller exists in this Router.
      *
      * @param tag The tag being searched for
-     * @return The matching Controller, if one exists
      */
     @Nullable
     public Controller getControllerWithTag(@NonNull String tag) {

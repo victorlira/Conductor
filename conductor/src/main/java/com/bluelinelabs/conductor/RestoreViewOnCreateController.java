@@ -45,7 +45,7 @@ abstract public class RestoreViewOnCreateController extends Controller {
      *                       This Controller's view should NOT be added in this method. It is simply passed in
      *                       so that valid LayoutParams can be used during inflation.
      * @param savedViewState A bundle for the view's state, which would have been created in {@link #onSaveViewState(View, Bundle)},
-     *                       or null if no saved state exists.
+     *                       or {@code null} if no saved state exists.
      */
     @NonNull
     protected abstract View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container, @Nullable Bundle savedViewState);

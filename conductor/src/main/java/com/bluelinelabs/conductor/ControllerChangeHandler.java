@@ -34,8 +34,8 @@ public abstract class ControllerChangeHandler {
      * Responsible for swapping Views from one Controller to another.
      *
      * @param container      The container these Views are hosted in.
-     * @param from           The previous View in the container, if any.
-     * @param to             The next View that should be put in the container, if any.
+     * @param from           The previous View in the container or {@code null} if there was no Controller before this transition
+     * @param to             The next View that should be put in the container or {@code null} if no Controller is being transitioned to
      * @param isPush         True if this is a push transaction, false if it's a pop.
      * @param changeListener This listener must be called when any transitions or animations are completed.
      */
@@ -63,8 +63,9 @@ public abstract class ControllerChangeHandler {
      * Will be called on change handlers that push a controller if the controller being pushed is
      * popped before it has completed.
      *
-     * @param newHandler the change handler that has caused this push to be aborted
-     * @param newTop     the controller that will now be at the top of the backstack
+     * @param newHandler The change handler that has caused this push to be aborted
+     * @param newTop     The Controller that will now be at the top of the backstack or {@code null}
+     *                   if there will be no new Controller at the top
      */
     public void onAbortPush(@NonNull ControllerChangeHandler newHandler, @Nullable Controller newTop) { }
 
@@ -137,7 +138,7 @@ public abstract class ControllerChangeHandler {
         return false;
     }
 
-    public static void abortPush(@NonNull Controller toAbort, @Nullable Controller newController, @NonNull ControllerChangeHandler newChangeHandler) {
+    static void abortPush(@NonNull Controller toAbort, @Nullable Controller newController, @NonNull ControllerChangeHandler newChangeHandler) {
         ControllerChangeHandler handlerForPush = inProgressPushHandlers.get(toAbort.getInstanceId());
         if (handlerForPush != null) {
             handlerForPush.onAbortPush(newChangeHandler, newController);
@@ -145,11 +146,11 @@ public abstract class ControllerChangeHandler {
         }
     }
 
-    public static void executeChange(@Nullable final Controller to, @Nullable final Controller from, boolean isPush, @NonNull ViewGroup container, @NonNull ControllerChangeHandler inHandler) {
+    static void executeChange(@Nullable final Controller to, @Nullable final Controller from, boolean isPush, @NonNull ViewGroup container, @NonNull ControllerChangeHandler inHandler) {
         executeChange(to, from, isPush, container, inHandler, new ArrayList<ControllerChangeListener>());
     }
 
-    public static void executeChange(@Nullable final Controller to, @Nullable final Controller from, final boolean isPush, @Nullable final ViewGroup container, @Nullable final ControllerChangeHandler inHandler, @NonNull final List<ControllerChangeListener> listeners) {
+    static void executeChange(@Nullable final Controller to, @Nullable final Controller from, final boolean isPush, @Nullable final ViewGroup container, @Nullable final ControllerChangeHandler inHandler, @NonNull final List<ControllerChangeListener> listeners) {
         if (isPush && to != null && to.isDestroyed()) {
             throw new IllegalStateException("Trying to push a controller that has already been destroyed. (" + to.getClass().getSimpleName() + ")");
         }
@@ -240,8 +241,8 @@ public abstract class ControllerChangeHandler {
         /**
          * Called when a {@link ControllerChangeHandler} has started changing {@link Controller}s
          *
-         * @param to        The new Controller
-         * @param from      The old Controller
+         * @param to        The new Controller or {@code null} if no Controller is being transitioned to
+         * @param from      The old Controller or {@code null} if there was no Controller before this transition
          * @param isPush    True if this is a push operation, or false if it's a pop.
          * @param container The containing ViewGroup
          * @param handler   The change handler being used.
@@ -251,9 +252,9 @@ public abstract class ControllerChangeHandler {
         /**
          * Called when a {@link ControllerChangeHandler} has completed changing {@link Controller}s
          *
-         * @param to        The new Controller
-         * @param from      The old Controller
-         * @param isPush    True if this was a push operation, or false if it's a pop.
+         * @param to        The new Controller or {@code null} if no Controller is being transitioned to
+         * @param from      The old Controller or {@code null} if there was no Controller before this transition
+         * @param isPush    True if this was a push operation, or false if it's a pop
          * @param container The containing ViewGroup
          * @param handler   The change handler that was used.
          */

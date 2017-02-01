@@ -124,7 +124,8 @@ public abstract class ControllerPagerAdapter extends PagerAdapter {
     }
 
     /**
-     * Returns the already instantiated Controller in the specified position, if available.
+     * Returns the already instantiated Controller in the specified position or {@code null} if
+     * this position does not yet have a controller.
      */
     @Nullable
     public Controller getController(int position) {

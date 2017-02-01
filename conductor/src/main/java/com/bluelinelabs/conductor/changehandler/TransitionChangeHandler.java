@@ -24,10 +24,10 @@ public abstract class TransitionChangeHandler extends ControllerChangeHandler {
     /**
      * Should be overridden to return the Transition to use while replacing Views.
      *
-     * @param container The container these Views are hosted in.
-     * @param from The previous View in the container, if any.
-     * @param to The next View that should be put in the container, if any.
-     * @param isPush True if this is a push transaction, false if it's a pop.
+     * @param container The container these Views are hosted in
+     * @param from The previous View in the container or {@code null} if there was no Controller before this transition
+     * @param to The next View that should be put in the container or {@code null} if no Controller is being transitioned to
+     * @param isPush True if this is a push transaction, false if it's a pop
      */
     @NonNull
     protected abstract Transition getTransition(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, boolean isPush);

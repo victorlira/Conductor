@@ -183,7 +183,7 @@ public abstract class Controller {
      * the same container unless you have a great reason to do so (ex: ViewPagers).
      *
      * @param container The ViewGroup that hosts the child Router
-     * @param tag The router's tag
+     * @param tag The router's tag or {@code null} if none is needed
      */
     @NonNull
     public final Router getChildRouter(@NonNull ViewGroup container, @Nullable String tag) {
@@ -195,10 +195,12 @@ public abstract class Controller {
      * Retrieves the child {@link Router} for the given container/tag combination. Note that multiple
      * routers should not exist in the same container unless a lot of care is taken to maintain order
      * between them. Avoid using the same container unless you have a great reason to do so (ex: ViewPagers).
+     * The only time this method will return {@code null} is when the child router does not exist prior
+     * to calling this method and the createIfNeeded parameter is set to false.
      *
      * @param container The ViewGroup that hosts the child Router
-     * @param tag The router's tag
-     * @param createIfNeeded If true, a router will be created if one does not yet exist. Else false will be returned in this case.
+     * @param tag The router's tag or {@code null} if none is needed
+     * @param createIfNeeded If true, a router will be created if one does not yet exist. Else {@code null} will be returned in this case.
      */
     @Nullable
     public final Router getChildRouter(@NonNull ViewGroup container, @Nullable String tag, boolean createIfNeeded) {
@@ -228,6 +230,12 @@ public abstract class Controller {
         return childRouter;
     }
 
+    /**
+     * Removes a child {@link Router} from this Controller. When removed, all Controllers currently managed by
+     * the {@link Router} will be destroyed.
+     *
+     * @param childRouter The router to be removed
+     */
     public final void removeChildRouter(@NonNull Router childRouter) {
         if ((childRouter instanceof ControllerHostedRouter) && childRouters.remove(childRouter)) {
             childRouter.destroy(true);
@@ -256,7 +264,8 @@ public abstract class Controller {
     }
 
     /**
-     * Return this Controller's View, if available.
+     * Return this Controller's View or {@code null} if it has not yet been created or has been
+     * destroyed.
      */
     @Nullable
     public final View getView() {
@@ -264,7 +273,8 @@ public abstract class Controller {
     }
 
     /**
-     * Returns the host Activity of this Controller's {@link Router}
+     * Returns the host Activity of this Controller's {@link Router} or {@code null} if this
+     * Controller has not yet been attached to an Activity or if the Activity has been destroyed.
      */
     @Nullable
     public final Activity getActivity() {
@@ -272,7 +282,8 @@ public abstract class Controller {
     }
 
     /**
-     * Returns the Resources from the host Activity
+     * Returns the Resources from the host Activity or {@code null} if this Controller has not
+     * yet been attached to an Activity or if the Activity has been destroyed.
      */
     @Nullable
     public final Resources getResources() {
@@ -281,7 +292,8 @@ public abstract class Controller {
     }
 
     /**
-     * Returns the Application Context derived from the host Activity
+     * Returns the Application Context derived from the host Activity or {@code null} if this Controller
+     * has not yet been attached to an Activity or if the Activity has been destroyed.
      */
     @Nullable
     public final Context getApplicationContext() {
@@ -290,7 +302,8 @@ public abstract class Controller {
     }
 
     /**
-     * Returns this Controller's parent Controller if it is a child Controller.
+     * Returns this Controller's parent Controller if it is a child Controller or {@code null} if
+     * it has no parent.
      */
     @Nullable
     public final Controller getParentController() {
@@ -307,10 +320,10 @@ public abstract class Controller {
     }
 
     /**
-     * Returns the Controller with the given instance id, if available.
-     * May return the controller itself or a matching descendant
+     * Returns the Controller with the given instance id or {@code null} if no such Controller
+     * exists. May return the Controller itself or a matching descendant
+     *
      * @param instanceId The instance ID being searched for
-     * @return The matching Controller, if one exists
      */
     @Nullable
     final Controller findController(@NonNull String instanceId) {
@@ -355,7 +368,8 @@ public abstract class Controller {
     }
 
     /**
-     * Returns the target Controller that was set with the {@link #setTargetController(Controller)} method
+     * Returns the target Controller that was set with the {@link #setTargetController(Controller)}
+     * method or {@code null} if this Controller has no target.
      *
      * @return This Controller's target
      */

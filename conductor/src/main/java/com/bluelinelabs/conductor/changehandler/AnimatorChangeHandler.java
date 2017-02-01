@@ -94,8 +94,8 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
      * Should be overridden to return the Animator to use while replacing Views.
      *
      * @param container The container these Views are hosted in.
-     * @param from The previous View in the container, if any.
-     * @param to The next View that should be put in the container, if any.
+     * @param from The previous View in the container or {@code null} if there was no Controller before this transition
+     * @param to The next View that should be put in the container or {@code null} if no Controller is being transitioned to
      * @param isPush True if this is a push transaction, false if it's a pop.
      * @param toAddedToContainer True if the "to" view was added to the container as a part of this ChangeHandler. False if it was already in the hierarchy.
      */

@@ -101,7 +101,8 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
     }
 
     /**
-     * Returns the already instantiated Router in the specified position, if available.
+     * Returns the already instantiated Router in the specified position or {@code null} if there
+     * is no router associated with this position.
      */
     @Nullable
     public Router getRouter(int position) {
