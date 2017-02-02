@@ -21,6 +21,7 @@ import org.robolectric.annotation.Config;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(manifest = Config.NONE)
@@ -360,6 +361,48 @@ public class ControllerTests {
         assertEquals(0, childRouter2.getBackstackSize());
         assertNull(child1.getParentController());
         assertNull(child2.getParentController());
+    }
+
+    @Test
+    public void testRestoredChildRouterBackstack() {
+        TestController parent = new TestController();
+        router.pushController(RouterTransaction.with(parent));
+        ViewUtils.reportAttached(parent.getView(), true);
+
+        RouterTransaction childTransaction1 = RouterTransaction.with(new TestController());
+        RouterTransaction childTransaction2 = RouterTransaction.with(new TestController());
+
+        Router childRouter = parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.CHILD_VIEW_ID_1));
+        childRouter.setPopsLastView(true);
+        childRouter.setRoot(childTransaction1);
+        childRouter.pushController(childTransaction2);
+
+        Bundle savedState = new Bundle();
+        childRouter.saveInstanceState(savedState);
+        parent.removeChildRouter(childRouter);
+
+        childRouter = parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.CHILD_VIEW_ID_1));
+        assertEquals(0, childRouter.getBackstackSize());
+
+        childRouter.restoreInstanceState(savedState);
+        childRouter.rebindIfNeeded();
+
+        assertEquals(2, childRouter.getBackstackSize());
+
+        RouterTransaction restoredChildTransaction1 = childRouter.getBackstack().get(0);
+        RouterTransaction restoredChildTransaction2 = childRouter.getBackstack().get(1);
+
+        assertEquals(childTransaction1.transactionIndex, restoredChildTransaction1.transactionIndex);
+        assertEquals(childTransaction1.controller.getInstanceId(), restoredChildTransaction1.controller.getInstanceId());
+        assertEquals(childTransaction2.transactionIndex, restoredChildTransaction2.transactionIndex);
+        assertEquals(childTransaction2.controller.getInstanceId(), restoredChildTransaction2.controller.getInstanceId());
+
+        assertTrue(parent.handleBack());
+        assertEquals(1, childRouter.getBackstackSize());
+        assertEquals(restoredChildTransaction1, childRouter.getBackstack().get(0));
+
+        assertTrue(parent.handleBack());
+        assertEquals(0, childRouter.getBackstackSize());
     }
 
     private void assertCalls(CallState callState, TestController controller) {

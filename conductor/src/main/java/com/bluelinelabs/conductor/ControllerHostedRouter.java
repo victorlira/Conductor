@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.view.ViewGroup;
 
 import com.bluelinelabs.conductor.ControllerChangeHandler.ControllerChangeListener;
+import com.bluelinelabs.conductor.internal.TransactionIndexer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -196,5 +197,10 @@ class ControllerHostedRouter extends Router {
         } else {
             return this;
         }
+    }
+
+    @Override @Nullable
+    TransactionIndexer getTransactionIndexer() {
+        return getRootRouter().getTransactionIndexer();
     }
 }

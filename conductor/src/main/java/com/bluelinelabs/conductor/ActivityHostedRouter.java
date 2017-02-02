@@ -9,12 +9,14 @@ import android.view.ViewGroup;
 
 import com.bluelinelabs.conductor.ControllerChangeHandler.ControllerChangeListener;
 import com.bluelinelabs.conductor.internal.LifecycleHandler;
+import com.bluelinelabs.conductor.internal.TransactionIndexer;
 
 import java.util.List;
 
 public class ActivityHostedRouter extends Router {
 
     private LifecycleHandler lifecycleHandler;
+    private final TransactionIndexer transactionIndexer = new TransactionIndexer();
 
     public final void setHost(@NonNull LifecycleHandler lifecycleHandler, @NonNull ViewGroup container) {
         if (this.lifecycleHandler != lifecycleHandler || this.container != container) {
@@ -29,6 +31,20 @@ public class ActivityHostedRouter extends Router {
             this.lifecycleHandler = lifecycleHandler;
             this.container = container;
         }
+    }
+
+    @Override
+    public void saveInstanceState(@NonNull Bundle outState) {
+        super.saveInstanceState(outState);
+
+        transactionIndexer.saveInstanceState(outState);
+    }
+
+    @Override
+    public void restoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.restoreInstanceState(savedInstanceState);
+
+        transactionIndexer.restoreInstanceState(savedInstanceState);
     }
 
     @Override @Nullable
@@ -97,5 +113,10 @@ public class ActivityHostedRouter extends Router {
     @Override @NonNull
     Router getRootRouter() {
         return this;
+    }
+
+    @Override @Nullable
+    TransactionIndexer getTransactionIndexer() {
+        return transactionIndexer;
     }
 }

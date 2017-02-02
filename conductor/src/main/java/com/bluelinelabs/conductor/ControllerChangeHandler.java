@@ -10,7 +10,6 @@ import android.view.ViewParent;
 import com.bluelinelabs.conductor.changehandler.SimpleSwapChangeHandler;
 import com.bluelinelabs.conductor.internal.ClassUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -144,10 +143,6 @@ public abstract class ControllerChangeHandler {
             handlerForPush.onAbortPush(newChangeHandler, newController);
             inProgressPushHandlers.remove(toAbort.getInstanceId());
         }
-    }
-
-    static void executeChange(@Nullable final Controller to, @Nullable final Controller from, boolean isPush, @NonNull ViewGroup container, @NonNull ControllerChangeHandler inHandler) {
-        executeChange(to, from, isPush, container, inHandler, new ArrayList<ControllerChangeListener>());
     }
 
     static void executeChange(@Nullable final Controller to, @Nullable final Controller from, final boolean isPush, @Nullable final ViewGroup container, @Nullable final ControllerChangeHandler inHandler, @NonNull final List<ControllerChangeListener> listeners) {

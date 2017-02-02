@@ -20,7 +20,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.bluelinelabs.conductor.Router.OnControllerPushedListener;
 import com.bluelinelabs.conductor.internal.ClassUtils;
 import com.bluelinelabs.conductor.internal.RouterRequiringFunc;
 import com.bluelinelabs.conductor.internal.ViewAttachHandler;
@@ -30,7 +29,8 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,7 +45,6 @@ public abstract class Controller {
     private static final String KEY_CLASS_NAME = "Controller.className";
     private static final String KEY_VIEW_STATE = "Controller.viewState";
     private static final String KEY_CHILD_ROUTERS = "Controller.childRouters";
-    private static final String KEY_CHILD_BACKSTACK = "Controller.childBackstack";
     private static final String KEY_SAVED_STATE = "Controller.savedState";
     private static final String KEY_INSTANCE_ID = "Controller.instanceId";
     private static final String KEY_TARGET_INSTANCE_ID = "Controller.target.instanceId";
@@ -86,15 +85,7 @@ public abstract class Controller {
     private final List<LifecycleListener> lifecycleListeners = new ArrayList<>();
     private final ArrayList<String> requestedPermissions = new ArrayList<>();
     private final ArrayList<RouterRequiringFunc> onRouterSetListeners = new ArrayList<>();
-    private final List<Controller> childBackstack = new LinkedList<>();
     private WeakReference<View> destroyedView;
-
-    private final OnControllerPushedListener onControllerPushedListener = new OnControllerPushedListener() {
-        @Override
-        public void onControllerPushed(Controller controller) {
-            onChildControllerPushed(controller);
-        }
-    };
 
     @NonNull
     static Controller newInstance(@NonNull Bundle bundle) {
@@ -217,13 +208,11 @@ public abstract class Controller {
         if (childRouter == null) {
             if (createIfNeeded) {
                 childRouter = new ControllerHostedRouter(container.getId(), tag);
-                monitorChildRouter(childRouter);
                 childRouter.setHost(this, container);
                 childRouters.add(childRouter);
             }
         } else if (!childRouter.hasHost()) {
             childRouter.setHost(this, container);
-            monitorChildRouter(childRouter);
             childRouter.rebindIfNeeded();
         }
 
@@ -566,8 +555,22 @@ public abstract class Controller {
      * @return True if this Controller has consumed the back button press, otherwise false
      */
     public boolean handleBack() {
-        for (int i = childBackstack.size() - 1; i >= 0; i--) {
-            Controller childController = childBackstack.get(i);
+        List<RouterTransaction> childTransactions = new ArrayList<>();
+
+        for (ControllerHostedRouter childRouter : childRouters) {
+            childTransactions.addAll(childRouter.getBackstack());
+        }
+
+        Collections.sort(childTransactions, new Comparator<RouterTransaction>() {
+            @Override
+            public int compare(RouterTransaction o1, RouterTransaction o2) {
+                return o2.transactionIndex - o1.transactionIndex;
+            }
+        });
+
+        for (RouterTransaction transaction : childTransactions) {
+            Controller childController = transaction.controller;
+
             if (childController.isAttached() && childController.getRouter().handleBack()) {
                 return true;
             }
@@ -957,7 +960,6 @@ public abstract class Controller {
 
                 if (containerView != null && containerView instanceof ViewGroup) {
                     childRouter.setHost(this, (ViewGroup)containerView);
-                    monitorChildRouter(childRouter);
                     childRouter.rebindIfNeeded();
                 }
             }
@@ -1069,12 +1071,6 @@ public abstract class Controller {
         }
         outState.putParcelableArrayList(KEY_CHILD_ROUTERS, childBundles);
 
-        ArrayList<String> childBackstack = new ArrayList<>();
-        for (Controller controller : this.childBackstack) {
-            childBackstack.add(controller.instanceId);
-        }
-        outState.putStringArrayList(KEY_CHILD_BACKSTACK, childBackstack);
-
         Bundle savedState = new Bundle();
         onSaveInstanceState(savedState);
 
@@ -1106,16 +1102,7 @@ public abstract class Controller {
         for (Bundle childBundle : childBundles) {
             ControllerHostedRouter childRouter = new ControllerHostedRouter();
             childRouter.restoreInstanceState(childBundle);
-            monitorChildRouter(childRouter);
             childRouters.add(childRouter);
-        }
-
-        List<String> childBackstackIds = savedInstanceState.getStringArrayList(KEY_CHILD_BACKSTACK);
-        for (String controllerId : childBackstackIds) {
-            Controller childController = findController(controllerId);
-            if (childController != null) {
-                childBackstack.add(childController);
-            }
         }
 
         this.savedInstanceState = savedInstanceState.getBundle(KEY_SAVED_STATE);
@@ -1201,22 +1188,6 @@ public abstract class Controller {
 
     final boolean optionsItemSelected(@NonNull MenuItem item) {
         return attached && hasOptionsMenu && !optionsMenuHidden && onOptionsItemSelected(item);
-    }
-
-    private void monitorChildRouter(@NonNull ControllerHostedRouter childRouter) {
-        childRouter.setOnControllerPushedListener(onControllerPushedListener);
-    }
-
-    private void onChildControllerPushed(@NonNull Controller controller) {
-        if (!childBackstack.contains(controller)) {
-            childBackstack.add(controller);
-            controller.addLifecycleListener(new LifecycleListener() {
-                @Override
-                public void postDestroy(@NonNull Controller controller) {
-                    childBackstack.remove(controller);
-                }
-            });
-        }
     }
 
     final void setParentController(@Nullable Controller controller) {

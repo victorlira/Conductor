@@ -33,11 +33,11 @@ public class TestController extends Controller {
         FrameLayout view = new AttachFakingFrameLayout(inflater.getContext());
         view.setId(VIEW_ID);
 
-        FrameLayout childContainer1 = new FrameLayout(inflater.getContext());
+        FrameLayout childContainer1 = new AttachFakingFrameLayout(inflater.getContext());
         childContainer1.setId(CHILD_VIEW_ID_1);
         view.addView(childContainer1);
 
-        FrameLayout childContainer2 = new FrameLayout(inflater.getContext());
+        FrameLayout childContainer2 = new AttachFakingFrameLayout(inflater.getContext());
         childContainer2.setId(CHILD_VIEW_ID_2);
         view.addView(childContainer2);
 

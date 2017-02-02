@@ -1,5 +1,7 @@
 package com.bluelinelabs.conductor;
 
+import android.view.ViewGroup;
+
 import com.bluelinelabs.conductor.util.ActivityProxy;
 import com.bluelinelabs.conductor.util.ListUtils;
 import com.bluelinelabs.conductor.util.MockChangeHandler;
@@ -310,6 +312,63 @@ public class RouterTests {
         assertTrue(rootTransaction.controller.isAttached());
         assertFalse(topTransaction.controller.isAttached());
         assertTrue(newTopTransaction.controller.isAttached());
+    }
+
+    @Test
+    public void testRearrangeTransactionBackstack() {
+        RouterTransaction transaction1 = RouterTransaction.with(new TestController());
+        RouterTransaction transaction2 = RouterTransaction.with(new TestController());
+
+        List<RouterTransaction> backstack = ListUtils.listOf(transaction1, transaction2);
+        router.setBackstack(backstack, null);
+
+        assertEquals(1, transaction1.transactionIndex);
+        assertEquals(2, transaction2.transactionIndex);
+
+        backstack = ListUtils.listOf(transaction2, transaction1);
+        router.setBackstack(backstack, null);
+
+        assertEquals(1, transaction2.transactionIndex);
+        assertEquals(2, transaction1.transactionIndex);
+
+        router.handleBack();
+
+        assertEquals(1, router.getBackstackSize());
+        assertEquals(transaction2, router.getBackstack().get(0));
+
+        router.handleBack();
+        assertEquals(0, router.getBackstackSize());
+    }
+
+    @Test
+    public void testChildRouterRearrangeTransactionBackstack() {
+        Controller parent = new TestController();
+        router.setRoot(RouterTransaction.with(parent));
+
+        Router childRouter = parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.CHILD_VIEW_ID_1));
+
+        RouterTransaction transaction1 = RouterTransaction.with(new TestController());
+        RouterTransaction transaction2 = RouterTransaction.with(new TestController());
+
+        List<RouterTransaction> backstack = ListUtils.listOf(transaction1, transaction2);
+        childRouter.setBackstack(backstack, null);
+
+        assertEquals(2, transaction1.transactionIndex);
+        assertEquals(3, transaction2.transactionIndex);
+
+        backstack = ListUtils.listOf(transaction2, transaction1);
+        childRouter.setBackstack(backstack, null);
+
+        assertEquals(2, transaction2.transactionIndex);
+        assertEquals(3, transaction1.transactionIndex);
+
+        childRouter.handleBack();
+
+        assertEquals(1, childRouter.getBackstackSize());
+        assertEquals(transaction2, childRouter.getBackstack().get(0));
+
+        childRouter.handleBack();
+        assertEquals(0, childRouter.getBackstackSize());
     }
 
 }
