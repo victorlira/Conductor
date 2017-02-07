@@ -188,11 +188,24 @@ public abstract class Router {
 
     void destroy(boolean popViews) {
         popsLastView = true;
-        List<RouterTransaction> poppedControllers = backstack.popAll();
+        final List<RouterTransaction> poppedControllers = backstack.popAll();
         trackDestroyingControllers(poppedControllers);
 
         if (popViews && poppedControllers.size() > 0) {
-            performControllerChange(null, poppedControllers.get(0), false, poppedControllers.get(0).popChangeHandler());
+            RouterTransaction topTransaction = poppedControllers.get(0);
+            topTransaction.controller().addLifecycleListener(new LifecycleListener() {
+                @Override
+                public void onChangeEnd(@NonNull Controller controller, @NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
+                    if (changeType == ControllerChangeType.POP_EXIT) {
+                        for (int i = poppedControllers.size() - 1; i > 0; i--) {
+                            RouterTransaction transaction = poppedControllers.get(i);
+                            performControllerChange(null, transaction, true, new SimpleSwapChangeHandler());
+                        }
+                    }
+                }
+            });
+
+            performControllerChange(null, topTransaction, false, topTransaction.popChangeHandler());
         }
     }
 

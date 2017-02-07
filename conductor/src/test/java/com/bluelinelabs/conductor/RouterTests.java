@@ -2,6 +2,7 @@ package com.bluelinelabs.conductor;
 
 import android.view.ViewGroup;
 
+import com.bluelinelabs.conductor.changehandler.FadeChangeHandler;
 import com.bluelinelabs.conductor.util.ActivityProxy;
 import com.bluelinelabs.conductor.util.ListUtils;
 import com.bluelinelabs.conductor.util.MockChangeHandler;
@@ -369,6 +370,22 @@ public class RouterTests {
 
         childRouter.handleBack();
         assertEquals(0, childRouter.getBackstackSize());
+    }
+
+    @Test
+    public void testRemovesAllViewsOnDestroy() {
+        Controller controller1 = new TestController();
+        Controller controller2 = new TestController();
+
+        router.setRoot(RouterTransaction.with(controller1));
+        router.pushController(RouterTransaction.with(controller2)
+                .pushChangeHandler(new FadeChangeHandler(false)));
+
+        assertEquals(2, router.container.getChildCount());
+
+        router.destroy(true);
+
+        assertEquals(0, router.container.getChildCount());
     }
 
 }
