@@ -25,9 +25,9 @@ public abstract class TransitionChangeHandler extends ControllerChangeHandler {
      * Should be overridden to return the Transition to use while replacing Views.
      *
      * @param container The container these Views are hosted in
-     * @param from The previous View in the container or {@code null} if there was no Controller before this transition
-     * @param to The next View that should be put in the container or {@code null} if no Controller is being transitioned to
-     * @param isPush True if this is a push transaction, false if it's a pop
+     * @param from      The previous View in the container or {@code null} if there was no Controller before this transition
+     * @param to        The next View that should be put in the container or {@code null} if no Controller is being transitioned to
+     * @param isPush    True if this is a push transaction, false if it's a pop
      */
     @NonNull
     protected abstract Transition getTransition(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, boolean isPush);
@@ -68,18 +68,29 @@ public abstract class TransitionChangeHandler extends ControllerChangeHandler {
             public void onTransitionResume(Transition transition) { }
         });
 
+        prepareForTransition(container, from, to, isPush);
+
         TransitionManager.beginDelayedTransition(container, transition);
-        if (from != null) {
+
+        executePropertyChanges(container, from, to, isPush);
+    }
+
+    @Override
+    public boolean removesFromViewOnPush() {
+        return true;
+    }
+
+    public void prepareForTransition(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, boolean isPush) {
+
+    }
+
+    public void executePropertyChanges(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, boolean isPush) {
+        if (from != null && (removesFromViewOnPush() || !isPush) && from.getParent() == container) {
             container.removeView(from);
         }
         if (to != null && to.getParent() == null) {
             container.addView(to);
         }
-    }
-
-    @Override
-    public final boolean removesFromViewOnPush() {
-        return true;
     }
 
 }
