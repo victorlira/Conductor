@@ -68,11 +68,11 @@ public abstract class TransitionChangeHandler extends ControllerChangeHandler {
             public void onTransitionResume(Transition transition) { }
         });
 
-        prepareForTransition(container, from, to, isPush);
+        prepareForTransition(container, from, to, transition, isPush);
 
         TransitionManager.beginDelayedTransition(container, transition);
 
-        executePropertyChanges(container, from, to, isPush);
+        executePropertyChanges(container, from, to, transition, isPush);
     }
 
     @Override
@@ -83,12 +83,13 @@ public abstract class TransitionChangeHandler extends ControllerChangeHandler {
     /**
      * Called directly before a transition occurs. This can be used to reorder views, set their transition names, etc.
      *
-     * @param container The container these Views are hosted in
-     * @param from      The previous View in the container or {@code null} if there was no Controller before this transition
-     * @param to        The next View that should be put in the container or {@code null} if no Controller is being transitioned to
-     * @param isPush    True if this is a push transaction, false if it's a pop
+     * @param container  The container these Views are hosted in
+     * @param from       The previous View in the container or {@code null} if there was no Controller before this transition
+     * @param to         The next View that should be put in the container or {@code null} if no Controller is being transitioned to
+     * @param transition The transition that is being prepared for
+     * @param isPush     True if this is a push transaction, false if it's a pop
      */
-    public void prepareForTransition(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, boolean isPush) {
+    public void prepareForTransition(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, @NonNull Transition transition, boolean isPush) {
 
     }
 
@@ -96,12 +97,13 @@ public abstract class TransitionChangeHandler extends ControllerChangeHandler {
      * This should set all view properties needed for the transition to work properly. By default it removes the "from" view
      * and adds the "to" view.
      *
-     * @param container The container these Views are hosted in
-     * @param from      The previous View in the container or {@code null} if there was no Controller before this transition
-     * @param to        The next View that should be put in the container or {@code null} if no Controller is being transitioned to
-     * @param isPush    True if this is a push transaction, false if it's a pop
+     * @param container  The container these Views are hosted in
+     * @param from       The previous View in the container or {@code null} if there was no Controller before this transition
+     * @param to         The next View that should be put in the container or {@code null} if no Controller is being transitioned to
+     * @param transition The transition with which {@code TransitionManager.beginDelayedTransition} has been called
+     * @param isPush     True if this is a push transaction, false if it's a pop
      */
-    public void executePropertyChanges(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, boolean isPush) {
+    public void executePropertyChanges(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, @NonNull Transition transition, boolean isPush) {
         if (from != null && (removesFromViewOnPush() || !isPush) && from.getParent() == container) {
             container.removeView(from);
         }

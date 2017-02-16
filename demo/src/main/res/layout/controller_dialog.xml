@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.bluelinelabs.conductor.ChangeHandlerFrameLayout
+<FrameLayout
     android:id="@+id/dialog_window"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@color/immersive_background"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <View
+        android:id="@+id/dialog_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/immersive_background"
+        />
 
     <LinearLayout
         android:id="@+id/dialog_container"
@@ -41,7 +47,7 @@
 
         <Button
             android:id="@+id/dismiss"
-            style="@android:style/Widget.Holo.Button.Borderless"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:layout_gravity="end|bottom"
@@ -52,7 +58,7 @@
             android:layout_marginTop="8dp"
             android:minWidth="64dp"
             android:text="@android:string/ok"
-            android:textColor="@color/colorAccent" />
+            />
 
     </LinearLayout>
-</com.bluelinelabs.conductor.ChangeHandlerFrameLayout>
+</FrameLayout>

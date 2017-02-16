@@ -5,41 +5,55 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.transition.Fade;
 import android.transition.Transition;
-import android.transition.TransitionManager;
+import android.transition.TransitionSet;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bluelinelabs.conductor.changehandler.TransitionChangeHandler;
 import com.bluelinelabs.conductor.demo.R;
 import com.bluelinelabs.conductor.demo.changehandler.transitions.FabTransform;
 import com.bluelinelabs.conductor.demo.util.AnimUtils;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class FabToDialogTransitionChangeHandler extends CustomTransitionChangeHandler {
+public class FabToDialogTransitionChangeHandler extends TransitionChangeHandler {
 
-    @NonNull
-    @Override
+    private View fab;
+    private ViewGroup fabParent;
+
+    @NonNull @Override
     protected Transition getTransition(@NonNull final ViewGroup container, @Nullable final View from, @Nullable final View to, boolean isPush) {
-        return new FabTransform(ContextCompat.getColor(container.getContext(), R.color.colorAccent), R.drawable.ic_add_dark);
+        Transition backgroundFade = new Fade();
+        backgroundFade.addTarget(R.id.dialog_background);
+
+        Transition fabTransform = new FabTransform(ContextCompat.getColor(container.getContext(), R.color.colorAccent), R.drawable.ic_add_dark);
+
+        TransitionSet set = new TransitionSet();
+        set.addTransition(backgroundFade);
+        set.addTransition(fabTransform);
+
+        return set;
     }
 
-    /*
-     * Container => ChangeHandlerFrameLayout of CustomTransitionDemoController
-     * if push (fab to dialog) => from == container and to == DialogController::getView (ChangeHandlerFrameLayout which contains dialog)
-     * if pop (dialog to fab) => from == DialogController::getView and to == container
-     */
     @Override
-    protected void viewChange(@NonNull final ViewGroup container, @Nullable final View from, @Nullable final View to, @NonNull final Transition transition, boolean isPush) {
-        final View fab;
-        if (isPush) {
-            fab = from.findViewById(R.id.fab);
-        } else {
-            fab = to.findViewById(R.id.fab);
-        }
-        final ViewGroup fabParent = (ViewGroup)fab.getParent();
+    public void prepareForTransition(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, @NonNull Transition transition, boolean isPush) {
+        fab = isPush ? from.findViewById(R.id.fab) : to.findViewById(R.id.fab);
+        fabParent = (ViewGroup)fab.getParent();
 
+        if (!isPush) {
+             /*
+             * Before we transition back we want to remove the fab
+             * in order to add it again for the TransitionManager to be able to detect the change
+             */
+            fabParent.removeView(fab);
+            fab.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void executePropertyChanges(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, @NonNull Transition transition, boolean isPush) {
         if (isPush) {
-            TransitionManager.beginDelayedTransition(container, transition);
             fabParent.removeView(fab);
             container.addView(to);
 
@@ -51,29 +65,24 @@ public class FabToDialogTransitionChangeHandler extends CustomTransitionChangeHa
             transition.addListener(new AnimUtils.TransitionListenerWrapper() {
                 @Override
                 public void onTransitionEnd(Transition transition) {
-                    super.onTransitionEnd(transition);
                     fab.setVisibility(View.GONE);
                     fabParent.addView(fab);
+                    fab = null;
+                    fabParent = null;
                 }
 
                 @Override
                 public void onTransitionCancel(Transition transition) {
-                    super.onTransitionCancel(transition);
                     fab.setVisibility(View.GONE);
                     fabParent.addView(fab);
+                    fab = null;
+                    fabParent = null;
                 }
             });
         } else {
-            /*
-             * Before we transition back we want to remove the fab
-             * in order to add it again for the TransitionManager to be able to detect the change
-             */
-            fabParent.removeView(fab);
-            fab.setVisibility(View.VISIBLE);
-
-            TransitionManager.beginDelayedTransition(container, transition);
             fabParent.addView(fab);
             container.removeView(from);
         }
     }
+
 }
