@@ -15,11 +15,13 @@ import com.bluelinelabs.conductor.changehandler.TransitionChangeHandler;
 import com.bluelinelabs.conductor.demo.R;
 import com.bluelinelabs.conductor.demo.changehandler.transitions.FabTransform;
 import com.bluelinelabs.conductor.demo.util.AnimUtils;
+import com.bluelinelabs.conductor.demo.util.AnimUtils.TransitionEndListener;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class FabToDialogTransitionChangeHandler extends TransitionChangeHandler {
 
     private View fab;
+    private View dialogBackground;
     private ViewGroup fabParent;
 
     @NonNull @Override
@@ -48,6 +50,14 @@ public class FabToDialogTransitionChangeHandler extends TransitionChangeHandler 
              */
             fabParent.removeView(fab);
             fab.setVisibility(View.VISIBLE);
+
+             /*
+             * Before we transition back we need to move the dialog's background to the new view
+             * so its fade won't take place over the fab transition
+             */
+            dialogBackground = from.findViewById(R.id.dialog_background);
+            ((ViewGroup)dialogBackground.getParent()).removeView(dialogBackground);
+            fabParent.addView(dialogBackground);
         }
     }
 
@@ -62,17 +72,9 @@ public class FabToDialogTransitionChangeHandler extends TransitionChangeHandler 
              * Because otherwise we will be lost when trying to transition back.
              * Set it to invisible because we don't want it to jump back after the transition
              */
-            transition.addListener(new AnimUtils.TransitionListenerWrapper() {
+            transition.addListener(new AnimUtils.TransitionEndListener() {
                 @Override
-                public void onTransitionEnd(Transition transition) {
-                    fab.setVisibility(View.GONE);
-                    fabParent.addView(fab);
-                    fab = null;
-                    fabParent = null;
-                }
-
-                @Override
-                public void onTransitionCancel(Transition transition) {
+                public void onTransitionCompleted(Transition transition) {
                     fab.setVisibility(View.GONE);
                     fabParent.addView(fab);
                     fab = null;
@@ -80,8 +82,17 @@ public class FabToDialogTransitionChangeHandler extends TransitionChangeHandler 
                 }
             });
         } else {
+            dialogBackground.setVisibility(View.INVISIBLE);
             fabParent.addView(fab);
             container.removeView(from);
+
+            transition.addListener(new TransitionEndListener() {
+                @Override
+                public void onTransitionCompleted(Transition transition) {
+                    fabParent.removeView(dialogBackground);
+                    dialogBackground = null;
+                }
+            });
         }
     }
 

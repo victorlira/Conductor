@@ -345,7 +345,9 @@ public class AnimUtils {
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    public static class TransitionListenerWrapper implements Transition.TransitionListener {
+    public static abstract class TransitionEndListener implements Transition.TransitionListener {
+        public abstract void onTransitionCompleted(Transition transition);
+
         @Override
         public void onTransitionStart(Transition transition) {
 
@@ -353,12 +355,12 @@ public class AnimUtils {
 
         @Override
         public void onTransitionEnd(Transition transition) {
-
+            onTransitionCompleted(transition);
         }
 
         @Override
         public void onTransitionCancel(Transition transition) {
-
+            onTransitionCompleted(transition);
         }
 
         @Override
