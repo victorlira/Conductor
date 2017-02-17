@@ -1,6 +1,7 @@
 package com.bluelinelabs.conductor.demo.controllers;
 
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,6 +62,7 @@ public class RxLifecycle2Controller extends RxController {
         Log.i(TAG, "onCreateView() called");
 
         View view = inflater.inflate(R.layout.controller_rxlifecycle, container, false);
+        view.setBackgroundColor(ContextCompat.getColor(container.getContext(), R.color.brown_300));
         unbinder = ButterKnife.bind(this, view);
 
         tvTitle.setText(getResources().getString(R.string.rxlifecycle_title, TAG));

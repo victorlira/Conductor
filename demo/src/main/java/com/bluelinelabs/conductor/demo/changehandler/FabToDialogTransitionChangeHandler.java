@@ -27,7 +27,7 @@ public class FabToDialogTransitionChangeHandler extends TransitionChangeHandler 
         Transition backgroundFade = new Fade();
         backgroundFade.addTarget(R.id.dialog_background);
 
-        Transition fabTransform = new FabTransform(ContextCompat.getColor(container.getContext(), R.color.colorAccent), R.drawable.ic_add_dark);
+        Transition fabTransform = new FabTransform(ContextCompat.getColor(container.getContext(), R.color.colorAccent), R.drawable.ic_github_face);
 
         TransitionSet set = new TransitionSet();
         set.addTransition(backgroundFade);
