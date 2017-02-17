@@ -2,7 +2,8 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
@@ -19,7 +20,7 @@
         android:layout_marginRight="@dimen/padding_normal"
         android:layout_marginEnd="@dimen/padding_normal"
         android:elevation="@dimen/z_fab"
-        android:srcCompat="@drawable/ic_github_face"
+        app:srcCompat="@drawable/ic_github_face"
         android:scaleType="matrix"
         android:stateListAnimator="@animator/raise"
         android:transitionName="@string/fab_dialog_transition_name"
