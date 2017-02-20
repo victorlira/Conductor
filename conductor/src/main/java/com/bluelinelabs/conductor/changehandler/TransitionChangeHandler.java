@@ -19,6 +19,10 @@ import com.bluelinelabs.conductor.ControllerChangeHandler;
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public abstract class TransitionChangeHandler extends ControllerChangeHandler {
 
+    public interface OnTransitionPreparedListener {
+        public void onPrepared();
+    }
+
     private boolean canceled;
 
     /**
@@ -40,13 +44,13 @@ public abstract class TransitionChangeHandler extends ControllerChangeHandler {
     }
 
     @Override
-    public void performChange(@NonNull final ViewGroup container, @Nullable View from, @Nullable View to, boolean isPush, @NonNull final ControllerChangeCompletedListener changeListener) {
+    public void performChange(@NonNull final ViewGroup container, @Nullable final View from, @Nullable final View to, final boolean isPush, @NonNull final ControllerChangeCompletedListener changeListener) {
         if (canceled) {
             changeListener.onChangeCompleted();
             return;
         }
 
-        Transition transition = getTransition(container, from, to, isPush);
+        final Transition transition = getTransition(container, from, to, isPush);
         transition.addListener(new TransitionListener() {
             @Override
             public void onTransitionStart(Transition transition) { }
@@ -68,11 +72,15 @@ public abstract class TransitionChangeHandler extends ControllerChangeHandler {
             public void onTransitionResume(Transition transition) { }
         });
 
-        prepareForTransition(container, from, to, transition, isPush);
-
-        TransitionManager.beginDelayedTransition(container, transition);
-
-        executePropertyChanges(container, from, to, transition, isPush);
+        prepareForTransition(container, from, to, transition, isPush, new OnTransitionPreparedListener() {
+            @Override
+            public void onPrepared() {
+                if (!canceled) {
+                    TransitionManager.beginDelayedTransition(container, transition);
+                    executePropertyChanges(container, from, to, transition, isPush);
+                }
+            }
+        });
     }
 
     @Override
@@ -81,7 +89,8 @@ public abstract class TransitionChangeHandler extends ControllerChangeHandler {
     }
 
     /**
-     * Called directly before a transition occurs. This can be used to reorder views, set their transition names, etc.
+     * Called before a transition occurs. This can be used to reorder views, set their transition names, etc. The transition will begin
+     * when {@code onTransitionPreparedListener} is called.
      *
      * @param container  The container these Views are hosted in
      * @param from       The previous View in the container or {@code null} if there was no Controller before this transition
@@ -89,8 +98,8 @@ public abstract class TransitionChangeHandler extends ControllerChangeHandler {
      * @param transition The transition that is being prepared for
      * @param isPush     True if this is a push transaction, false if it's a pop
      */
-    public void prepareForTransition(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, @NonNull Transition transition, boolean isPush) {
-
+    public void prepareForTransition(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, @NonNull Transition transition, boolean isPush, @NonNull OnTransitionPreparedListener onTransitionPreparedListener) {
+        onTransitionPreparedListener.onPrepared();
     }
 
     /**

@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:background="@color/white"
                 android:padding="16dp"
-                android:text="@string/lorem_ipsum_long"
+                android:text="@string/lorem_ipsum"
                 />
 
         </android.support.v4.widget.NestedScrollView>

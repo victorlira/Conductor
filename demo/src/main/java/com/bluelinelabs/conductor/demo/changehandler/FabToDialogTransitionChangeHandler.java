@@ -39,7 +39,7 @@ public class FabToDialogTransitionChangeHandler extends TransitionChangeHandler 
     }
 
     @Override
-    public void prepareForTransition(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, @NonNull Transition transition, boolean isPush) {
+    public void prepareForTransition(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, @NonNull Transition transition, boolean isPush, @NonNull OnTransitionPreparedListener onTransitionPreparedListener) {
         fab = isPush ? from.findViewById(R.id.fab) : to.findViewById(R.id.fab);
         fabParent = (ViewGroup)fab.getParent();
 
@@ -59,6 +59,8 @@ public class FabToDialogTransitionChangeHandler extends TransitionChangeHandler 
             ((ViewGroup)dialogBackground.getParent()).removeView(dialogBackground);
             fabParent.addView(dialogBackground);
         }
+
+        onTransitionPreparedListener.onPrepared();
     }
 
     @Override

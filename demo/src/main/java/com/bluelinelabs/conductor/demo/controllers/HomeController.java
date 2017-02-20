@@ -15,7 +15,6 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.URLSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -76,7 +75,6 @@ public class HomeController extends BaseController {
     @NonNull
     @Override
     protected View inflateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
-        Log.d("KUCK", "inflate view");
         return inflater.inflate(R.layout.controller_home, container, false);
     }
 
@@ -194,7 +192,7 @@ public class HomeController extends BaseController {
                         .popChangeHandler(new FadeChangeHandler()));
                 break;
             case SHARED_ELEMENT_TRANSITIONS:
-                getRouter().pushController(RouterTransaction.with(new SharedElementDetailController(model.title, model.color, position))
+                getRouter().pushController(RouterTransaction.with(new CityGridController(model.title, model.color, position))
                         .pushChangeHandler(new TransitionChangeHandlerCompat(new ArcFadeMoveChangeHandler(), new FadeChangeHandler()))
                         .popChangeHandler(new TransitionChangeHandlerCompat(new ArcFadeMoveChangeHandler(), new FadeChangeHandler())));
                 break;

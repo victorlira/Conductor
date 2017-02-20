@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    android:id="@+id/detail_root"
+    android:id="@+id/city_grid_root"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:background="@color/blue_grey_300"
     android:paddingStart="@dimen/activity_horizontal_margin"
     android:paddingEnd="@dimen/activity_horizontal_margin"
+    android:gravity="center_horizontal"
+    android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical" >
 
     <ImageView
@@ -25,12 +25,11 @@
         android:layout_marginTop="40dp"
         />
 
-    <TextView
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="16dp"
-        android:text="@string/lorem_ipsum_short"
-        android:textSize="14sp"
+        android:layout_height="match_parent"
+        android:layout_marginTop="16dp"
         />
 
 </LinearLayout>
