@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
@@ -492,6 +493,14 @@ public abstract class Controller {
         executeWithRouter(new RouterRequiringFunc() {
             @Override public void execute() { router.startActivityForResult(instanceId, intent, requestCode, options); }
         });
+    }
+
+    /**
+     * Calls startIntentSenderForResult(IntentSender, int, Intent, int, int, int, Bundle) from this Controller's host Activity.
+     */
+    public final void startIntentSenderForResult(@NonNull final IntentSender intent, final int requestCode, @Nullable final Intent fillInIntent, final int flagsMask,
+                                                 final int flagsValues, final int extraFlags, @Nullable final Bundle options) throws IntentSender.SendIntentException {
+        router.startIntentSenderForResult(instanceId, intent, requestCode, fillInIntent, flagsMask, flagsValues, extraFlags, options);
     }
 
     /**

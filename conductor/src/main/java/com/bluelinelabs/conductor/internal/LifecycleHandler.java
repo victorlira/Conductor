@@ -6,6 +6,7 @@ import android.app.Application.ActivityLifecycleCallbacks;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -281,6 +282,14 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
     public void startActivityForResult(@NonNull String instanceId, @NonNull Intent intent, int requestCode, @Nullable Bundle options) {
         registerForActivityResult(instanceId, requestCode);
         startActivityForResult(intent, requestCode, options);
+    }
+
+    @TargetApi(Build.VERSION_CODES.N)
+    public void startIntentSenderForResult(@NonNull String instanceId, @NonNull IntentSender intent, int requestCode,
+                                           @Nullable Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags,
+                                           @Nullable Bundle options) throws IntentSender.SendIntentException {
+        registerForActivityResult(instanceId, requestCode);
+        startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask, flagsValues, extraFlags, options);
     }
 
     @TargetApi(Build.VERSION_CODES.M)
