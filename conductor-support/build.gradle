@@ -1,7 +1,14 @@
-apply from: rootProject.file('dependencies.gradle')
-apply from: rootProject.file('gradle-mvn-push.gradle')
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'de.mobilej.unmock:UnMockPlugin:0.3.6'
+    }
+}
 
 apply plugin: 'com.android.library'
+apply plugin: 'de.mobilej.unmock'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -21,9 +28,22 @@ android {
 }
 
 dependencies {
+    testCompile rootProject.ext.junit
+    testCompile rootProject.ext.roboelectric
+
     compile rootProject.ext.supportAppCompat
     compile project(':conductor')
 }
 
+unMock {
+    downloadFrom 'https://oss.sonatype.org/content/groups/public/org/robolectric/android-all/4.3_r2-robolectric-0/android-all-4.3_r2-robolectric-0.jar'
+
+    keep "android.os.Bundle"
+    keep "android.os.BaseBundle"
+}
+
 ext.artifactId = 'conductor-support'
+
+apply from: rootProject.file('dependencies.gradle')
+apply from: rootProject.file('gradle-mvn-push.gradle')
 

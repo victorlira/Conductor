@@ -13,6 +13,7 @@ import com.bluelinelabs.conductor.Controller;
 import com.bluelinelabs.conductor.Router;
 import com.bluelinelabs.conductor.RouterTransaction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,10 +22,14 @@ import java.util.List;
 public abstract class RouterPagerAdapter extends PagerAdapter {
 
     private static final String KEY_SAVED_PAGES = "RouterPagerAdapter.savedStates";
+    private static final String KEY_MAX_PAGES_TO_STATE_SAVE = "RouterPagerAdapter.maxPagesToStateSave";
+    private static final String KEY_SAVE_PAGE_HISTORY = "RouterPagerAdapter.savedPageHistory";
 
     private final Controller host;
+    private int maxPagesToStateSave = Integer.MAX_VALUE;
     private SparseArray<Bundle> savedPages = new SparseArray<>();
     private SparseArray<Router> visibleRouters = new SparseArray<>();
+    private ArrayList<Integer> savedPageHistory = new ArrayList<>();
 
     /**
      * Creates a new RouterPagerAdapter using the passed host.
@@ -41,6 +46,20 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
      */
     public abstract void configureRouter(@NonNull Router router, int position);
 
+    /**
+     * Sets the maximum number of pages that will have their states saved. When this number is exceeded,
+     * the page that was state saved least recently will have its state removed from the save data.
+     */
+    public void setMaxPagesToStateSave(int maxPagesToStateSave) {
+        if (maxPagesToStateSave < 0) {
+            throw new IllegalArgumentException("Only positive integers may be passed for maxPagesToStateSave.");
+        }
+
+        this.maxPagesToStateSave = maxPagesToStateSave;
+
+        ensurePagesSaved();
+    }
+
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         final String name = makeRouterName(container.getId(), getItemId(position));
@@ -51,6 +70,7 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
 
             if (routerSavedState != null) {
                 router.restoreInstanceState(routerSavedState);
+                savedPages.remove(position);
             }
         }
 
@@ -68,6 +88,11 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
         Bundle savedState = new Bundle();
         router.saveInstanceState(savedState);
         savedPages.put(position, savedState);
+
+        savedPageHistory.remove((Integer)position);
+        savedPageHistory.add(position);
+
+        ensurePagesSaved();
 
         host.removeChildRouter(router);
 
@@ -90,6 +115,8 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
     public Parcelable saveState() {
         Bundle bundle = new Bundle();
         bundle.putSparseParcelableArray(KEY_SAVED_PAGES, savedPages);
+        bundle.putInt(KEY_MAX_PAGES_TO_STATE_SAVE, maxPagesToStateSave);
+        bundle.putIntegerArrayList(KEY_SAVE_PAGE_HISTORY, savedPageHistory);
         return bundle;
     }
 
@@ -98,6 +125,8 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
         Bundle bundle = (Bundle)state;
         if (state != null) {
             savedPages = bundle.getSparseParcelableArray(KEY_SAVED_PAGES);
+            maxPagesToStateSave = bundle.getInt(KEY_MAX_PAGES_TO_STATE_SAVE);
+            savedPageHistory = bundle.getIntegerArrayList(KEY_SAVE_PAGE_HISTORY);
         }
     }
 
@@ -112,6 +141,17 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
 
     public long getItemId(int position) {
         return position;
+    }
+
+    SparseArray<Bundle> getSavedPages() {
+        return savedPages;
+    }
+
+    private void ensurePagesSaved() {
+        while (savedPages.size() > maxPagesToStateSave) {
+            int positionToRemove = savedPageHistory.remove(0);
+            savedPages.remove(positionToRemove);
+        }
     }
 
     private static String makeRouterName(int viewId, long id) {
