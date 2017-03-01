@@ -357,6 +357,8 @@ public abstract class Router {
     public void setBackstack(@NonNull List<RouterTransaction> newBackstack, @Nullable ControllerChangeHandler changeHandler) {
         List<RouterTransaction> oldVisibleTransactions = getVisibleTransactions(backstack.iterator());
 
+        boolean newRootRequiresPush = !(newBackstack.size() > 0 && backstack.contains(newBackstack.get(0)));
+
         removeAllExceptVisibleAndUnowned();
         ensureOrderedTransactionIndices(newBackstack);
 
@@ -373,18 +375,27 @@ public abstract class Router {
             boolean visibleTransactionsChanged = !backstacksAreEqual(newVisibleTransactions, oldVisibleTransactions);
             if (visibleTransactionsChanged) {
                 RouterTransaction rootTransaction = oldVisibleTransactions.size() > 0 ? oldVisibleTransactions.get(0) : null;
-                performControllerChange(newVisibleTransactions.get(0), rootTransaction, true, changeHandler);
-
-                for (int i = oldVisibleTransactions.size() - 1; i > 0; i--) {
-                    RouterTransaction transaction = oldVisibleTransactions.get(i);
-                    ControllerChangeHandler localHandler = changeHandler != null ? changeHandler.copy() : new SimpleSwapChangeHandler();
-                    localHandler.setForceRemoveViewOnPush(true);
-                    performControllerChange(null, transaction, true, localHandler);
+                // Replace the old root with the new one
+                if (rootTransaction == null || rootTransaction.controller != newVisibleTransactions.get(0).controller) {
+                    performControllerChange(newVisibleTransactions.get(0), rootTransaction, newRootRequiresPush, changeHandler);
                 }
 
+                // Remove all visible controllers that were previously on the backstack
+                for (int i = oldVisibleTransactions.size() - 1; i > 0; i--) {
+                    RouterTransaction transaction = oldVisibleTransactions.get(i);
+                    if (!newVisibleTransactions.contains(transaction)) {
+                        ControllerChangeHandler localHandler = changeHandler != null ? changeHandler.copy() : new SimpleSwapChangeHandler();
+                        localHandler.setForceRemoveViewOnPush(true);
+                        performControllerChange(null, transaction, newRootRequiresPush, localHandler);
+                    }
+                }
+
+                // Add any new controllers to the backstack
                 for (int i = 1; i < newVisibleTransactions.size(); i++) {
                     RouterTransaction transaction = newVisibleTransactions.get(i);
-                    performControllerChange(transaction, newVisibleTransactions.get(i - 1), true, transaction.pushChangeHandler());
+                    if (!oldVisibleTransactions.contains(transaction)) {
+                        performControllerChange(transaction, newVisibleTransactions.get(i - 1), true, transaction.pushChangeHandler());
+                    }
                 }
             }
 
@@ -574,16 +585,25 @@ public abstract class Router {
     }
 
     private void popToTransaction(@NonNull RouterTransaction transaction, @Nullable ControllerChangeHandler changeHandler) {
-        RouterTransaction topTransaction = backstack.peek();
-        List<RouterTransaction> poppedTransactions = backstack.popTo(transaction);
-        trackDestroyingControllers(poppedTransactions);
+        if (backstack.size() > 0) {
+            RouterTransaction topTransaction = backstack.peek();
 
-        if (poppedTransactions.size() > 0) {
+            List<RouterTransaction> updatedBackstack = new ArrayList<>();
+            Iterator<RouterTransaction> backstackIterator = backstack.reverseIterator();
+            while (backstackIterator.hasNext()) {
+                RouterTransaction existingTransaction = backstackIterator.next();
+                updatedBackstack.add(existingTransaction);
+                if (existingTransaction == transaction) {
+                    break;
+                }
+            }
+
             if (changeHandler == null) {
+                //noinspection ConstantConditions
                 changeHandler = topTransaction.popChangeHandler();
             }
 
-            performControllerChange(backstack.peek(), topTransaction, false, changeHandler);
+            setBackstack(updatedBackstack, changeHandler);
         }
     }
 

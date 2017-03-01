@@ -18,16 +18,16 @@ class Backstack implements Iterable<RouterTransaction> {
     private final Deque<RouterTransaction> backstack = new ArrayDeque<>();
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean isEmpty() {
+    boolean isEmpty() {
         return backstack.isEmpty();
     }
 
-    public int size() {
+    int size() {
         return backstack.size();
     }
 
     @Nullable
-    public RouterTransaction root() {
+    RouterTransaction root() {
         return backstack.size() > 0 ? backstack.getLast() : null;
     }
 
@@ -37,12 +37,12 @@ class Backstack implements Iterable<RouterTransaction> {
     }
 
     @NonNull
-    public Iterator<RouterTransaction> reverseIterator() {
+    Iterator<RouterTransaction> reverseIterator() {
         return backstack.descendingIterator();
     }
 
     @NonNull
-    public List<RouterTransaction> popTo(@NonNull RouterTransaction transaction) {
+    List<RouterTransaction> popTo(@NonNull RouterTransaction transaction) {
         List<RouterTransaction> popped = new ArrayList<>();
         if (backstack.contains(transaction)) {
             while (backstack.peek() != transaction) {
@@ -56,27 +56,27 @@ class Backstack implements Iterable<RouterTransaction> {
     }
 
     @NonNull
-    public RouterTransaction pop() {
+    RouterTransaction pop() {
         RouterTransaction popped = backstack.pop();
         popped.controller.destroy();
         return popped;
     }
 
     @Nullable
-    public RouterTransaction peek() {
+    RouterTransaction peek() {
         return backstack.peek();
     }
 
-    public void remove(@NonNull RouterTransaction transaction) {
+    void remove(@NonNull RouterTransaction transaction) {
         backstack.removeFirstOccurrence(transaction);
     }
 
-    public void push(@NonNull RouterTransaction transaction) {
+    void push(@NonNull RouterTransaction transaction) {
         backstack.push(transaction);
     }
 
     @NonNull
-    public List<RouterTransaction> popAll() {
+    List<RouterTransaction> popAll() {
         List<RouterTransaction> list = new ArrayList<>();
         while (!isEmpty()) {
             list.add(pop());
@@ -84,7 +84,7 @@ class Backstack implements Iterable<RouterTransaction> {
         return list;
     }
 
-    public void setBackstack(@NonNull List<RouterTransaction> backstack) {
+    void setBackstack(@NonNull List<RouterTransaction> backstack) {
         for (RouterTransaction existingTransaction : this.backstack) {
             boolean contains = false;
             for (RouterTransaction newTransaction : backstack) {
@@ -105,7 +105,11 @@ class Backstack implements Iterable<RouterTransaction> {
         }
     }
 
-    public void saveInstanceState(@NonNull Bundle outState) {
+    boolean contains(@NonNull RouterTransaction transaction) {
+        return backstack.contains(transaction);
+    }
+
+    void saveInstanceState(@NonNull Bundle outState) {
         ArrayList<Bundle> entryBundles = new ArrayList<>(backstack.size());
         for (RouterTransaction entry : backstack) {
             entryBundles.add(entry.saveInstanceState());
@@ -114,7 +118,7 @@ class Backstack implements Iterable<RouterTransaction> {
         outState.putParcelableArrayList(KEY_ENTRIES, entryBundles);
     }
 
-    public void restoreInstanceState(@NonNull Bundle savedInstanceState) {
+    void restoreInstanceState(@NonNull Bundle savedInstanceState) {
         ArrayList<Bundle> entryBundles = savedInstanceState.getParcelableArrayList(KEY_ENTRIES);
         if (entryBundles != null) {
             Collections.reverse(entryBundles);

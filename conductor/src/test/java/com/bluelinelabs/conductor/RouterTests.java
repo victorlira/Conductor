@@ -3,6 +3,7 @@ package com.bluelinelabs.conductor;
 import android.view.ViewGroup;
 
 import com.bluelinelabs.conductor.changehandler.FadeChangeHandler;
+import com.bluelinelabs.conductor.changehandler.HorizontalChangeHandler;
 import com.bluelinelabs.conductor.util.ActivityProxy;
 import com.bluelinelabs.conductor.util.MockChangeHandler;
 import com.bluelinelabs.conductor.util.TestController;
@@ -257,6 +258,48 @@ public class RouterTests {
         assertTrue(rootTransaction.controller.isAttached());
         assertTrue(middleTransaction.controller.isAttached());
         assertTrue(topTransaction.controller.isAttached());
+    }
+
+    @Test
+    public void testPopToRoot() {
+        RouterTransaction rootTransaction = RouterTransaction.with(new TestController());
+        RouterTransaction transaction1 = RouterTransaction.with(new TestController());
+        RouterTransaction transaction2 = RouterTransaction.with(new TestController());
+
+        List<RouterTransaction> backstack = Arrays.asList(rootTransaction, transaction1, transaction2);
+        router.setBackstack(backstack, null);
+
+        assertEquals(3, router.getBackstackSize());
+
+        router.popToRoot();
+
+        assertEquals(1, router.getBackstackSize());
+        assertEquals(rootTransaction, router.getBackstack().get(0));
+
+        assertTrue(rootTransaction.controller.isAttached());
+        assertFalse(transaction1.controller.isAttached());
+        assertFalse(transaction2.controller.isAttached());
+    }
+
+    @Test
+    public void testPopToRootWithNoRemoveViewOnPush() {
+        RouterTransaction rootTransaction = RouterTransaction.with(new TestController()).pushChangeHandler(new HorizontalChangeHandler(false));
+        RouterTransaction transaction1 = RouterTransaction.with(new TestController()).pushChangeHandler(new HorizontalChangeHandler(false));
+        RouterTransaction transaction2 = RouterTransaction.with(new TestController()).pushChangeHandler(new HorizontalChangeHandler(false));
+
+        List<RouterTransaction> backstack = Arrays.asList(rootTransaction, transaction1, transaction2);
+        router.setBackstack(backstack, null);
+
+        assertEquals(3, router.getBackstackSize());
+
+        router.popToRoot();
+
+        assertEquals(1, router.getBackstackSize());
+        assertEquals(rootTransaction, router.getBackstack().get(0));
+
+        assertTrue(rootTransaction.controller.isAttached());
+        assertFalse(transaction1.controller.isAttached());
+        assertFalse(transaction2.controller.isAttached());
     }
 
     @Test
