@@ -41,7 +41,7 @@ import butterknife.OnClick;
 
 public class HomeController extends BaseController {
 
-    public enum HomeDemoModel {
+    private enum HomeDemoModel {
         NAVIGATION("Navigation Demos", R.color.red_300),
         TRANSITIONS("Transition Demos", R.color.blue_grey_300),
         SHARED_ELEMENT_TRANSITIONS("Shared Element Demos", R.color.purple_300),

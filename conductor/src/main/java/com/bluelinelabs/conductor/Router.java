@@ -100,6 +100,7 @@ public abstract class Router {
      *
      * @return Whether or not this Router still has controllers remaining on it after popping.
      */
+    @SuppressWarnings("WeakerAccess")
     @UiThread
     public boolean popCurrentController() {
         RouterTransaction transaction = backstack.peek();
@@ -161,6 +162,7 @@ public abstract class Router {
      * @param transaction The transaction detailing what should be pushed, including the {@link Controller},
      *                    and its push and pop {@link ControllerChangeHandler}, and its tag.
      */
+    @SuppressWarnings("WeakerAccess")
     @UiThread
     public void replaceTopController(@NonNull RouterTransaction transaction) {
         RouterTransaction topTransaction = backstack.peek();
@@ -170,6 +172,7 @@ public abstract class Router {
 
         final ControllerChangeHandler handler = transaction.pushChangeHandler();
         if (topTransaction != null) {
+            //noinspection ConstantConditions
             final boolean oldHandlerRemovedViews = topTransaction.pushChangeHandler() == null || topTransaction.pushChangeHandler().removesFromViewOnPush();
             final boolean newHandlerRemovesViews = handler == null || handler.removesFromViewOnPush();
             if (!oldHandlerRemovedViews && newHandlerRemovesViews) {
@@ -241,6 +244,7 @@ public abstract class Router {
      * @param changeHandler The {@link ControllerChangeHandler} to handle this transaction
      * @return Whether or not any {@link Controller}s were popped in order to get to the root transaction
      */
+    @SuppressWarnings("WeakerAccess")
     @UiThread
     public boolean popToRoot(@Nullable ControllerChangeHandler changeHandler) {
         if (backstack.size() > 1) {
@@ -270,6 +274,7 @@ public abstract class Router {
      * @param changeHandler The {@link ControllerChangeHandler} to handle this transaction
      * @return Whether or not the {@link Controller} with the passed tag is now at the top
      */
+    @SuppressWarnings("WeakerAccess")
     @UiThread
     public boolean popToTag(@NonNull String tag, @Nullable ControllerChangeHandler changeHandler) {
         for (RouterTransaction transaction : backstack) {
@@ -329,6 +334,7 @@ public abstract class Router {
     /**
      * Returns the number of {@link Controller}s currently in the backstack
      */
+    @SuppressWarnings("WeakerAccess")
     public int getBackstackSize() {
         return backstack.size();
     }
@@ -353,6 +359,7 @@ public abstract class Router {
      * @param newBackstack  The new backstack
      * @param changeHandler An optional change handler to be used to handle the root view of transition
      */
+    @SuppressWarnings("WeakerAccess")
     @UiThread
     public void setBackstack(@NonNull List<RouterTransaction> newBackstack, @Nullable ControllerChangeHandler changeHandler) {
         List<RouterTransaction> oldVisibleTransactions = getVisibleTransactions(backstack.iterator());
@@ -418,6 +425,7 @@ public abstract class Router {
      *
      * @param changeListener The listener
      */
+    @SuppressWarnings("WeakerAccess")
     public void addChangeListener(@NonNull ControllerChangeListener changeListener) {
         if (!changeListeners.contains(changeListener)) {
             changeListeners.add(changeListener);
@@ -429,6 +437,7 @@ public abstract class Router {
      *
      * @param changeListener The listener to be removed
      */
+    @SuppressWarnings("WeakerAccess")
     public void removeChangeListener(@NonNull ControllerChangeListener changeListener) {
         changeListeners.remove(changeListener);
     }
@@ -519,7 +528,7 @@ public abstract class Router {
         container = null;
     }
 
-    public void prepareForHostDetach() {
+    void prepareForHostDetach() {
         for (RouterTransaction transaction : backstack) {
             if (ControllerChangeHandler.completePushImmediately(transaction.controller.getInstanceId())) {
                 transaction.controller.setNeedsAttach();
@@ -540,6 +549,7 @@ public abstract class Router {
 
     public void restoreInstanceState(@NonNull Bundle savedInstanceState) {
         Bundle backstackBundle = savedInstanceState.getParcelable(KEY_BACKSTACK);
+        //noinspection ConstantConditions
         backstack.restoreInstanceState(backstackBundle);
         popsLastView = savedInstanceState.getBoolean(KEY_POPS_LAST_VIEW);
 
@@ -750,6 +760,7 @@ public abstract class Router {
             RouterTransaction transaction = backstackIterator.next();
             transactions.add(transaction);
 
+            //noinspection ConstantConditions
             if (transaction.pushChangeHandler() == null || transaction.pushChangeHandler().removesFromViewOnPush()) {
                 break;
             }
