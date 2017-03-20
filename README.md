@@ -4,8 +4,8 @@
 
 A small, yet full-featured framework that allows building View-based Android applications. Conductor provides a light-weight wrapper around standard Android Views that does just about everything you'd want:
 
-              |  Conductor
-------|------------------------------
+|           |  Conductor  |
+|-----------|-------------|
 :tada: | Easy integration
 :point_up: | Single Activity apps without using Fragments
 :recycle: | Simple but powerful lifecycle management
