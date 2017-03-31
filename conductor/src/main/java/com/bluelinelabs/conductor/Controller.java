@@ -93,13 +93,18 @@ public abstract class Controller {
     static Controller newInstance(@NonNull Bundle bundle) {
         final String className = bundle.getString(KEY_CLASS_NAME);
         //noinspection ConstantConditions
-        Constructor[] constructors = ClassUtils.classForName(className, false).getConstructors();
+        Class cls = ClassUtils.classForName(className, false);
+        Constructor[] constructors = cls.getConstructors();
         Constructor bundleConstructor = getBundleConstructor(constructors);
 
         Controller controller;
         try {
             if (bundleConstructor != null) {
-                controller = (Controller)bundleConstructor.newInstance(bundle.getBundle(KEY_ARGS));
+                Bundle args = bundle.getBundle(KEY_ARGS);
+                if (args != null) {
+                    args.setClassLoader(cls.getClassLoader());
+                }
+                controller = (Controller)bundleConstructor.newInstance(args);
             } else {
                 //noinspection ConstantConditions
                 controller = (Controller)getDefaultConstructor(constructors).newInstance();
@@ -125,7 +130,7 @@ public abstract class Controller {
      * @param args Any arguments that need to be retained.
      */
     protected Controller(@Nullable Bundle args) {
-        this.args = args != null ? args : new Bundle();
+        this.args = args != null ? args : new Bundle(getClass().getClassLoader());
         instanceId = UUID.randomUUID().toString();
         ensureRequiredConstructor();
     }
@@ -1031,7 +1036,7 @@ public abstract class Controller {
         view.saveHierarchyState(hierarchyState);
         viewState.putSparseParcelableArray(KEY_VIEW_STATE_HIERARCHY, hierarchyState);
 
-        Bundle stateBundle = new Bundle();
+        Bundle stateBundle = new Bundle(getClass().getClassLoader());
         onSaveViewState(view, stateBundle);
         viewState.putBundle(KEY_VIEW_STATE_BUNDLE, stateBundle);
 
@@ -1044,7 +1049,9 @@ public abstract class Controller {
     private void restoreViewState(@NonNull View view) {
         if (viewState != null) {
             view.restoreHierarchyState(viewState.getSparseParcelableArray(KEY_VIEW_STATE_HIERARCHY));
-            onRestoreViewState(view, viewState.getBundle(KEY_VIEW_STATE_BUNDLE));
+            Bundle savedViewState = viewState.getBundle(KEY_VIEW_STATE_BUNDLE);
+            savedViewState.setClassLoader(getClass().getClassLoader());
+            onRestoreViewState(view, savedViewState);
 
             restoreChildControllerHosts();
 
@@ -1085,7 +1092,7 @@ public abstract class Controller {
         }
         outState.putParcelableArrayList(KEY_CHILD_ROUTERS, childBundles);
 
-        Bundle savedState = new Bundle();
+        Bundle savedState = new Bundle(getClass().getClassLoader());
         onSaveInstanceState(savedState);
 
         List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
@@ -1120,6 +1127,9 @@ public abstract class Controller {
         }
 
         this.savedInstanceState = savedInstanceState.getBundle(KEY_SAVED_STATE);
+        if (this.savedInstanceState != null) {
+            this.savedInstanceState.setClassLoader(getClass().getClassLoader());
+        }
         performOnRestoreInstanceState();
     }
 
