@@ -8,14 +8,15 @@ import android.support.annotation.UiThread;
 import android.view.ViewGroup;
 
 import com.bluelinelabs.conductor.internal.LifecycleHandler;
+import com.bluelinelabs.conductor.internal.ThreadUtils;
 
 /**
  * Point of initial interaction with Conductor. Used to attach a {@link Router} to your Activity.
  */
 public final class Conductor {
-    
+
     private Conductor() {}
-    
+
     /**
      * Conductor will create a {@link Router} that has been initialized for your Activity and containing ViewGroup.
      * If an existing {@link Router} is already associated with this Activity/ViewGroup pair, either in memory
@@ -30,6 +31,8 @@ public final class Conductor {
      */
     @NonNull @UiThread
     public static Router attachRouter(@NonNull Activity activity, @NonNull ViewGroup container, @Nullable Bundle savedInstanceState) {
+        ThreadUtils.ensureMainThread();
+
         LifecycleHandler lifecycleHandler = LifecycleHandler.install(activity);
 
         Router router = lifecycleHandler.getRouter(container, savedInstanceState);

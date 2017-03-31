@@ -17,6 +17,7 @@ import com.bluelinelabs.conductor.Controller.LifecycleListener;
 import com.bluelinelabs.conductor.ControllerChangeHandler.ControllerChangeListener;
 import com.bluelinelabs.conductor.changehandler.SimpleSwapChangeHandler;
 import com.bluelinelabs.conductor.internal.NoOpControllerChangeHandler;
+import com.bluelinelabs.conductor.internal.ThreadUtils;
 import com.bluelinelabs.conductor.internal.TransactionIndexer;
 
 import java.util.ArrayList;
@@ -83,6 +84,8 @@ public abstract class Router {
      */
     @UiThread
     public boolean handleBack() {
+        ThreadUtils.ensureMainThread();
+
         if (!backstack.isEmpty()) {
             //noinspection ConstantConditions
             if (backstack.peek().controller.handleBack()) {
@@ -103,6 +106,8 @@ public abstract class Router {
     @SuppressWarnings("WeakerAccess")
     @UiThread
     public boolean popCurrentController() {
+        ThreadUtils.ensureMainThread();
+
         RouterTransaction transaction = backstack.peek();
         if (transaction == null) {
             throw new IllegalStateException("Trying to pop the current controller when there are none on the backstack.");
@@ -118,6 +123,8 @@ public abstract class Router {
      */
     @UiThread
     public boolean popController(@NonNull Controller controller) {
+        ThreadUtils.ensureMainThread();
+
         RouterTransaction topController = backstack.peek();
         boolean poppingTopController = topController != null && topController.controller == controller;
 
@@ -151,6 +158,8 @@ public abstract class Router {
      */
     @UiThread
     public void pushController(@NonNull RouterTransaction transaction) {
+        ThreadUtils.ensureMainThread();
+
         RouterTransaction from = backstack.peek();
         pushToBackstack(transaction);
         performControllerChange(transaction, from, true);
@@ -165,6 +174,8 @@ public abstract class Router {
     @SuppressWarnings("WeakerAccess")
     @UiThread
     public void replaceTopController(@NonNull RouterTransaction transaction) {
+        ThreadUtils.ensureMainThread();
+
         RouterTransaction topTransaction = backstack.peek();
         if (!backstack.isEmpty()) {
             trackDestroyingController(backstack.pop());
@@ -235,6 +246,8 @@ public abstract class Router {
      */
     @UiThread
     public boolean popToRoot() {
+        ThreadUtils.ensureMainThread();
+
         return popToRoot(null);
     }
 
@@ -247,6 +260,8 @@ public abstract class Router {
     @SuppressWarnings("WeakerAccess")
     @UiThread
     public boolean popToRoot(@Nullable ControllerChangeHandler changeHandler) {
+        ThreadUtils.ensureMainThread();
+
         if (backstack.size() > 1) {
             //noinspection ConstantConditions
             popToTransaction(backstack.root(), changeHandler);
@@ -264,6 +279,8 @@ public abstract class Router {
      */
     @UiThread
     public boolean popToTag(@NonNull String tag) {
+        ThreadUtils.ensureMainThread();
+
         return popToTag(tag, null);
     }
 
@@ -277,6 +294,8 @@ public abstract class Router {
     @SuppressWarnings("WeakerAccess")
     @UiThread
     public boolean popToTag(@NonNull String tag, @Nullable ControllerChangeHandler changeHandler) {
+        ThreadUtils.ensureMainThread();
+
         for (RouterTransaction transaction : backstack) {
             if (tag.equals(transaction.tag())) {
                 popToTransaction(transaction, changeHandler);
@@ -294,6 +313,8 @@ public abstract class Router {
      */
     @UiThread
     public void setRoot(@NonNull RouterTransaction transaction) {
+        ThreadUtils.ensureMainThread();
+
         List<RouterTransaction> transactions = Collections.singletonList(transaction);
         setBackstack(transactions, transaction.pushChangeHandler());
     }
@@ -362,6 +383,8 @@ public abstract class Router {
     @SuppressWarnings("WeakerAccess")
     @UiThread
     public void setBackstack(@NonNull List<RouterTransaction> newBackstack, @Nullable ControllerChangeHandler changeHandler) {
+        ThreadUtils.ensureMainThread();
+
         List<RouterTransaction> oldVisibleTransactions = getVisibleTransactions(backstack.iterator());
 
         boolean newRootRequiresPush = !(newBackstack.size() > 0 && backstack.contains(newBackstack.get(0)));
@@ -447,6 +470,8 @@ public abstract class Router {
      */
     @UiThread
     public void rebindIfNeeded() {
+        ThreadUtils.ensureMainThread();
+
         Iterator<RouterTransaction> backstackIterator = backstack.reverseIterator();
         while (backstackIterator.hasNext()) {
             RouterTransaction transaction = backstackIterator.next();
