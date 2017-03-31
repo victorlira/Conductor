@@ -25,6 +25,7 @@ class ControllerHostedRouter extends Router {
 
     @IdRes private int hostId;
     private String tag;
+    private boolean isDetachFrozen;
 
     ControllerHostedRouter() { }
 
@@ -69,6 +70,7 @@ class ControllerHostedRouter extends Router {
     }
 
     final void setDetachFrozen(boolean frozen) {
+        isDetachFrozen = frozen;
         for (RouterTransaction transaction : backstack) {
             transaction.controller.setDetachFrozen(frozen);
         }
@@ -78,6 +80,24 @@ class ControllerHostedRouter extends Router {
     void destroy(boolean popViews) {
         setDetachFrozen(false);
         super.destroy(popViews);
+    }
+
+    @Override
+    protected void pushToBackstack(@NonNull RouterTransaction entry) {
+        if (isDetachFrozen) {
+            entry.controller.setDetachFrozen(true);
+        }
+        super.pushToBackstack(entry);
+    }
+
+    @Override
+    public void setBackstack(@NonNull List<RouterTransaction> newBackstack, @Nullable ControllerChangeHandler changeHandler) {
+        if (isDetachFrozen) {
+            for (RouterTransaction transaction : newBackstack) {
+                transaction.controller.setDetachFrozen(true);
+            }
+        }
+        super.setBackstack(newBackstack, changeHandler);
     }
 
     @Override @Nullable

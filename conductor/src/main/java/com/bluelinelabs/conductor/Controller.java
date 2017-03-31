@@ -87,6 +87,7 @@ public abstract class Controller {
     private final ArrayList<String> requestedPermissions = new ArrayList<>();
     private final ArrayList<RouterRequiringFunc> onRouterSetListeners = new ArrayList<>();
     private WeakReference<View> destroyedView;
+    private boolean isPerformingExitTransition;
 
     @NonNull
     static Controller newInstance(@NonNull Bundle bundle) {
@@ -211,6 +212,10 @@ public abstract class Controller {
                 childRouter = new ControllerHostedRouter(container.getId(), tag);
                 childRouter.setHost(this, container);
                 childRouters.add(childRouter);
+
+                if (isPerformingExitTransition) {
+                    childRouter.setDetachFrozen(true);
+                }
             }
         } else if (!childRouter.hasHost()) {
             childRouter.setHost(this, container);
@@ -1133,6 +1138,7 @@ public abstract class Controller {
 
     final void changeStarted(@NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
         if (!changeType.isEnter) {
+            isPerformingExitTransition = true;
             for (ControllerHostedRouter router : childRouters) {
                 router.setDetachFrozen(true);
             }
@@ -1148,6 +1154,7 @@ public abstract class Controller {
 
     final void changeEnded(@NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
         if (!changeType.isEnter) {
+            isPerformingExitTransition = false;
             for (ControllerHostedRouter router : childRouters) {
                 router.setDetachFrozen(false);
             }

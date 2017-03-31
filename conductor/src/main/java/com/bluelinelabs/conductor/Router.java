@@ -679,7 +679,7 @@ public abstract class Router {
         ControllerChangeHandler.executeChange(toController, fromController, isPush, container, changeHandler, changeListeners);
     }
 
-    private void pushToBackstack(@NonNull RouterTransaction entry) {
+    protected void pushToBackstack(@NonNull RouterTransaction entry) {
         backstack.push(entry);
     }
 
