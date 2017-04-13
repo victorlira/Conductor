@@ -603,7 +603,7 @@ public abstract class Controller {
      *
      * @param lifecycleListener The listener
      */
-    public void addLifecycleListener(@NonNull LifecycleListener lifecycleListener) {
+    public final void addLifecycleListener(@NonNull LifecycleListener lifecycleListener) {
         if (!lifecycleListeners.contains(lifecycleListener)) {
             lifecycleListeners.add(lifecycleListener);
         }
