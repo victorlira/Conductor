@@ -49,6 +49,12 @@ public class PagerController extends BaseController {
         };
     }
 
+    @NonNull
+    @Override
+    protected View inflateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
+        return inflater.inflate(R.layout.controller_pager, container, false);
+    }
+
     @Override
     protected void onViewBound(@NonNull View view) {
         super.onViewBound(view);
@@ -58,14 +64,11 @@ public class PagerController extends BaseController {
 
     @Override
     protected void onDestroyView(@NonNull View view) {
-        viewPager.setAdapter(null);
+        if (!getActivity().isChangingConfigurations()) {
+            viewPager.setAdapter(null);
+        }
+        tabLayout.setupWithViewPager(null);
         super.onDestroyView(view);
-    }
-
-    @NonNull
-    @Override
-    protected View inflateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
-        return inflater.inflate(R.layout.controller_pager, container, false);
     }
 
     @Override
