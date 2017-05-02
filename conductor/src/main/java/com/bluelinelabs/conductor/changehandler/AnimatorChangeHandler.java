@@ -122,13 +122,20 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
             if (to.getWidth() <= 0 && to.getHeight() <= 0) {
                 readyToAnimate = false;
                 to.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                    boolean hasRun;
+
                     @Override
                     public boolean onPreDraw() {
                         final ViewTreeObserver observer = to.getViewTreeObserver();
                         if (observer.isAlive()) {
                             observer.removeOnPreDrawListener(this);
                         }
-                        performAnimation(container, from, to, isPush, addingToView, changeListener);
+
+                        // Apparently this gets called multiple times, even if removeOnPreDrawListener is called successfully.
+                        if (!hasRun) {
+                            hasRun = true;
+                            performAnimation(container, from, to, isPush, addingToView, changeListener);
+                        }
                         return true;
                     }
                 });
