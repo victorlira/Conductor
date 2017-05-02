@@ -46,7 +46,7 @@ public class HorizontalChangeHandler extends AnimatorChangeHandler {
             }
             if (to != null) {
                 // Allow this to have a nice transition when coming off an aborted push animation
-                float fromLeft = from != null ? from.getX() : 0;
+                float fromLeft = from != null ? from.getTranslationX() : 0;
                 animatorSet.play(ObjectAnimator.ofFloat(to, View.TRANSLATION_X, fromLeft - to.getWidth(), 0));
             }
         }
