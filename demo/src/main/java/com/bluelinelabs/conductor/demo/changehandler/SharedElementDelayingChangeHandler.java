@@ -95,7 +95,7 @@ public class SharedElementDelayingChangeHandler extends ArcFadeMoveChangeHandler
     }
 
     @Override
-    public void executePropertyChanges(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, @NonNull Transition transition, boolean isPush) {
+    public void executePropertyChanges(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, @Nullable Transition transition, boolean isPush) {
         if (to != null) {
             to.setVisibility(View.VISIBLE);
 

@@ -167,6 +167,16 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
             complete(changeListener, null);
             return;
         }
+        if (needsImmediateCompletion) {
+            if (from != null && (!isPush || removesFromViewOnPush)) {
+                container.removeView(from);
+            }
+            complete(changeListener, null);
+            if (isPush && from != null) {
+                resetFromView(from);
+            }
+            return;
+        }
 
         animator = getAnimator(container, from, to, isPush, toAddedToContainer);
 

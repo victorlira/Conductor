@@ -125,26 +125,37 @@ public abstract class Router {
     public boolean popController(@NonNull Controller controller) {
         ThreadUtils.ensureMainThread();
 
-        RouterTransaction topController = backstack.peek();
-        boolean poppingTopController = topController != null && topController.controller == controller;
+        RouterTransaction topTransaction = backstack.peek();
+        boolean poppingTopController = topTransaction != null && topTransaction.controller == controller;
 
         if (poppingTopController) {
             trackDestroyingController(backstack.pop());
+            performControllerChange(backstack.peek(), topTransaction, false);
         } else {
+            RouterTransaction removedTransaction = null;
+            RouterTransaction nextTransaction = null;
             for (RouterTransaction transaction : backstack) {
                 if (transaction.controller == controller) {
+                    if (controller.isAttached()) {
+                        trackDestroyingController(transaction);
+                    }
                     backstack.remove(transaction);
+                    removedTransaction = transaction;
+                } else if (removedTransaction != null) {
+                    if (!transaction.controller.isAttached()) {
+                        nextTransaction = transaction;
+                    }
                     break;
                 }
             }
-        }
 
-        if (poppingTopController) {
-            performControllerChange(backstack.peek(), topController, false);
+            if (removedTransaction != null) {
+                performControllerChange(nextTransaction, removedTransaction, false);
+            }
         }
 
         if (popsLastView) {
-            return topController != null;
+            return topTransaction != null;
         } else {
             return !backstack.isEmpty();
         }

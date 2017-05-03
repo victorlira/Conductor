@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bluelinelabs.conductor.Controller;
 import com.bluelinelabs.conductor.ControllerChangeHandler;
 import com.bluelinelabs.conductor.internal.ClassUtils;
 
@@ -76,6 +77,21 @@ public class TransitionChangeHandlerCompat extends ControllerChangeHandler {
         } else {
             return new TransitionChangeHandlerCompat(null, changeHandler.copy());
         }
+    }
+
+    @Override
+    public void onAbortPush(@NonNull ControllerChangeHandler newHandler, @Nullable Controller newTop) {
+        changeHandler.onAbortPush(newHandler, newTop);
+    }
+
+    @Override
+    public void completeImmediately() {
+        changeHandler.completeImmediately();
+    }
+
+    @Override
+    public void setForceRemoveViewOnPush(boolean force) {
+        changeHandler.setForceRemoveViewOnPush(force);
     }
 
 }

@@ -8,6 +8,7 @@ import android.content.IntentSender;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -86,6 +87,7 @@ public abstract class Controller {
     private final List<LifecycleListener> lifecycleListeners = new ArrayList<>();
     private final ArrayList<String> requestedPermissions = new ArrayList<>();
     private final ArrayList<RouterRequiringFunc> onRouterSetListeners = new ArrayList<>();
+    private final Handler handler = new Handler();
     private WeakReference<View> destroyedView;
     private boolean isPerformingExitTransition;
 
@@ -817,7 +819,7 @@ public abstract class Controller {
         }
     }
 
-    private void attach(@NonNull View view) {
+    private void attach(@NonNull final View view) {
         attachedToUnownedParent = router == null || view.getParent() != router.container;
         if (attachedToUnownedParent) {
             return;
@@ -833,16 +835,23 @@ public abstract class Controller {
         attached = true;
         needsAttach = false;
 
-        onAttach(view);
+        // This must be posted in a handler to ensure the system can finish attaching views if needed. Otherwise
+        // we can get NPEs when developers decide to immediately pop this controller from onAttach.
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                onAttach(view);
 
-        if (hasOptionsMenu && !optionsMenuHidden) {
-            router.invalidateOptionsMenu();
-        }
+                if (hasOptionsMenu && !optionsMenuHidden) {
+                    router.invalidateOptionsMenu();
+                }
 
-        listeners = new ArrayList<>(lifecycleListeners);
-        for (LifecycleListener lifecycleListener : listeners) {
-            lifecycleListener.postAttach(this, view);
-        }
+                List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+                for (LifecycleListener lifecycleListener : listeners) {
+                    lifecycleListener.postAttach(Controller.this, view);
+                }
+            }
+        });
     }
 
     void detach(@NonNull View view, boolean forceViewRefRemoval, boolean blockViewRefRemoval) {

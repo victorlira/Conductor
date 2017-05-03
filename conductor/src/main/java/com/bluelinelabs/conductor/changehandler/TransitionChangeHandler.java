@@ -20,10 +20,11 @@ import com.bluelinelabs.conductor.ControllerChangeHandler;
 public abstract class TransitionChangeHandler extends ControllerChangeHandler {
 
     public interface OnTransitionPreparedListener {
-        public void onPrepared();
+        void onPrepared();
     }
 
     private boolean canceled;
+    private boolean needsImmediateCompletion;
 
     /**
      * Should be overridden to return the Transition to use while replacing Views.
@@ -44,8 +45,20 @@ public abstract class TransitionChangeHandler extends ControllerChangeHandler {
     }
 
     @Override
+    public void completeImmediately() {
+        super.completeImmediately();
+
+        needsImmediateCompletion = true;
+    }
+
+    @Override
     public void performChange(@NonNull final ViewGroup container, @Nullable final View from, @Nullable final View to, final boolean isPush, @NonNull final ControllerChangeCompletedListener changeListener) {
         if (canceled) {
+            changeListener.onChangeCompleted();
+            return;
+        }
+        if (needsImmediateCompletion) {
+            executePropertyChanges(container, from, to, null, isPush);
             changeListener.onChangeCompleted();
             return;
         }
@@ -109,10 +122,10 @@ public abstract class TransitionChangeHandler extends ControllerChangeHandler {
      * @param container  The container these Views are hosted in
      * @param from       The previous View in the container or {@code null} if there was no Controller before this transition
      * @param to         The next View that should be put in the container or {@code null} if no Controller is being transitioned to
-     * @param transition The transition with which {@code TransitionManager.beginDelayedTransition} has been called
+     * @param transition The transition with which {@code TransitionManager.beginDelayedTransition} has been called. This will be null only if another ControllerChangeHandler immediately overrides this one.
      * @param isPush     True if this is a push transaction, false if it's a pop
      */
-    public void executePropertyChanges(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, @NonNull Transition transition, boolean isPush) {
+    public void executePropertyChanges(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, @Nullable Transition transition, boolean isPush) {
         if (from != null && (removesFromViewOnPush() || !isPush) && from.getParent() == container) {
             container.removeView(from);
         }
