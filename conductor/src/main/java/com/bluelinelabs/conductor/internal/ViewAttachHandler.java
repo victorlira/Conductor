@@ -23,7 +23,7 @@ public class ViewAttachHandler implements OnAttachStateChangeListener {
     }
 
     private boolean rootAttached = false;
-    boolean childrenAttached = false;
+    private boolean childrenAttached = false;
     private boolean activityStopped = false;
     private ReportedState reportedState = ReportedState.VIEW_DETACHED;
     private ViewAttachListener attachListener;
@@ -55,7 +55,7 @@ public class ViewAttachHandler implements OnAttachStateChangeListener {
         rootAttached = false;
         if (childrenAttached) {
             childrenAttached = false;
-            reportDetached();
+            reportDetached(false);
         }
     }
 
@@ -78,34 +78,33 @@ public class ViewAttachHandler implements OnAttachStateChangeListener {
 
     public void onActivityStopped() {
         activityStopped = true;
-        reportDetached();
+        reportDetached(true);
     }
 
-    void reportAttached() {
+    private void reportAttached() {
         if (rootAttached && childrenAttached && !activityStopped && reportedState != ReportedState.ATTACHED) {
             reportedState = ReportedState.ATTACHED;
             attachListener.onAttached();
         }
     }
 
-    void reportDetached() {
+    private void reportDetached(boolean detachedForActivity) {
         boolean wasDetachedForActivity = reportedState == ReportedState.ACTIVITY_STOPPED;
-        boolean isDetachedForActivity = rootAttached;
 
-        if (isDetachedForActivity) {
+        if (detachedForActivity) {
             reportedState = ReportedState.ACTIVITY_STOPPED;
         } else {
             reportedState = ReportedState.VIEW_DETACHED;
         }
 
-        if (wasDetachedForActivity && !isDetachedForActivity) {
+        if (wasDetachedForActivity && !detachedForActivity) {
             attachListener.onViewDetachAfterStop();
         } else {
-            attachListener.onDetached(isDetachedForActivity);
+            attachListener.onDetached(detachedForActivity);
         }
     }
 
-    void listenForDeepestChildAttach(final View view, final ChildAttachListener attachListener) {
+    private void listenForDeepestChildAttach(final View view, final ChildAttachListener attachListener) {
         if (!(view instanceof ViewGroup)) {
             attachListener.onAttached();
             return;

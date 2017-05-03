@@ -87,18 +87,6 @@ public class ViewLeakTests {
     }
 
     @Test
-    public void testActivityStopWhenPushNeverAdded() {
-        Controller controller = new TestController();
-        router.pushController(RouterTransaction.with(controller).pushChangeHandler(new NeverAddChangeHandler()));
-
-        assertNotNull(controller.getView());
-
-        activityProxy.stop(true);
-
-        assertNull(controller.getView());
-    }
-
-    @Test
     public void testActivityStopWhenPushNeverCompleted() {
         Controller controller = new TestController();
         router.pushController(RouterTransaction.with(controller).pushChangeHandler(new NeverCompleteChangeHandler()));
@@ -110,9 +98,21 @@ public class ViewLeakTests {
         assertNull(controller.getView());
     }
 
+    @Test
+    public void testActivityDestroyWhenPushNeverAdded() {
+        Controller controller = new TestController();
+        router.pushController(RouterTransaction.with(controller).pushChangeHandler(new NeverAddChangeHandler()));
+
+        assertNotNull(controller.getView());
+
+        activityProxy.stop(true).destroy();
+
+        assertNull(controller.getView());
+    }
+
     public static class NeverAddChangeHandler extends ControllerChangeHandler {
         @Override
-        public void performChange(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, boolean isPush, @NonNull ControllerChangeCompletedListener changeListener) {
+        public void performChange(@NonNull final ViewGroup container, @Nullable View from, @Nullable final View to, boolean isPush, @NonNull ControllerChangeCompletedListener changeListener) {
             if (from != null) {
                 container.removeView(from);
             }
