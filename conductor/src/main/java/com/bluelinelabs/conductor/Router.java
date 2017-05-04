@@ -398,7 +398,22 @@ public abstract class Router {
 
         List<RouterTransaction> oldVisibleTransactions = getVisibleTransactions(backstack.iterator());
 
-        boolean newRootRequiresPush = !(newBackstack.size() > 0 && backstack.contains(newBackstack.get(0)));
+        RouterTransaction newRootTransaction = newBackstack.size() > 0 ? newBackstack.get(0) : null;
+        boolean backstackContainsNewRootTransaction = false;
+        boolean existingNewRootTransactionVisible = false;
+        Iterator<RouterTransaction> backstackIterator = backstack.reverseIterator();
+        while (backstackIterator.hasNext()) {
+            RouterTransaction transaction = backstackIterator.next();
+
+            if (transaction == newRootTransaction) {
+                backstackContainsNewRootTransaction = true;
+            } else if (backstackContainsNewRootTransaction) {
+                ControllerChangeHandler handler = transaction.pushChangeHandler();
+                existingNewRootTransactionVisible = handler != null ? !handler.removesFromViewOnPush() : false;
+            }
+        }
+
+        boolean newRootRequiresPush = !existingNewRootTransactionVisible;
 
         removeAllExceptVisibleAndUnowned();
         ensureOrderedTransactionIndices(newBackstack);
