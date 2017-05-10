@@ -24,7 +24,7 @@ public abstract class ControllerChangeHandler {
     private static final String KEY_CLASS_NAME = "ControllerChangeHandler.className";
     private static final String KEY_SAVED_STATE = "ControllerChangeHandler.savedState";
 
-    private static final Map<String, ControllerChangeHandler> inProgressPushHandlers = new HashMap<>();
+    private static final Map<String, ControllerChangeHandler> inProgressChangeHandlers = new HashMap<>();
 
     private boolean forceRemoveViewOnPush;
     private boolean hasBeenUsed;
@@ -127,21 +127,21 @@ public abstract class ControllerChangeHandler {
         }
     }
 
-    static boolean completePushImmediately(@NonNull String controllerInstanceId) {
-        ControllerChangeHandler changeHandler = inProgressPushHandlers.get(controllerInstanceId);
+    static boolean completeHandlerImmediately(@NonNull String controllerInstanceId) {
+        ControllerChangeHandler changeHandler = inProgressChangeHandlers.get(controllerInstanceId);
         if (changeHandler != null) {
             changeHandler.completeImmediately();
-            inProgressPushHandlers.remove(controllerInstanceId);
+            inProgressChangeHandlers.remove(controllerInstanceId);
             return true;
         }
         return false;
     }
 
     static void abortPush(@NonNull Controller toAbort, @Nullable Controller newController, @NonNull ControllerChangeHandler newChangeHandler) {
-        ControllerChangeHandler handlerForPush = inProgressPushHandlers.get(toAbort.getInstanceId());
+        ControllerChangeHandler handlerForPush = inProgressChangeHandlers.get(toAbort.getInstanceId());
         if (handlerForPush != null) {
             handlerForPush.onAbortPush(newChangeHandler, newController);
-            inProgressPushHandlers.remove(toAbort.getInstanceId());
+            inProgressChangeHandlers.remove(toAbort.getInstanceId());
         }
     }
 
@@ -161,14 +161,16 @@ public abstract class ControllerChangeHandler {
             }
             handler.hasBeenUsed = true;
 
-            if (isPush && to != null) {
-                inProgressPushHandlers.put(to.getInstanceId(), handler);
-
-                if (from != null) {
-                    completePushImmediately(from.getInstanceId());
+            if (from != null) {
+                if (isPush) {
+                    completeHandlerImmediately(from.getInstanceId());
+                } else {
+                    abortPush(from, to, handler);
                 }
-            } else if (!isPush && from != null) {
-                abortPush(from, to, handler);
+            }
+
+            if (to != null) {
+                inProgressChangeHandlers.put(to.getInstanceId(), handler);
             }
 
             for (ControllerChangeListener listener : listeners) {
@@ -202,7 +204,7 @@ public abstract class ControllerChangeHandler {
                     }
 
                     if (to != null) {
-                        inProgressPushHandlers.remove(to.getInstanceId());
+                        inProgressChangeHandlers.remove(to.getInstanceId());
                         to.changeEnded(handler, toChangeType);
                     }
 

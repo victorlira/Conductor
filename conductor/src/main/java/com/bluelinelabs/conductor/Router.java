@@ -398,22 +398,7 @@ public abstract class Router {
 
         List<RouterTransaction> oldVisibleTransactions = getVisibleTransactions(backstack.iterator());
 
-        RouterTransaction newRootTransaction = newBackstack.size() > 0 ? newBackstack.get(0) : null;
-        boolean backstackContainsNewRootTransaction = false;
-        boolean existingNewRootTransactionVisible = false;
-        Iterator<RouterTransaction> backstackIterator = backstack.reverseIterator();
-        while (backstackIterator.hasNext()) {
-            RouterTransaction transaction = backstackIterator.next();
-
-            if (transaction == newRootTransaction) {
-                backstackContainsNewRootTransaction = true;
-            } else if (backstackContainsNewRootTransaction) {
-                ControllerChangeHandler handler = transaction.pushChangeHandler();
-                existingNewRootTransactionVisible = handler != null ? !handler.removesFromViewOnPush() : false;
-            }
-        }
-
-        boolean newRootRequiresPush = !existingNewRootTransactionVisible;
+        boolean newRootRequiresPush = !(newBackstack.size() > 0 && backstack.contains(newBackstack.get(0)));
 
         removeAllExceptVisibleAndUnowned();
         ensureOrderedTransactionIndices(newBackstack);
@@ -430,10 +415,16 @@ public abstract class Router {
 
             boolean visibleTransactionsChanged = !backstacksAreEqual(newVisibleTransactions, oldVisibleTransactions);
             if (visibleTransactionsChanged) {
-                RouterTransaction rootTransaction = oldVisibleTransactions.size() > 0 ? oldVisibleTransactions.get(0) : null;
+                RouterTransaction oldRootTransaction = oldVisibleTransactions.size() > 0 ? oldVisibleTransactions.get(0) : null;
+                RouterTransaction newRootTransaction = newVisibleTransactions.get(0);
+
                 // Replace the old root with the new one
-                if (rootTransaction == null || rootTransaction.controller != newVisibleTransactions.get(0).controller) {
-                    performControllerChange(newVisibleTransactions.get(0), rootTransaction, newRootRequiresPush, changeHandler);
+                if (oldRootTransaction == null || oldRootTransaction.controller != newRootTransaction.controller) {
+                    // Ensure the existing root controller is fully pushed to the view hierarchy
+                    if (oldRootTransaction != null) {
+                        ControllerChangeHandler.completeHandlerImmediately(oldRootTransaction.controller.getInstanceId());
+                    }
+                    performControllerChange(newRootTransaction, oldRootTransaction, newRootRequiresPush, changeHandler);
                 }
 
                 // Remove all visible controllers that were previously on the backstack
@@ -442,6 +433,7 @@ public abstract class Router {
                     if (!newVisibleTransactions.contains(transaction)) {
                         ControllerChangeHandler localHandler = changeHandler != null ? changeHandler.copy() : new SimpleSwapChangeHandler();
                         localHandler.setForceRemoveViewOnPush(true);
+                        ControllerChangeHandler.completeHandlerImmediately(transaction.controller.getInstanceId());
                         performControllerChange(null, transaction, newRootRequiresPush, localHandler);
                     }
                 }
@@ -581,7 +573,7 @@ public abstract class Router {
 
     void prepareForHostDetach() {
         for (RouterTransaction transaction : backstack) {
-            if (ControllerChangeHandler.completePushImmediately(transaction.controller.getInstanceId())) {
+            if (ControllerChangeHandler.completeHandlerImmediately(transaction.controller.getInstanceId())) {
                 transaction.controller.setNeedsAttach();
             }
             transaction.controller.prepareForHostDetach();
