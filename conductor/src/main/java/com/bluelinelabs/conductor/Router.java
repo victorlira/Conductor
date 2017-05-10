@@ -40,6 +40,7 @@ public abstract class Router {
     final List<Controller> destroyingControllers = new ArrayList<>();
 
     private boolean popsLastView = false;
+    boolean containerFullyAttached = false;
 
     ViewGroup container;
 
@@ -660,7 +661,18 @@ public abstract class Router {
         }
     }
 
+    void watchContainerAttach() {
+        container.post(new Runnable() {
+            @Override
+            public void run() {
+                containerFullyAttached = true;
+            }
+        });
+    }
+
     void prepareForContainerRemoval() {
+        containerFullyAttached = false;
+
         if (container != null) {
             container.setOnHierarchyChangeListener(null);
         }
@@ -706,7 +718,7 @@ public abstract class Router {
         performControllerChange(to, from, isPush, changeHandler);
     }
 
-    private void performControllerChange(@Nullable final RouterTransaction to, @Nullable final RouterTransaction from, boolean isPush, @Nullable ControllerChangeHandler changeHandler) {
+    private void performControllerChange(@Nullable RouterTransaction to, @Nullable RouterTransaction from, boolean isPush, @Nullable ControllerChangeHandler changeHandler) {
         Controller toController = to != null ? to.controller : null;
         Controller fromController = from != null ? from.controller : null;
 
@@ -719,7 +731,23 @@ public abstract class Router {
             changeHandler = new NoOpControllerChangeHandler();
         }
 
-        ControllerChangeHandler.executeChange(toController, fromController, isPush, container, changeHandler, changeListeners);
+        performControllerChange(toController, fromController, isPush, changeHandler);
+    }
+
+    private void performControllerChange(@Nullable final Controller to, @Nullable final Controller from, final boolean isPush, @Nullable final ControllerChangeHandler changeHandler) {
+        // If the change handler will remove the from view, we have to make sure the container is fully attached first so we avoid NPEs
+        // within ViewGroup (details on issue #287). Post this to the container to ensure the attach is complete before we try to remove
+        // anything.
+        if (from != null && (changeHandler == null || changeHandler.removesFromViewOnPush()) && !containerFullyAttached) {
+            container.post(new Runnable() {
+                @Override
+                public void run() {
+                    ControllerChangeHandler.executeChange(to, from, isPush, container, changeHandler, changeListeners);
+                }
+            });
+        } else {
+            ControllerChangeHandler.executeChange(to, from, isPush, container, changeHandler, changeListeners);
+        }
     }
 
     protected void pushToBackstack(@NonNull RouterTransaction entry) {

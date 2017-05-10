@@ -44,6 +44,8 @@ class ControllerHostedRouter extends Router {
 
             hostController = controller;
             this.container = container;
+
+            watchContainerAttach();
         }
     }
 

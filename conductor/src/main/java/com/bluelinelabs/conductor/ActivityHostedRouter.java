@@ -32,6 +32,8 @@ public class ActivityHostedRouter extends Router {
 
             this.lifecycleHandler = lifecycleHandler;
             this.container = container;
+
+            watchContainerAttach();
         }
     }
 
