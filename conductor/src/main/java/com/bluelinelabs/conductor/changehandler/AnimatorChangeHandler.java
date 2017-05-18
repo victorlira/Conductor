@@ -21,6 +21,7 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
     private static final String KEY_DURATION = "AnimatorChangeHandler.duration";
     private static final String KEY_REMOVES_FROM_ON_PUSH = "AnimatorChangeHandler.removesFromViewOnPush";
 
+    @SuppressWarnings("WeakerAccess")
     public static final long DEFAULT_ANIMATION_DURATION = -1;
 
     private long animationDuration;
@@ -29,15 +30,19 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
     private boolean needsImmediateCompletion;
     private boolean completed;
     private Animator animator;
+    private OnAnimationReadyOrAbortedListener onAnimationReadyOrAbortedListener;
 
+    @SuppressWarnings("WeakerAccess")
     public AnimatorChangeHandler() {
         this(DEFAULT_ANIMATION_DURATION, true);
     }
 
+    @SuppressWarnings("WeakerAccess")
     public AnimatorChangeHandler(boolean removesFromViewOnPush) {
         this(DEFAULT_ANIMATION_DURATION, removesFromViewOnPush);
     }
 
+    @SuppressWarnings("WeakerAccess")
     public AnimatorChangeHandler(long duration) {
         this(duration, true);
     }
@@ -68,6 +73,8 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
         canceled = true;
         if (animator != null) {
             animator.cancel();
+        } else if (onAnimationReadyOrAbortedListener != null) {
+            onAnimationReadyOrAbortedListener.onReadyOrAborted();
         }
     }
 
@@ -78,6 +85,8 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
         needsImmediateCompletion = true;
         if (animator != null) {
             animator.end();
+        } else if (onAnimationReadyOrAbortedListener != null) {
+            onAnimationReadyOrAbortedListener.onReadyOrAborted();
         }
     }
 
@@ -121,24 +130,8 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
 
             if (to.getWidth() <= 0 && to.getHeight() <= 0) {
                 readyToAnimate = false;
-                to.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                    boolean hasRun;
-
-                    @Override
-                    public boolean onPreDraw() {
-                        final ViewTreeObserver observer = to.getViewTreeObserver();
-                        if (observer.isAlive()) {
-                            observer.removeOnPreDrawListener(this);
-                        }
-
-                        // Apparently this gets called multiple times, even if removeOnPreDrawListener is called successfully.
-                        if (!hasRun) {
-                            hasRun = true;
-                            performAnimation(container, from, to, isPush, addingToView, changeListener);
-                        }
-                        return true;
-                    }
-                });
+                onAnimationReadyOrAbortedListener = new OnAnimationReadyOrAbortedListener(container, from, to, isPush, true, changeListener);
+                to.getViewTreeObserver().addOnPreDrawListener(onAnimationReadyOrAbortedListener);
             }
         }
 
@@ -160,6 +153,8 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
             animator.cancel();
             animator = null;
         }
+
+        onAnimationReadyOrAbortedListener = null;
     }
 
     private void performAnimation(@NonNull final ViewGroup container, @Nullable final View from, @Nullable final View to, final boolean isPush, final boolean toAddedToContainer, @NonNull final ControllerChangeCompletedListener changeListener) {
@@ -211,6 +206,48 @@ public abstract class AnimatorChangeHandler extends ControllerChangeHandler {
         });
 
         animator.start();
+    }
+
+    private class OnAnimationReadyOrAbortedListener implements ViewTreeObserver.OnPreDrawListener {
+        @NonNull final ViewGroup container;
+        @Nullable final View from;
+        @Nullable final View to;
+        final boolean isPush;
+        final boolean addingToView;
+        @NonNull final ControllerChangeCompletedListener changeListener;
+        private boolean hasRun;
+
+        OnAnimationReadyOrAbortedListener(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, boolean isPush, boolean addingToView, @NonNull ControllerChangeCompletedListener changeListener) {
+            this.container = container;
+            this.from = from;
+            this.to = to;
+            this.isPush = isPush;
+            this.addingToView = addingToView;
+            this.changeListener = changeListener;
+        }
+
+        @Override
+        public boolean onPreDraw() {
+            onReadyOrAborted();
+
+            return true;
+        }
+
+        void onReadyOrAborted() {
+            if (!hasRun) {
+                hasRun = true;
+
+                if (to != null) {
+                    final ViewTreeObserver observer = to.getViewTreeObserver();
+                    if (observer.isAlive()) {
+                        observer.removeOnPreDrawListener(this);
+                    }
+                }
+
+                performAnimation(container, from, to, isPush, addingToView, changeListener);
+            }
+        }
+
     }
 
 }

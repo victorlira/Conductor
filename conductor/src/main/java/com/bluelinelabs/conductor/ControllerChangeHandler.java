@@ -145,11 +145,11 @@ public abstract class ControllerChangeHandler {
         }
     }
 
-    static void executeChange(@Nullable final Controller to, @Nullable final Controller from, final boolean isPush, @Nullable final ViewGroup container, @Nullable final ControllerChangeHandler inHandler, @NonNull final List<ControllerChangeListener> listeners) {
-        if (isPush && to != null && to.isDestroyed()) {
-            throw new IllegalStateException("Trying to push a controller that has already been destroyed. (" + to.getClass().getSimpleName() + ")");
-        }
+    static void executeChange(@NonNull final ChangeTransaction transaction) {
+        executeChange(transaction.to, transaction.from, transaction.isPush, transaction.container, transaction.changeHandler, transaction.listeners);
+    }
 
+    private static void executeChange(@Nullable final Controller to, @Nullable final Controller from, final boolean isPush, @Nullable final ViewGroup container, @Nullable final ControllerChangeHandler inHandler, @NonNull final List<ControllerChangeListener> listeners) {
         if (container != null) {
             final ControllerChangeHandler handler;
             if (inHandler == null) {
@@ -229,6 +229,24 @@ public abstract class ControllerChangeHandler {
 
     public void setForceRemoveViewOnPush(boolean force) {
         forceRemoveViewOnPush = force;
+    }
+
+    static class ChangeTransaction {
+        @Nullable final Controller to;
+        @Nullable final Controller from;
+        final boolean isPush;
+        @Nullable final ViewGroup container;
+        @Nullable final ControllerChangeHandler changeHandler;
+        @NonNull final List<ControllerChangeListener> listeners;
+
+        public ChangeTransaction(@Nullable Controller to, @Nullable Controller from, boolean isPush, @Nullable ViewGroup container, @Nullable ControllerChangeHandler changeHandler, @NonNull List<ControllerChangeListener> listeners) {
+            this.to = to;
+            this.from = from;
+            this.isPush = isPush;
+            this.container = container;
+            this.changeHandler = changeHandler;
+            this.listeners = listeners;
+        }
     }
 
     /**

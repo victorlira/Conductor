@@ -70,6 +70,7 @@ public class SharedElementDelayingChangeHandler extends ArcFadeMoveChangeHandler
 
                                     if (waitForTransitionNames.size() == 0) {
                                         to.getViewTreeObserver().removeOnPreDrawListener(onPreDrawListener);
+                                        onPreDrawListener = null;
 
                                         to.setVisibility(View.INVISIBLE);
 

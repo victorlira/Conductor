@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bluelinelabs.conductor.Controller.LifecycleListener;
+import com.bluelinelabs.conductor.ControllerChangeHandler.ChangeTransaction;
 import com.bluelinelabs.conductor.ControllerChangeHandler.ControllerChangeListener;
 import com.bluelinelabs.conductor.changehandler.SimpleSwapChangeHandler;
 import com.bluelinelabs.conductor.internal.NoOpControllerChangeHandler;
@@ -35,8 +36,9 @@ public abstract class Router {
     private static final String KEY_BACKSTACK = "Router.backstack";
     private static final String KEY_POPS_LAST_VIEW = "Router.popsLastView";
 
-    protected final Backstack backstack = new Backstack();
+    final Backstack backstack = new Backstack();
     private final List<ControllerChangeListener> changeListeners = new ArrayList<>();
+    private final List<ChangeTransaction> pendingControllerChanges = new ArrayList<>();
     final List<Controller> destroyingControllers = new ArrayList<>();
 
     private boolean popsLastView = false;
@@ -726,8 +728,8 @@ public abstract class Router {
             to.ensureValidIndex(getTransactionIndexer());
             setControllerRouter(toController);
         } else if (backstack.size() == 0 && !popsLastView) {
-            // We're emptying out the backstack. Views get weird if you transition them out, so just no-op it. The hosting
-            // Activity should be handling this by finishing or at least hiding this view.
+            // We're emptying out the backstack. Views get weird if you transition them out, so just no-op it. The host
+            // Activity or controller should be handling this by finishing or at least hiding this view.
             changeHandler = new NoOpControllerChangeHandler();
         }
 
@@ -735,18 +737,39 @@ public abstract class Router {
     }
 
     private void performControllerChange(@Nullable final Controller to, @Nullable final Controller from, final boolean isPush, @Nullable final ControllerChangeHandler changeHandler) {
-        // If the change handler will remove the from view, we have to make sure the container is fully attached first so we avoid NPEs
-        // within ViewGroup (details on issue #287). Post this to the container to ensure the attach is complete before we try to remove
-        // anything.
-        if (from != null && (changeHandler == null || changeHandler.removesFromViewOnPush()) && !containerFullyAttached) {
+        if (isPush && to != null && to.isDestroyed()) {
+            throw new IllegalStateException("Trying to push a controller that has already been destroyed. (" + to.getClass().getSimpleName() + ")");
+        }
+
+        final ChangeTransaction transaction = new ChangeTransaction(to, from, isPush, container, changeHandler, changeListeners);
+
+        if (pendingControllerChanges.size() > 0) {
+            // If we already have changes queued up (awaiting full container attach), queue this one up as well so they don't happen
+            // out of order.
+
+            pendingControllerChanges.add(transaction);
+        } else if (from != null && (changeHandler == null || changeHandler.removesFromViewOnPush()) && !containerFullyAttached) {
+            // If the change handler will remove the from view, we have to make sure the container is fully attached first so we avoid NPEs
+            // within ViewGroup (details on issue #287). Post this to the container to ensure the attach is complete before we try to remove
+            // anything.
+
+            pendingControllerChanges.add(transaction);
             container.post(new Runnable() {
                 @Override
                 public void run() {
-                    ControllerChangeHandler.executeChange(to, from, isPush, container, changeHandler, changeListeners);
+                    performPendingControllerChanges();
                 }
             });
         } else {
-            ControllerChangeHandler.executeChange(to, from, isPush, container, changeHandler, changeListeners);
+            ControllerChangeHandler.executeChange(transaction);
+        }
+    }
+
+    void performPendingControllerChanges() {
+        // We're intentionally using dynamic size checking (list.size()) here so we can account for changes
+        // that occur during this loop (ex: if a controller is popped from within onAttach)
+        for (int i = 0; i < pendingControllerChanges.size(); i++) {
+            ControllerChangeHandler.executeChange(pendingControllerChanges.get(i));
         }
     }
 
