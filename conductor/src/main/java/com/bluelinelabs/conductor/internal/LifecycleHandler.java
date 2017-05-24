@@ -41,6 +41,7 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
     private boolean destroyed;
     private boolean attached;
 
+    private static final Map<Activity, LifecycleHandler> activeLifecycleHandlers = new HashMap<>();
     private SparseArray<String> permissionRequestMap = new SparseArray<>();
     private SparseArray<String> activityRequestMap = new SparseArray<>();
     private ArrayList<PendingPermissionRequest> pendingPermissionRequests = new ArrayList<>();
@@ -54,7 +55,10 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
 
     @Nullable
     private static LifecycleHandler findInActivity(@NonNull Activity activity) {
-        LifecycleHandler lifecycleHandler = (LifecycleHandler)activity.getFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+        LifecycleHandler lifecycleHandler = activeLifecycleHandlers.get(activity);
+        if (lifecycleHandler == null) {
+            lifecycleHandler = (LifecycleHandler)activity.getFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+        }
         if (lifecycleHandler != null) {
             lifecycleHandler.registerActivityListener(activity);
         }
@@ -67,6 +71,11 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
         if (lifecycleHandler == null) {
             lifecycleHandler = new LifecycleHandler();
             activity.getFragmentManager().beginTransaction().add(lifecycleHandler, FRAGMENT_TAG).commit();
+
+            // Since Fragment transactions are async, we have to keep an <Activity, LifecycleHandler> map in addition
+            // to trying to find the LifecycleHandler fragment in the Activity to handle the case of the developer
+            // trying to immediately get > 1 router in the same Activity. See issue #299.
+            activeLifecycleHandlers.put(activity, lifecycleHandler);
         }
         lifecycleHandler.registerActivityListener(activity);
         return lifecycleHandler;
@@ -357,7 +366,9 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
     }
 
     @Override
-    public void onActivityDestroyed(Activity activity) { }
+    public void onActivityDestroyed(Activity activity) {
+        activeLifecycleHandlers.remove(activity);
+    }
 
     private static class PendingPermissionRequest implements Parcelable {
         final String instanceId;
