@@ -8,7 +8,6 @@ import android.content.IntentSender;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Parcelable;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -732,8 +731,8 @@ public abstract class Controller {
         return false;
     }
 
-    final void setNeedsAttach() {
-        needsAttach = true;
+    final void setNeedsAttach(boolean needsAttach) {
+        this.needsAttach = needsAttach;
     }
 
     final void prepareForHostDetach() {

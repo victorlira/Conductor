@@ -577,7 +577,7 @@ public abstract class Router {
     void prepareForHostDetach() {
         for (RouterTransaction transaction : backstack) {
             if (ControllerChangeHandler.completeHandlerImmediately(transaction.controller.getInstanceId())) {
-                transaction.controller.setNeedsAttach();
+                transaction.controller.setNeedsAttach(true);
             }
             transaction.controller.prepareForHostDetach();
         }

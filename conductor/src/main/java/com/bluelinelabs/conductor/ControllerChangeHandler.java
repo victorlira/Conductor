@@ -218,6 +218,10 @@ public abstract class ControllerChangeHandler {
                             ((ViewGroup)fromParent).removeView(fromView);
                         }
                     }
+
+                    if (handler.removesFromViewOnPush() && from != null) {
+                        from.setNeedsAttach(false);
+                    }
                 }
             });
         }
