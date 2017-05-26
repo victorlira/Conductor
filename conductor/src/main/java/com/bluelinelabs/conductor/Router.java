@@ -729,6 +729,7 @@ public abstract class Router {
     private void performControllerChange(@Nullable RouterTransaction to, @Nullable RouterTransaction from, boolean isPush, @Nullable ControllerChangeHandler changeHandler) {
         Controller toController = to != null ? to.controller : null;
         Controller fromController = from != null ? from.controller : null;
+        boolean forceDetachDestroy = false;
 
         if (to != null) {
             to.ensureValidIndex(getTransactionIndexer());
@@ -737,9 +738,14 @@ public abstract class Router {
             // We're emptying out the backstack. Views get weird if you transition them out, so just no-op it. The host
             // Activity or controller should be handling this by finishing or at least hiding this view.
             changeHandler = new NoOpControllerChangeHandler();
+            forceDetachDestroy = true;
         }
 
         performControllerChange(toController, fromController, isPush, changeHandler);
+
+        if (forceDetachDestroy && fromController != null && fromController.getView() != null) {
+            fromController.detach(fromController.getView(), true, false);
+        }
     }
 
     private void performControllerChange(@Nullable final Controller to, @Nullable final Controller from, final boolean isPush, @Nullable final ControllerChangeHandler changeHandler) {

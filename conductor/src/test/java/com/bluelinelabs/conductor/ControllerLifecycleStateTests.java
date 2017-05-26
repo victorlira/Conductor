@@ -34,9 +34,6 @@ public class ControllerLifecycleStateTests {
         }
 
         router = Conductor.attachRouter(activityProxy.getActivity(), activityProxy.getView(), savedInstanceState);
-        if (!router.hasRootController()) {
-            router.setRoot(RouterTransaction.with(new TestController()));
-        }
     }
 
     @Before
@@ -78,39 +75,46 @@ public class ControllerLifecycleStateTests {
 
     @Test
     public void testLifecycleWithActivityConfigurationChange() {
-        final TestController controller = new TestController();
+        final String tag = "tag";
         final LifecycleHandler lifecycleHandler = LifecycleHandler.install(activityProxy.getActivity());
+        TestController controller = new TestController();
 
-        router.pushController(RouterTransaction.with(controller));
+        router.pushController(RouterTransaction.with(controller).tag(tag));
 
         activityProxy.getActivity().getApplication().registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+            Router currentRouter = router;
+
+            private Controller getController() {
+                return currentRouter.getControllerWithTag(tag);
+            }
+
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-                assertEquals(LifecycleState.INITIALIZED, controller.getCurrentState());
+                assertEquals(LifecycleState.INITIALIZED, getController().getCurrentState());
 
-                Conductor.attachRouter(activityProxy.getActivity(), activityProxy.getView(), savedInstanceState);
+                currentRouter = Conductor.attachRouter(activityProxy.getActivity(), activityProxy.getView(), savedInstanceState);
 
-                assertEquals(LifecycleState.ATTACHED, controller.getCurrentState());
+                assertEquals(LifecycleState.ATTACHED, getController().getCurrentState());
             }
 
             @Override
             public void onActivityStarted(Activity activity) {
-                assertEquals(LifecycleState.ATTACHED, controller.getCurrentState());
+                assertEquals(LifecycleState.ATTACHED, getController().getCurrentState());
             }
 
             @Override
             public void onActivityResumed(Activity activity) {
-                assertEquals(LifecycleState.ATTACHED, controller.getCurrentState());
+                assertEquals(LifecycleState.ATTACHED, getController().getCurrentState());
             }
 
             @Override
             public void onActivityPaused(Activity activity) {
-                assertEquals(LifecycleState.ATTACHED, controller.getCurrentState());
+                assertEquals(LifecycleState.ATTACHED, getController().getCurrentState());
             }
 
             @Override
             public void onActivityStopped(Activity activity) {
-                assertEquals(LifecycleState.INITIALIZED_WITH_CONTEXT, controller.getCurrentState());
+                assertEquals(LifecycleState.INITIALIZED_WITH_CONTEXT, getController().getCurrentState());
             }
 
             @Override
@@ -119,13 +123,11 @@ public class ControllerLifecycleStateTests {
             @Override
             public void onActivityDestroyed(Activity activity) {
                 lifecycleHandler.onDetach();
-                assertEquals(LifecycleState.INITIALIZED, controller.getCurrentState());
+                assertEquals(LifecycleState.INITIALIZED, getController().getCurrentState());
             }
         });
 
         activityProxy.rotate();
-
-        assertEquals(LifecycleState.ATTACHED, controller.getCurrentState());
     }
 
     @Test
