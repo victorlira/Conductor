@@ -88,6 +88,7 @@ public abstract class Controller {
     private final ArrayList<RouterRequiringFunc> onRouterSetListeners = new ArrayList<>();
     private WeakReference<View> destroyedView;
     private boolean isPerformingExitTransition;
+    private LifecycleState currentState = LifecycleState.INITIALIZED;
 
     @NonNull
     static Controller newInstance(@NonNull Bundle bundle) {
@@ -404,6 +405,19 @@ public abstract class Controller {
      * @param changeType    The type of change that occurred
      */
     protected void onChangeEnded(@NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) { }
+
+    /**
+     * Called when this Controller has a Context available to it. This will happen very early on in the lifecycle
+     * (before a view is created). If the host activity is re-created (ex: for orientation change), this will be
+     * called again when the new context is available.
+     */
+    protected void onContextAvailable(@NonNull Context context) { }
+
+    /**
+     * Called when this Controller's Context is no longer available. This can happen when the Controller is
+     * destroyed or when the host Activity is destroyed.
+     */
+    protected void onContextUnavailable() { }
 
     /**
      * Called when this Controller is attached to its host ViewGroup
@@ -731,6 +745,13 @@ public abstract class Controller {
         return false;
     }
 
+    /**
+     * Returns the current state of this controller
+     */
+    public LifecycleState getCurrentState() {
+        return currentState;
+    }
+
     final void setNeedsAttach(boolean needsAttach) {
         this.needsAttach = needsAttach;
     }
@@ -768,6 +789,18 @@ public abstract class Controller {
             onRouterSetListeners.clear();
         } else {
             performOnRestoreInstanceState();
+        }
+    }
+
+    final void onContextAvailable() {
+        if (currentState == LifecycleState.INITIALIZED && router.getActivity() != null) {
+            currentState = LifecycleState.INITIALIZED_WITH_CONTEXT;
+
+            onContextAvailable(router.getActivity());
+        }
+
+        for (Router childRouter : childRouters) {
+            childRouter.onContextAvailable();
         }
     }
 
@@ -815,6 +848,9 @@ public abstract class Controller {
         } else {
             destroy(true);
         }
+
+        onContextUnavailable();
+        currentState = LifecycleState.INITIALIZED;
     }
 
     private void attach(@NonNull View view) {
@@ -832,6 +868,7 @@ public abstract class Controller {
 
         attached = true;
         needsAttach = false;
+        currentState = LifecycleState.ATTACHED;
 
         onAttach(view);
 
@@ -871,6 +908,10 @@ public abstract class Controller {
             for (LifecycleListener lifecycleListener : listeners) {
                 lifecycleListener.postDetach(this, view);
             }
+        }
+
+        if (currentState == LifecycleState.ATTACHED) {
+            currentState = getActivity() != null ? LifecycleState.INITIALIZED_WITH_CONTEXT : LifecycleState.INITIALIZED;
         }
 
         if (removeViewRef) {
@@ -993,6 +1034,7 @@ public abstract class Controller {
             }
 
             destroyed = true;
+            currentState = LifecycleState.DESTROYED;
 
             onDestroy();
 
@@ -1253,6 +1295,18 @@ public abstract class Controller {
         RELEASE_DETACH,
         /** The Controller will retain its reference to its view when detached, but will still release the reference when a config change occurs. */
         RETAIN_DETACH
+    }
+
+    /** Possible states that a Controller can have */
+    public enum LifecycleState {
+        /** The Controller has been initialized, but no Context is yet available to it (not yet attached to a router, or router not attached to an Activity. */
+        INITIALIZED,
+        /** The Controller is initialized and has a Context available, but its View is not yet attached. */
+        INITIALIZED_WITH_CONTEXT,
+        /** The Controller is attached to a router and its View is attached to a Window. */
+        ATTACHED,
+        /** The Controller has been destroyed. */
+        DESTROYED
     }
 
     /** Allows external classes to listen for lifecycle events in a Controller */

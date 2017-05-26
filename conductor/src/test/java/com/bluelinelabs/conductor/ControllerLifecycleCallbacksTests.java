@@ -49,7 +49,7 @@ public class ControllerLifecycleCallbacksTests {
     public void setup() {
         createActivityController(null, true);
 
-        currentCallState = new CallState();
+        currentCallState = new CallState(false, false);
     }
 
     @Test
@@ -57,7 +57,7 @@ public class ControllerLifecycleCallbacksTests {
         TestController controller = new TestController();
         attachLifecycleListener(controller);
 
-        CallState expectedCallState = new CallState();
+        CallState expectedCallState = new CallState(true, false);
 
         assertCalls(expectedCallState, controller);
         router.pushController(RouterTransaction.with(controller)
@@ -78,7 +78,7 @@ public class ControllerLifecycleCallbacksTests {
         TestController controller = new TestController();
         attachLifecycleListener(controller);
 
-        CallState expectedCallState = new CallState();
+        CallState expectedCallState = new CallState(true, false);
 
         assertCalls(expectedCallState, controller);
         router.pushController(RouterTransaction.with(controller)
@@ -109,7 +109,7 @@ public class ControllerLifecycleCallbacksTests {
         TestController controller = new TestController();
         attachLifecycleListener(controller);
 
-        CallState expectedCallState = new CallState();
+        CallState expectedCallState = new CallState(true, false);
 
         assertCalls(expectedCallState, controller);
         router.pushController(RouterTransaction.with(controller)
@@ -131,6 +131,7 @@ public class ControllerLifecycleCallbacksTests {
 
         activityProxy.destroy();
 
+        expectedCallState.contextUnavailableCalls++;
         expectedCallState.destroyCalls++;
         assertCalls(expectedCallState, controller);
     }
@@ -140,7 +141,7 @@ public class ControllerLifecycleCallbacksTests {
         TestController controller = new TestController();
         attachLifecycleListener(controller);
 
-        CallState expectedCallState = new CallState();
+        CallState expectedCallState = new CallState(true, false);
 
         assertCalls(expectedCallState, controller);
         router.pushController(RouterTransaction.with(controller)
@@ -167,11 +168,13 @@ public class ControllerLifecycleCallbacksTests {
         assertCalls(expectedCallState, controller);
 
         activityProxy.destroy();
+        expectedCallState.contextUnavailableCalls++;
         assertCalls(expectedCallState, controller);
 
         createActivityController(bundle, false);
         controller = (TestController)router.getControllerWithTag("root");
 
+        expectedCallState.contextAvailableCalls++;
         expectedCallState.restoreInstanceStateCalls++;
         expectedCallState.restoreViewStateCalls++;
         expectedCallState.changeStartCalls++;
@@ -204,7 +207,7 @@ public class ControllerLifecycleCallbacksTests {
         TestController controller = new TestController();
         attachLifecycleListener(controller);
 
-        CallState expectedCallState = new CallState();
+        CallState expectedCallState = new CallState(true, false);
 
         assertCalls(expectedCallState, controller);
         router.pushController(RouterTransaction.with(controller)
@@ -222,12 +225,14 @@ public class ControllerLifecycleCallbacksTests {
         assertCalls(expectedCallState, controller);
 
         activityProxy.resume();
+
+        assertCalls(expectedCallState, controller);
     }
 
     @Test
     public void testLifecycleCallOrder() {
         final TestController testController = new TestController();
-        final CallState callState = new CallState();
+        final CallState callState = new CallState(true, false);
 
         testController.addLifecycleListener(new LifecycleListener() {
             @Override
@@ -443,7 +448,7 @@ public class ControllerLifecycleCallbacksTests {
         TestController child = new TestController();
         attachLifecycleListener(child);
 
-        CallState expectedCallState = new CallState();
+        CallState expectedCallState = new CallState(true, false);
 
         assertCalls(expectedCallState, child);
 
@@ -470,7 +475,7 @@ public class ControllerLifecycleCallbacksTests {
         TestController child = new TestController();
         attachLifecycleListener(child);
 
-        CallState expectedCallState = new CallState();
+        CallState expectedCallState = new CallState(true, false);
 
         assertCalls(expectedCallState, child);
 
@@ -495,6 +500,7 @@ public class ControllerLifecycleCallbacksTests {
         return MockChangeHandler.listeningChangeHandler(new ChangeHandlerListener() {
             @Override
             public void willStartChange() {
+                expectedCallState.contextAvailableCalls++;
                 expectedCallState.changeStartCalls++;
                 expectedCallState.createViewCalls++;
                 assertCalls(expectedCallState, controller);

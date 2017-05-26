@@ -194,6 +194,10 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
                 requestPermissions(request.instanceId, request.permissions, request.requestCode);
             }
         }
+
+        for (ActivityHostedRouter router : routerMap.values()) {
+            router.onContextAvailable();
+        }
     }
 
     private void destroyRouters() {
@@ -316,6 +320,10 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
     public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
         if (this.activity == null && findInActivity(activity) == LifecycleHandler.this) {
             this.activity = activity;
+
+            for (ActivityHostedRouter router : routerMap.values()) {
+                router.onContextAvailable();
+            }
         }
     }
 

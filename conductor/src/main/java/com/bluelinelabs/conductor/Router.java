@@ -680,6 +680,12 @@ public abstract class Router {
         }
     }
 
+    void onContextAvailable() {
+        for (RouterTransaction transaction : backstack) {
+            transaction.controller.onContextAvailable();
+        }
+    }
+
     @NonNull
     final List<Controller> getControllers() {
         List<Controller> controllers = new ArrayList<>();
@@ -879,6 +885,7 @@ public abstract class Router {
 
     void setControllerRouter(@NonNull Controller controller) {
         controller.setRouter(this);
+        controller.onContextAvailable();
     }
 
     abstract void invalidateOptionsMenu();

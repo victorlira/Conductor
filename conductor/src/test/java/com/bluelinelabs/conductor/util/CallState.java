@@ -19,17 +19,20 @@ public class CallState implements Parcelable {
     public int onActivityResultCalls;
     public int onRequestPermissionsResultCalls;
     public int createOptionsMenuCalls;
+    public int contextAvailableCalls;
+    public int contextUnavailableCalls;
 
-    public CallState() {
-        this(false);
-    }
+    private boolean includeContextCallsInEquality;
 
-    public CallState(boolean setupForAddedController) {
+    public CallState(boolean includeContextCallsInEquality, boolean setupForAddedController) {
+        this.includeContextCallsInEquality = includeContextCallsInEquality;
+
         if (setupForAddedController) {
             changeStartCalls++;
             changeEndCalls++;
             createViewCalls++;
             attachCalls++;
+            contextAvailableCalls++;
         }
     }
 
@@ -43,6 +46,15 @@ public class CallState implements Parcelable {
         }
 
         CallState callState = (CallState)o;
+
+        if (includeContextCallsInEquality && callState.includeContextCallsInEquality) {
+            if (contextAvailableCalls != callState.contextAvailableCalls) {
+                return false;
+            }
+            if (contextUnavailableCalls != callState.contextUnavailableCalls) {
+                return false;
+            }
+        }
 
         if (changeStartCalls != callState.changeStartCalls) {
             return false;
@@ -102,6 +114,8 @@ public class CallState implements Parcelable {
         result = 31 * result + onActivityResultCalls;
         result = 31 * result + onRequestPermissionsResultCalls;
         result = 31 * result + createOptionsMenuCalls;
+        result = 31 * result + contextAvailableCalls;
+        result = 31 * result + contextUnavailableCalls;
         return result;
     }
 
@@ -122,6 +136,8 @@ public class CallState implements Parcelable {
                 "\n    onActivityResultCalls=" + onActivityResultCalls +
                 "\n    onRequestPermissionsResultCalls=" + onRequestPermissionsResultCalls +
                 "\n    createOptionsMenuCalls=" + createOptionsMenuCalls +
+                "\n    contextAvailableCalls=" + contextAvailableCalls +
+                "\n    contextUnavailableCalls=" + contextUnavailableCalls +
                 "}\n";
     }
 
@@ -130,6 +146,7 @@ public class CallState implements Parcelable {
     }
 
     public void writeToParcel(Parcel out, int flags) {
+        out.writeInt(includeContextCallsInEquality ? 1 : 0);
         out.writeInt(changeStartCalls);
         out.writeInt(changeEndCalls);
         out.writeInt(createViewCalls);
@@ -144,11 +161,13 @@ public class CallState implements Parcelable {
         out.writeInt(onActivityResultCalls);
         out.writeInt(onRequestPermissionsResultCalls);
         out.writeInt(createOptionsMenuCalls);
+        out.writeInt(contextAvailableCalls);
+        out.writeInt(contextUnavailableCalls);
     }
 
     public static final Parcelable.Creator<CallState> CREATOR  = new Parcelable.Creator<CallState>() {
         public CallState createFromParcel(Parcel in) {
-            CallState state = new CallState();
+            CallState state = new CallState(in.readInt() == 1, false);
 
             state.changeStartCalls = in.readInt();
             state.changeEndCalls = in.readInt();
@@ -164,6 +183,8 @@ public class CallState implements Parcelable {
             state.onActivityResultCalls = in.readInt();
             state.onRequestPermissionsResultCalls = in.readInt();
             state.createOptionsMenuCalls = in.readInt();
+            state.contextAvailableCalls = in.readInt();
+            state.contextUnavailableCalls = in.readInt();
 
             return state;
         }

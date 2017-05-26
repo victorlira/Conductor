@@ -1,5 +1,6 @@
 package com.bluelinelabs.conductor.util;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
@@ -23,7 +24,7 @@ public class TestController extends Controller {
 
     private static final String KEY_CALL_STATE = "TestController.currentCallState";
 
-    public CallState currentCallState = new CallState();
+    public CallState currentCallState = new CallState(true, false);
     public ChangeHandlerHistory changeHandlerHistory = new ChangeHandlerHistory();
 
     @NonNull
@@ -61,6 +62,18 @@ public class TestController extends Controller {
         } else {
             changeHandlerHistory.isValidHistory = false;
         }
+    }
+
+    @Override
+    protected void onContextAvailable(@NonNull Context context) {
+        super.onContextAvailable(context);
+        currentCallState.contextAvailableCalls++;
+    }
+
+    @Override
+    protected void onContextUnavailable() {
+        super.onContextUnavailable();
+        currentCallState.contextUnavailableCalls++;
     }
 
     @Override

@@ -129,4 +129,10 @@ public class ActivityHostedRouter extends Router {
     TransactionIndexer getTransactionIndexer() {
         return transactionIndexer;
     }
+
+    @Override
+    public void onContextAvailable() {
+        super.onContextAvailable();
+    }
+
 }
