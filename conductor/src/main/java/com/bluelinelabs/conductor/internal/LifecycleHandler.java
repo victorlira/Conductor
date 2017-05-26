@@ -71,11 +71,6 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
         if (lifecycleHandler == null) {
             lifecycleHandler = new LifecycleHandler();
             activity.getFragmentManager().beginTransaction().add(lifecycleHandler, FRAGMENT_TAG).commit();
-
-            // Since Fragment transactions are async, we have to keep an <Activity, LifecycleHandler> map in addition
-            // to trying to find the LifecycleHandler fragment in the Activity to handle the case of the developer
-            // trying to immediately get > 1 router in the same Activity. See issue #299.
-            activeLifecycleHandlers.put(activity, lifecycleHandler);
         }
         lifecycleHandler.registerActivityListener(activity);
         return lifecycleHandler;
@@ -122,6 +117,11 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
         if (!hasRegisteredCallbacks) {
             hasRegisteredCallbacks = true;
             activity.getApplication().registerActivityLifecycleCallbacks(this);
+
+            // Since Fragment transactions are async, we have to keep an <Activity, LifecycleHandler> map in addition
+            // to trying to find the LifecycleHandler fragment in the Activity to handle the case of the developer
+            // trying to immediately get > 1 router in the same Activity. See issue #299.
+            activeLifecycleHandlers.put(activity, this);
         }
     }
 
@@ -156,6 +156,7 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
 
         if (activity != null) {
             activity.getApplication().unregisterActivityLifecycleCallbacks(this);
+            activeLifecycleHandlers.remove(activity);
             destroyRouters();
             activity = null;
         }
