@@ -28,6 +28,7 @@ import com.bluelinelabs.conductor.ControllerChangeHandler;
 import com.bluelinelabs.conductor.ControllerChangeType;
 import com.bluelinelabs.conductor.RouterTransaction;
 import com.bluelinelabs.conductor.changehandler.FadeChangeHandler;
+import com.bluelinelabs.conductor.changehandler.HorizontalChangeHandler;
 import com.bluelinelabs.conductor.changehandler.TransitionChangeHandlerCompat;
 import com.bluelinelabs.conductor.demo.R;
 import com.bluelinelabs.conductor.demo.changehandler.ArcFadeMoveChangeHandler;
@@ -41,7 +42,7 @@ import butterknife.OnClick;
 
 public class HomeController extends BaseController {
 
-    private enum HomeDemoModel {
+    private enum DemoModel {
         NAVIGATION("Navigation Demos", R.color.red_300),
         TRANSITIONS("Transition Demos", R.color.blue_grey_300),
         SHARED_ELEMENT_TRANSITIONS("Shared Element Demos", R.color.purple_300),
@@ -51,13 +52,12 @@ public class HomeController extends BaseController {
         MULTIPLE_CHILD_ROUTERS("Multiple Child Routers", R.color.deep_orange_300),
         MASTER_DETAIL("Master Detail", R.color.grey_300),
         DRAG_DISMISS("Drag Dismiss", R.color.lime_300),
-        RX_LIFECYCLE("Rx Lifecycle", R.color.teal_300),
-        RX_LIFECYCLE_2("Rx Lifecycle 2", R.color.brown_300);
+        EXTERNAL_MODULES("Bonus Modules", R.color.teal_300);
 
         String title;
         @ColorRes int color;
 
-        HomeDemoModel(String title, @ColorRes int color) {
+        DemoModel(String title, @ColorRes int color) {
             this.title = title;
             this.color = color;
         }
@@ -84,7 +84,7 @@ public class HomeController extends BaseController {
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
-        recyclerView.setAdapter(new HomeAdapter(LayoutInflater.from(view.getContext()), HomeDemoModel.values()));
+        recyclerView.setAdapter(new HomeAdapter(LayoutInflater.from(view.getContext()), DemoModel.values()));
     }
 
     @Override
@@ -163,7 +163,7 @@ public class HomeController extends BaseController {
 
     }
 
-    void onModelRowClick(HomeDemoModel model, int position) {
+    void onModelRowClick(DemoModel model, int position) {
         switch (model) {
             case NAVIGATION:
                 getRouter().pushController(RouterTransaction.with(new NavigationDemoController(0, DisplayUpMode.SHOW_FOR_CHILDREN_ONLY))
@@ -201,15 +201,10 @@ public class HomeController extends BaseController {
                         .pushChangeHandler(new FadeChangeHandler(false))
                         .popChangeHandler(new FadeChangeHandler()));
                 break;
-            case RX_LIFECYCLE:
-                getRouter().pushController(RouterTransaction.with(new RxLifecycleController())
-                        .pushChangeHandler(new FadeChangeHandler())
-                        .popChangeHandler(new FadeChangeHandler()));
-                break;
-            case RX_LIFECYCLE_2:
-                getRouter().pushController(RouterTransaction.with(new RxLifecycle2Controller())
-                        .pushChangeHandler(new FadeChangeHandler())
-                        .popChangeHandler(new FadeChangeHandler()));
+            case EXTERNAL_MODULES:
+                getRouter().pushController(RouterTransaction.with(new ExternalModulesController())
+                        .pushChangeHandler(new HorizontalChangeHandler())
+                        .popChangeHandler(new HorizontalChangeHandler()));
                 break;
             case MULTIPLE_CHILD_ROUTERS:
                 getRouter().pushController(RouterTransaction.with(new MultipleChildRouterController())
@@ -227,9 +222,9 @@ public class HomeController extends BaseController {
     class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
 
         private final LayoutInflater inflater;
-        private final HomeDemoModel[] items;
+        private final DemoModel[] items;
 
-        public HomeAdapter(LayoutInflater inflater, HomeDemoModel[] items) {
+        public HomeAdapter(LayoutInflater inflater, DemoModel[] items) {
             this.inflater = inflater;
             this.items = items;
         }
@@ -253,7 +248,7 @@ public class HomeController extends BaseController {
 
             @BindView(R.id.tv_title) TextView tvTitle;
             @BindView(R.id.img_dot) ImageView imgDot;
-            private HomeDemoModel model;
+            private DemoModel model;
             private int position;
 
             public ViewHolder(View itemView) {
@@ -261,7 +256,7 @@ public class HomeController extends BaseController {
                 ButterKnife.bind(this, itemView);
             }
 
-            void bind(int position, HomeDemoModel item) {
+            void bind(int position, DemoModel item) {
                 model = item;
                 tvTitle.setText(item.title);
                 imgDot.getDrawable().setColorFilter(ContextCompat.getColor(getActivity(), item.color), Mode.SRC_ATOP);

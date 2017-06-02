@@ -61,8 +61,8 @@ public class RxLifecycle2Controller extends RxController {
     protected View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
         Log.i(TAG, "onCreateView() called");
 
-        View view = inflater.inflate(R.layout.controller_rxlifecycle, container, false);
-        view.setBackgroundColor(ContextCompat.getColor(container.getContext(), R.color.brown_300));
+        View view = inflater.inflate(R.layout.controller_lifecycle, container, false);
+        view.setBackgroundColor(ContextCompat.getColor(container.getContext(), R.color.blue_grey_300));
         unbinder = ButterKnife.bind(this, view);
 
         tvTitle.setText(getResources().getString(R.string.rxlifecycle_title, TAG));
@@ -71,7 +71,7 @@ public class RxLifecycle2Controller extends RxController {
                 .doOnDispose(new Action() {
                     @Override
                     public void run() {
-                        Log.i(TAG, "Disposing from onCreateView)");
+                        Log.i(TAG, "Disposing from onCreateView()");
                     }
                 })
                 .compose(this.<Long>bindUntilEvent(ControllerEvent.DESTROY_VIEW))

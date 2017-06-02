@@ -12,6 +12,8 @@ ext {
     rxJava2Version = '2.0.1'
     rxLifecycleVersion = '0.8.0'
     rxLifecycle2Version = '2.0'
+    autodisposeVersion = '0.2.0'
+    archComponentsVersion = '1.0.0-alpha1'
     junitVersion = '4.11'
     roboelectricVersion = '3.0'
     lintVersion = '25.2.0'
@@ -37,6 +39,10 @@ ext {
 
     rxLifecycle2 = "com.trello.rxlifecycle2:rxlifecycle:$rxLifecycle2Version"
     rxLifecycleAndroid2 = "com.trello.rxlifecycle2:rxlifecycle-android:$rxLifecycle2Version"
+
+    autodispose = "com.uber.autodispose:autodispose:$autodisposeVersion"
+
+    archComopnentsLifecycle = "android.arch.lifecycle:runtime:$archComponentsVersion"
 
     junit = "junit:junit:$junitVersion"
     roboelectric = "org.robolectric:robolectric:$roboelectricVersion"

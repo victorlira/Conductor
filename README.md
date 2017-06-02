@@ -35,14 +35,7 @@ compile 'com.bluelinelabs:conductor-rxlifecycle2:2.1.3'
 
 SNAPSHOT:
 
-```gradle
-compile 'com.bluelinelabs:conductor:2.1.4-SNAPSHOT'
-compile 'com.bluelinelabs:conductor-support:2.1.4-SNAPSHOT'
-compile 'com.bluelinelabs:conductor-rxlifecycle:2.1.4-SNAPSHOT'
-compile 'com.bluelinelabs:conductor-rxlifecycle2:2.1.4-SNAPSHOT'
-```
-
-You also have to add the url to the snapshot repository:
+Just use `2.1.4-SNAPSHOT` as your version number in any of the above dependencies and add the url to the snapshot repository:
 
 ```gradle
 allprojects {

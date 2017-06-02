@@ -88,7 +88,7 @@ public abstract class Controller {
     private final ArrayList<RouterRequiringFunc> onRouterSetListeners = new ArrayList<>();
     private WeakReference<View> destroyedView;
     private boolean isPerformingExitTransition;
-    private LifecycleState currentState = LifecycleState.INITIALIZED;
+    private boolean isCreatingView;
 
     @NonNull
     static Controller newInstance(@NonNull Bundle bundle) {
@@ -745,13 +745,6 @@ public abstract class Controller {
         return false;
     }
 
-    /**
-     * Returns the current state of this controller
-     */
-    public LifecycleState getCurrentState() {
-        return currentState;
-    }
-
     final void setNeedsAttach(boolean needsAttach) {
         this.needsAttach = needsAttach;
     }
@@ -793,10 +786,10 @@ public abstract class Controller {
     }
 
     final void onContextAvailable() {
-        if (currentState == LifecycleState.INITIALIZED && router.getActivity() != null) {
-            currentState = LifecycleState.INITIALIZED_WITH_CONTEXT;
+        final Context context = router.getActivity();
 
-            onContextAvailable(router.getActivity());
+        if (context != null) {
+            onContextAvailable(context);
         }
 
         for (Router childRouter : childRouters) {
@@ -850,7 +843,6 @@ public abstract class Controller {
         }
 
         onContextUnavailable();
-        currentState = LifecycleState.INITIALIZED;
     }
 
     private void attach(@NonNull View view) {
@@ -868,7 +860,6 @@ public abstract class Controller {
 
         attached = true;
         needsAttach = false;
-        currentState = LifecycleState.ATTACHED;
 
         onAttach(view);
 
@@ -908,10 +899,6 @@ public abstract class Controller {
             for (LifecycleListener lifecycleListener : listeners) {
                 lifecycleListener.postDetach(this, view);
             }
-        }
-
-        if (currentState == LifecycleState.ATTACHED) {
-            currentState = getActivity() != null ? LifecycleState.INITIALIZED_WITH_CONTEXT : LifecycleState.INITIALIZED;
         }
 
         if (removeViewRef) {
@@ -968,7 +955,9 @@ public abstract class Controller {
                 lifecycleListener.preCreateView(this);
             }
 
+            isCreatingView = true;
             view = onCreateView(LayoutInflater.from(parent.getContext()), parent);
+            isCreatingView = false;
             if (view == parent) {
                 throw new IllegalStateException("Controller's onCreateView method returned the parent ViewGroup. Perhaps you forgot to pass false for LayoutInflater.inflate's attachToRoot parameter?");
             }
@@ -1034,7 +1023,6 @@ public abstract class Controller {
             }
 
             destroyed = true;
-            currentState = LifecycleState.DESTROYED;
 
             onDestroy();
 
@@ -1295,18 +1283,6 @@ public abstract class Controller {
         RELEASE_DETACH,
         /** The Controller will retain its reference to its view when detached, but will still release the reference when a config change occurs. */
         RETAIN_DETACH
-    }
-
-    /** Possible states that a Controller can have */
-    public enum LifecycleState {
-        /** The Controller has been initialized, but no Context is yet available to it (not yet attached to a router, or router not attached to an Activity. */
-        INITIALIZED,
-        /** The Controller is initialized and has a Context available, but its View is not yet attached. */
-        INITIALIZED_WITH_CONTEXT,
-        /** The Controller is attached to a router and its View is attached to a Window. */
-        ATTACHED,
-        /** The Controller has been destroyed. */
-        DESTROYED
     }
 
     /** Allows external classes to listen for lifecycle events in a Controller */

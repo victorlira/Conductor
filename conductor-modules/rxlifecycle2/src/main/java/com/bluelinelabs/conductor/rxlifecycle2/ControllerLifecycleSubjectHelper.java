@@ -1,25 +1,32 @@
-package com.bluelinelabs.conductor.rxlifecycle;
+package com.bluelinelabs.conductor.rxlifecycle2;
 
 import android.support.annotation.NonNull;
 import android.view.View;
 
 import com.bluelinelabs.conductor.Controller;
-import com.bluelinelabs.conductor.Controller.LifecycleListener;
+import com.trello.rxlifecycle2.OutsideLifecycleException;
 
-import rx.subjects.BehaviorSubject;
+import io.reactivex.subjects.BehaviorSubject;
 
-/**
- * A simple utility class that will create a {@link BehaviorSubject} that calls onNext when events
- * occur in your {@link Controller}
- */
 public class ControllerLifecycleSubjectHelper {
-
-    private ControllerLifecycleSubjectHelper() { }
+    private ControllerLifecycleSubjectHelper() {
+    }
 
     public static BehaviorSubject<ControllerEvent> create(Controller controller) {
-        final BehaviorSubject<ControllerEvent> subject = BehaviorSubject.create(ControllerEvent.CREATE);
+        ControllerEvent initialState;
+        if (controller.isBeingDestroyed() || controller.isDestroyed()) {
+            throw new OutsideLifecycleException("Cannot bind to Controller lifecycle when outside of it.");
+        } else if (controller.isAttached()) {
+            initialState = ControllerEvent.ATTACH;
+        } else if (controller.getView() != null) {
+            initialState = ControllerEvent.CREATE_VIEW;
+        } else {
+            initialState = ControllerEvent.CREATE;
+        }
 
-        controller.addLifecycleListener(new LifecycleListener() {
+        final BehaviorSubject<ControllerEvent> subject = BehaviorSubject.createDefault(initialState);
+
+        controller.addLifecycleListener(new Controller.LifecycleListener() {
             @Override
             public void preCreateView(@NonNull Controller controller) {
                 subject.onNext(ControllerEvent.CREATE_VIEW);
@@ -48,5 +55,4 @@ public class ControllerLifecycleSubjectHelper {
 
         return subject;
     }
-
 }
