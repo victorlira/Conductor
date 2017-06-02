@@ -88,7 +88,7 @@ public abstract class Controller {
     private final ArrayList<RouterRequiringFunc> onRouterSetListeners = new ArrayList<>();
     private WeakReference<View> destroyedView;
     private boolean isPerformingExitTransition;
-    private boolean isCreatingView;
+    private boolean isContextAvailable;
 
     @NonNull
     static Controller newInstance(@NonNull Bundle bundle) {
@@ -788,7 +788,8 @@ public abstract class Controller {
     final void onContextAvailable() {
         final Context context = router.getActivity();
 
-        if (context != null) {
+        if (context != null && !isContextAvailable) {
+            isContextAvailable = true;
             onContextAvailable(context);
         }
 
@@ -842,6 +843,7 @@ public abstract class Controller {
             destroy(true);
         }
 
+        isContextAvailable = false;
         onContextUnavailable();
     }
 
@@ -955,9 +957,7 @@ public abstract class Controller {
                 lifecycleListener.preCreateView(this);
             }
 
-            isCreatingView = true;
             view = onCreateView(LayoutInflater.from(parent.getContext()), parent);
-            isCreatingView = false;
             if (view == parent) {
                 throw new IllegalStateException("Controller's onCreateView method returned the parent ViewGroup. Perhaps you forgot to pass false for LayoutInflater.inflate's attachToRoot parameter?");
             }
