@@ -17,7 +17,7 @@ public class RxControllerLifecycle {
      * {@link com.trello.rxlifecycle.android.RxLifecycleAndroid#bindFragment(Observable)}.
      *
      * @param lifecycle the lifecycle sequence of a Controller
-     * @return a reusable {@link Observable.Transformer} that unsubscribes the source during the Controller lifecycle
+     * @return a reusable {@link rx.Observable.Transformer} that unsubscribes the source during the Controller lifecycle
      */
     @NonNull
     @CheckResult
@@ -32,6 +32,8 @@ public class RxControllerLifecycle {
                     switch (lastEvent) {
                         case CREATE:
                             return ControllerEvent.DESTROY;
+                        case CONTEXT_AVAILABLE:
+                            return ControllerEvent.CONTEXT_UNAVAILABLE;
                         case ATTACH:
                             return ControllerEvent.DETACH;
                         case CREATE_VIEW:

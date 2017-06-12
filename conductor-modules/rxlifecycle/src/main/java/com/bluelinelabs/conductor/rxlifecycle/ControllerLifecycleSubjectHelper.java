@@ -1,5 +1,6 @@
 package com.bluelinelabs.conductor.rxlifecycle;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.view.View;
 
@@ -25,6 +26,8 @@ public class ControllerLifecycleSubjectHelper {
             initialState = ControllerEvent.ATTACH;
         } else if (controller.getView() != null) {
             initialState = ControllerEvent.CREATE_VIEW;
+        } else if (controller.getActivity() != null) {
+            initialState = ControllerEvent.CONTEXT_AVAILABLE;
         } else {
             initialState = ControllerEvent.CREATE;
         }
@@ -32,6 +35,11 @@ public class ControllerLifecycleSubjectHelper {
         final BehaviorSubject<ControllerEvent> subject = BehaviorSubject.create(initialState);
 
         controller.addLifecycleListener(new LifecycleListener() {
+            @Override
+            public void onContextAvailable(@NonNull Controller controller, @NonNull Context context) {
+                subject.onNext(ControllerEvent.CONTEXT_AVAILABLE);
+            }
+
             @Override
             public void preCreateView(@NonNull Controller controller) {
                 subject.onNext(ControllerEvent.CREATE_VIEW);
@@ -50,6 +58,11 @@ public class ControllerLifecycleSubjectHelper {
             @Override
             public void preDestroyView(@NonNull Controller controller, @NonNull View view) {
                 subject.onNext(ControllerEvent.DESTROY_VIEW);
+            }
+
+            @Override
+            public void onContextUnavailable(@NonNull Controller controller) {
+                subject.onNext(ControllerEvent.CONTEXT_UNAVAILABLE);
             }
 
             @Override

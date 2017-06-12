@@ -791,6 +791,11 @@ public abstract class Controller {
         if (context != null && !isContextAvailable) {
             isContextAvailable = true;
             onContextAvailable(context);
+
+            List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+            for (LifecycleListener lifecycleListener : listeners) {
+                lifecycleListener.onContextAvailable(this, context);
+            }
         }
 
         for (Router childRouter : childRouters) {
@@ -845,6 +850,11 @@ public abstract class Controller {
 
         isContextAvailable = false;
         onContextUnavailable();
+
+        List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+        for (LifecycleListener lifecycleListener : listeners) {
+            lifecycleListener.onContextUnavailable(this);
+        }
     }
 
     private void attach(@NonNull View view) {
@@ -1305,6 +1315,9 @@ public abstract class Controller {
 
         public void preDestroy(@NonNull Controller controller) { }
         public void postDestroy(@NonNull Controller controller) { }
+
+        public void onContextAvailable(@NonNull Controller controller, @NonNull Context context) { }
+        public void onContextUnavailable(@NonNull Controller controller) { }
 
         public void onSaveInstanceState(@NonNull Controller controller, @NonNull Bundle outState) { }
         public void onRestoreInstanceState(@NonNull Controller controller, @NonNull Bundle savedInstanceState) { }

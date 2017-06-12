@@ -27,6 +27,8 @@ public class RxControllerLifecycle {
                 switch (lastEvent) {
                     case CREATE:
                         return ControllerEvent.DESTROY;
+                    case CONTEXT_AVAILABLE:
+                        return ControllerEvent.CONTEXT_UNAVAILABLE;
                     case ATTACH:
                         return ControllerEvent.DETACH;
                     case CREATE_VIEW:

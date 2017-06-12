@@ -18,6 +18,8 @@ public class ControllerScopeProvider implements LifecycleScopeProvider<Controlle
                     switch (lastEvent) {
                         case CREATE:
                             return ControllerEvent.DESTROY;
+                        case CONTEXT_AVAILABLE:
+                            return ControllerEvent.CONTEXT_UNAVAILABLE;
                         case CREATE_VIEW:
                             return ControllerEvent.DESTROY_VIEW;
                         case ATTACH:
