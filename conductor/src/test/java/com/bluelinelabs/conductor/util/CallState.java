@@ -22,11 +22,7 @@ public class CallState implements Parcelable {
     public int contextAvailableCalls;
     public int contextUnavailableCalls;
 
-    private boolean includeContextCallsInEquality;
-
-    public CallState(boolean includeContextCallsInEquality, boolean setupForAddedController) {
-        this.includeContextCallsInEquality = includeContextCallsInEquality;
-
+    public CallState(boolean setupForAddedController) {
         if (setupForAddedController) {
             changeStartCalls++;
             changeEndCalls++;
@@ -45,17 +41,14 @@ public class CallState implements Parcelable {
             return false;
         }
 
-        CallState callState = (CallState)o;
+        CallState callState = (CallState) o;
 
-        if (includeContextCallsInEquality && callState.includeContextCallsInEquality) {
-            if (contextAvailableCalls != callState.contextAvailableCalls) {
-                return false;
-            }
-            if (contextUnavailableCalls != callState.contextUnavailableCalls) {
-                return false;
-            }
+        if (contextAvailableCalls != callState.contextAvailableCalls) {
+            return false;
         }
-
+        if (contextUnavailableCalls != callState.contextUnavailableCalls) {
+            return false;
+        }
         if (changeStartCalls != callState.changeStartCalls) {
             return false;
         }
@@ -146,7 +139,6 @@ public class CallState implements Parcelable {
     }
 
     public void writeToParcel(Parcel out, int flags) {
-        out.writeInt(includeContextCallsInEquality ? 1 : 0);
         out.writeInt(changeStartCalls);
         out.writeInt(changeEndCalls);
         out.writeInt(createViewCalls);
@@ -165,9 +157,9 @@ public class CallState implements Parcelable {
         out.writeInt(contextUnavailableCalls);
     }
 
-    public static final Parcelable.Creator<CallState> CREATOR  = new Parcelable.Creator<CallState>() {
+    public static final Parcelable.Creator<CallState> CREATOR = new Parcelable.Creator<CallState>() {
         public CallState createFromParcel(Parcel in) {
-            CallState state = new CallState(in.readInt() == 1, false);
+            CallState state = new CallState(false);
 
             state.changeStartCalls = in.readInt();
             state.changeEndCalls = in.readInt();

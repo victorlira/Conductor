@@ -555,7 +555,7 @@ public abstract class Router {
         changeListeners.clear();
 
         for (RouterTransaction transaction : backstack) {
-            transaction.controller.activityDestroyed(activity.isChangingConfigurations());
+            transaction.controller.activityDestroyed(activity);
 
             for (Router childRouter : transaction.controller.getChildRouters()) {
                 childRouter.onActivityDestroyed(activity);
@@ -564,7 +564,7 @@ public abstract class Router {
 
         for (int index = destroyingControllers.size() - 1; index >= 0; index--) {
             Controller controller = destroyingControllers.get(index);
-            controller.activityDestroyed(activity.isChangingConfigurations());
+            controller.activityDestroyed(activity);
 
             for (Router childRouter : controller.getChildRouters()) {
                 childRouter.onActivityDestroyed(activity);

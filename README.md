@@ -31,6 +31,12 @@ compile 'com.bluelinelabs:conductor-rxlifecycle:2.1.3'
 
 // If you want RxJava2 lifecycle support:
 compile 'com.bluelinelabs:conductor-rxlifecycle2:2.1.3'
+
+// If you want RxJava2 Autodispose support:
+compile 'com.bluelinelabs:conductor-autodispose:2.1.3'
+
+// If you want Controllers that are Lifecycle-aware (architecture components):
+compile 'com.bluelinelabs:conductor-arch-components-lifecycle:2.1.3'
 ```
 
 SNAPSHOT:

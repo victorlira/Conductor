@@ -789,12 +789,17 @@ public abstract class Controller {
         final Context context = router.getActivity();
 
         if (context != null && !isContextAvailable) {
+            List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+            for (LifecycleListener lifecycleListener : listeners) {
+                lifecycleListener.preContextAvailable(this);
+            }
+
             isContextAvailable = true;
             onContextAvailable(context);
 
-            List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+            listeners = new ArrayList<>(lifecycleListeners);
             for (LifecycleListener lifecycleListener : listeners) {
-                lifecycleListener.onContextAvailable(this, context);
+                lifecycleListener.postContextAvailable(this, context);
             }
         }
 
@@ -841,19 +846,24 @@ public abstract class Controller {
         onActivityStopped(activity);
     }
 
-    final void activityDestroyed(boolean isChangingConfigurations) {
-        if (isChangingConfigurations) {
+    final void activityDestroyed(@NonNull Activity activity) {
+        if (activity.isChangingConfigurations()) {
             detach(view, true, false);
         } else {
             destroy(true);
         }
 
+        List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+        for (LifecycleListener lifecycleListener : listeners) {
+            lifecycleListener.preContextUnavailable(this, activity);
+        }
+
         isContextAvailable = false;
         onContextUnavailable();
 
-        List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+        listeners = new ArrayList<>(lifecycleListeners);
         for (LifecycleListener lifecycleListener : listeners) {
-            lifecycleListener.onContextUnavailable(this);
+            lifecycleListener.postContextUnavailable(this);
         }
     }
 
@@ -1316,8 +1326,11 @@ public abstract class Controller {
         public void preDestroy(@NonNull Controller controller) { }
         public void postDestroy(@NonNull Controller controller) { }
 
-        public void onContextAvailable(@NonNull Controller controller, @NonNull Context context) { }
-        public void onContextUnavailable(@NonNull Controller controller) { }
+        public void preContextAvailable(@NonNull Controller controller) { }
+        public void postContextAvailable(@NonNull Controller controller, @NonNull Context context) { }
+
+        public void preContextUnavailable(@NonNull Controller controller, @NonNull Context context) { }
+        public void postContextUnavailable(@NonNull Controller controller) { }
 
         public void onSaveInstanceState(@NonNull Controller controller, @NonNull Bundle outState) { }
         public void onRestoreInstanceState(@NonNull Controller controller, @NonNull Bundle savedInstanceState) { }

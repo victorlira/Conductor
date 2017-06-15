@@ -75,7 +75,7 @@ public class ControllerTests {
     @Test
     public void testActivityResult() {
         TestController controller = new TestController();
-        CallState expectedCallState = new CallState(true, true);
+        CallState expectedCallState = new CallState(true);
 
         router.pushController(RouterTransaction.with(controller));
 
@@ -105,8 +105,8 @@ public class ControllerTests {
         parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID))
                 .setRoot(RouterTransaction.with(child));
 
-        CallState childExpectedCallState = new CallState(true, true);
-        CallState parentExpectedCallState = new CallState(true, true);
+        CallState childExpectedCallState = new CallState(true);
+        CallState parentExpectedCallState = new CallState(true);
 
         // Ensure that calling onActivityResult w/o requesting a result doesn't do anything
         router.onActivityResult(1, Activity.RESULT_OK, null);
@@ -133,7 +133,7 @@ public class ControllerTests {
         final String[] requestedPermissions = new String[] {"test"};
 
         TestController controller = new TestController();
-        CallState expectedCallState = new CallState(true, true);
+        CallState expectedCallState = new CallState(true);
 
         router.pushController(RouterTransaction.with(controller));
 
@@ -162,8 +162,8 @@ public class ControllerTests {
         parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID))
                 .setRoot(RouterTransaction.with(child));
 
-        CallState childExpectedCallState = new CallState(true, true);
-        CallState parentExpectedCallState = new CallState(true, true);
+        CallState childExpectedCallState = new CallState(true);
+        CallState parentExpectedCallState = new CallState(true);
 
         // Ensure that calling handleRequestedPermission w/o requesting a result doesn't do anything
         router.onRequestPermissionsResult("anotherId", 1, requestedPermissions, new int[] {1});
@@ -184,7 +184,7 @@ public class ControllerTests {
     @Test
     public void testOptionsMenu() {
         TestController controller = new TestController();
-        CallState expectedCallState = new CallState(true, true);
+        CallState expectedCallState = new CallState(true);
 
         router.pushController(RouterTransaction.with(controller));
 
@@ -226,8 +226,8 @@ public class ControllerTests {
         parent.getChildRouter((ViewGroup)parent.getView().findViewById(TestController.VIEW_ID))
                 .setRoot(RouterTransaction.with(child));
 
-        CallState childExpectedCallState = new CallState(true, true);
-        CallState parentExpectedCallState = new CallState(true, true);
+        CallState childExpectedCallState = new CallState(true);
+        CallState parentExpectedCallState = new CallState(true);
 
         // Ensure that calling onCreateOptionsMenu w/o declaring that we have one doesn't do anything
         router.onCreateOptionsMenu(null, null);

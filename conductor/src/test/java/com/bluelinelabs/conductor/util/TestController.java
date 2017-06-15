@@ -24,7 +24,7 @@ public class TestController extends Controller {
 
     private static final String KEY_CALL_STATE = "TestController.currentCallState";
 
-    public CallState currentCallState = new CallState(true, false);
+    public CallState currentCallState = new CallState(false);
     public ChangeHandlerHistory changeHandlerHistory = new ChangeHandlerHistory();
 
     @NonNull

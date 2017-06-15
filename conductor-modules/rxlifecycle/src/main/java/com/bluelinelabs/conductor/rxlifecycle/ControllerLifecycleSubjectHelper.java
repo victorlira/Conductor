@@ -36,7 +36,7 @@ public class ControllerLifecycleSubjectHelper {
 
         controller.addLifecycleListener(new LifecycleListener() {
             @Override
-            public void onContextAvailable(@NonNull Controller controller, @NonNull Context context) {
+            public void preContextAvailable(@NonNull Controller controller) {
                 subject.onNext(ControllerEvent.CONTEXT_AVAILABLE);
             }
 
@@ -61,7 +61,7 @@ public class ControllerLifecycleSubjectHelper {
             }
 
             @Override
-            public void onContextUnavailable(@NonNull Controller controller) {
+            public void preContextUnavailable(@NonNull Controller controller, @NonNull Context context) {
                 subject.onNext(ControllerEvent.CONTEXT_UNAVAILABLE);
             }
 
