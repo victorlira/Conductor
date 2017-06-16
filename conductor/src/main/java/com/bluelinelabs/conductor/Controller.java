@@ -853,17 +853,19 @@ public abstract class Controller {
             destroy(true);
         }
 
-        List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
-        for (LifecycleListener lifecycleListener : listeners) {
-            lifecycleListener.preContextUnavailable(this, activity);
-        }
+        if (isContextAvailable) {
+            List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+            for (LifecycleListener lifecycleListener : listeners) {
+                lifecycleListener.preContextUnavailable(this, activity);
+            }
 
-        isContextAvailable = false;
-        onContextUnavailable();
+            isContextAvailable = false;
+            onContextUnavailable();
 
-        listeners = new ArrayList<>(lifecycleListeners);
-        for (LifecycleListener lifecycleListener : listeners) {
-            lifecycleListener.postContextUnavailable(this);
+            listeners = new ArrayList<>(lifecycleListeners);
+            for (LifecycleListener lifecycleListener : listeners) {
+                lifecycleListener.postContextUnavailable(this);
+            }
         }
     }
 
@@ -1036,6 +1038,21 @@ public abstract class Controller {
     }
 
     private void performDestroy() {
+        if (isContextAvailable) {
+            List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+            for (LifecycleListener lifecycleListener : listeners) {
+                lifecycleListener.preContextUnavailable(this, getActivity());
+            }
+
+            isContextAvailable = false;
+            onContextUnavailable();
+
+            listeners = new ArrayList<>(lifecycleListeners);
+            for (LifecycleListener lifecycleListener : listeners) {
+                lifecycleListener.postContextUnavailable(this);
+            }
+        }
+
         if (!destroyed) {
             List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
             for (LifecycleListener lifecycleListener : listeners) {

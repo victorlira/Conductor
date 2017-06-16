@@ -493,6 +493,7 @@ public class ControllerLifecycleCallbacksTests {
 
         expectedCallState.detachCalls++;
         expectedCallState.destroyViewCalls++;
+        expectedCallState.contextUnavailableCalls++;
         expectedCallState.destroyCalls++;
 
         assertCalls(expectedCallState, child);
@@ -534,6 +535,7 @@ public class ControllerLifecycleCallbacksTests {
             public void didAttachOrDetach() {
                 expectedCallState.destroyViewCalls++;
                 expectedCallState.detachCalls++;
+                expectedCallState.contextUnavailableCalls++;
                 expectedCallState.destroyCalls++;
                 assertCalls(expectedCallState, controller);
             }
