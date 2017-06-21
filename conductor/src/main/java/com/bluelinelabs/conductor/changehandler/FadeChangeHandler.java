@@ -37,7 +37,7 @@ public class FadeChangeHandler extends AnimatorChangeHandler {
             animator.play(ObjectAnimator.ofFloat(to, View.ALPHA, start, 1));
         }
 
-        if (from != null && removesFromViewOnPush()) {
+        if (from != null && (!isPush || removesFromViewOnPush())) {
             animator.play(ObjectAnimator.ofFloat(from, View.ALPHA, 0));
         }
 
