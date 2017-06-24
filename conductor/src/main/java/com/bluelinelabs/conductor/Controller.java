@@ -570,7 +570,7 @@ public abstract class Controller {
      * @param permission A permission this Controller has requested
      */
     public boolean shouldShowRequestPermissionRationale(@NonNull String permission) {
-        return false;
+        return Build.VERSION.SDK_INT >= 23 && getActivity().shouldShowRequestPermissionRationale(permission);
     }
 
     /**
