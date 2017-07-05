@@ -20,28 +20,28 @@ Conductor is architecture-agnostic and does not try to force any design decision
 ## Installation
 
 ```gradle
-compile 'com.bluelinelabs:conductor:2.1.3'
+compile 'com.bluelinelabs:conductor:2.1.4'
 
 // If you want the components that go along with
 // Android's support libraries (currently just a PagerAdapter):
-compile 'com.bluelinelabs:conductor-support:2.1.3'
+compile 'com.bluelinelabs:conductor-support:2.1.4'
 
 // If you want RxJava lifecycle support:
-compile 'com.bluelinelabs:conductor-rxlifecycle:2.1.3'
+compile 'com.bluelinelabs:conductor-rxlifecycle:2.1.4'
 
 // If you want RxJava2 lifecycle support:
-compile 'com.bluelinelabs:conductor-rxlifecycle2:2.1.3'
+compile 'com.bluelinelabs:conductor-rxlifecycle2:2.1.4'
 
 // If you want RxJava2 Autodispose support:
-compile 'com.bluelinelabs:conductor-autodispose:2.1.3'
+compile 'com.bluelinelabs:conductor-autodispose:2.1.4'
 
 // If you want Controllers that are Lifecycle-aware (architecture components):
-compile 'com.bluelinelabs:conductor-arch-components-lifecycle:2.1.3'
+compile 'com.bluelinelabs:conductor-arch-components-lifecycle:0.1.1'
 ```
 
 SNAPSHOT:
 
-Just use `2.1.4-SNAPSHOT` as your version number in any of the above dependencies and add the url to the snapshot repository:
+Just use `2.1.5-SNAPSHOT` as your version number in any of the above dependencies and add the url to the snapshot repository:
 
 ```gradle
 allprojects {

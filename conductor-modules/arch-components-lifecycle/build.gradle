@@ -16,7 +16,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode Integer.parseInt(project.VERSION_CODE)
-        versionName '0.1.0-alpha1'
+        versionName project.VERSION_NAME
     }
 }
 
