@@ -98,17 +98,23 @@ public abstract class Controller {
         Constructor[] constructors = cls.getConstructors();
         Constructor bundleConstructor = getBundleConstructor(constructors);
 
+        Bundle args = bundle.getBundle(KEY_ARGS);
+        if (args != null) {
+            args.setClassLoader(cls.getClassLoader());
+        }
+
         Controller controller;
         try {
             if (bundleConstructor != null) {
-                Bundle args = bundle.getBundle(KEY_ARGS);
-                if (args != null) {
-                    args.setClassLoader(cls.getClassLoader());
-                }
                 controller = (Controller)bundleConstructor.newInstance(args);
             } else {
                 //noinspection ConstantConditions
                 controller = (Controller)getDefaultConstructor(constructors).newInstance();
+
+                // Restore the args that existed before the last process death
+                if (args != null) {
+                    controller.args.putAll(args);
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException("An exception occurred while creating a new instance of " + className + ". " + e.getMessage(), e);
