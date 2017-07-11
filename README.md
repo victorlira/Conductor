@@ -36,7 +36,7 @@ compile 'com.bluelinelabs:conductor-rxlifecycle2:2.1.4'
 compile 'com.bluelinelabs:conductor-autodispose:2.1.4'
 
 // If you want Controllers that are Lifecycle-aware (architecture components):
-compile 'com.bluelinelabs:conductor-arch-components-lifecycle:0.1.1'
+compile 'com.bluelinelabs:conductor-archlifecycle:0.1.1'
 ```
 
 SNAPSHOT:
