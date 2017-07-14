@@ -753,7 +753,7 @@ public abstract class Router {
             throw new IllegalStateException("Trying to push a controller that has already been destroyed. (" + to.getClass().getSimpleName() + ")");
         }
 
-        final ChangeTransaction transaction = new ChangeTransaction(to, from, isPush, container, changeHandler, changeListeners);
+        final ChangeTransaction transaction = new ChangeTransaction(to, from, isPush, container, changeHandler, new ArrayList<>(changeListeners));
 
         if (pendingControllerChanges.size() > 0) {
             // If we already have changes queued up (awaiting full container attach), queue this one up as well so they don't happen
