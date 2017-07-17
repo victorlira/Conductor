@@ -409,6 +409,7 @@ public abstract class Router {
         backstack.setBackstack(newBackstack);
         for (RouterTransaction transaction : backstack) {
             transaction.onAttachedToRouter();
+            setControllerRouter(transaction.controller);
         }
 
         if (newBackstack.size() > 0) {
