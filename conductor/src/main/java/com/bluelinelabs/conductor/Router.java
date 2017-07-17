@@ -399,14 +399,15 @@ public abstract class Router {
     public void setBackstack(@NonNull List<RouterTransaction> newBackstack, @Nullable ControllerChangeHandler changeHandler) {
         ThreadUtils.ensureMainThread();
 
+        List<RouterTransaction> oldTransactions = getBackstack();
         List<RouterTransaction> oldVisibleTransactions = getVisibleTransactions(backstack.iterator());
-
-        boolean newRootRequiresPush = !(newBackstack.size() > 0 && backstack.contains(newBackstack.get(0)));
 
         removeAllExceptVisibleAndUnowned();
         ensureOrderedTransactionIndices(newBackstack);
 
         backstack.setBackstack(newBackstack);
+
+        // Ensure all new controllers have a valid router set
         for (RouterTransaction transaction : backstack) {
             transaction.onAttachedToRouter();
             setControllerRouter(transaction.controller);
@@ -416,6 +417,7 @@ public abstract class Router {
             List<RouterTransaction> reverseNewBackstack = new ArrayList<>(newBackstack);
             Collections.reverse(reverseNewBackstack);
             List<RouterTransaction> newVisibleTransactions = getVisibleTransactions(reverseNewBackstack.iterator());
+            boolean newRootRequiresPush = !(newVisibleTransactions.size() > 0 && oldTransactions.contains(newVisibleTransactions.get(0)));
 
             boolean visibleTransactionsChanged = !backstacksAreEqual(newVisibleTransactions, oldVisibleTransactions);
             if (visibleTransactionsChanged) {
@@ -451,10 +453,6 @@ public abstract class Router {
                 }
             }
 
-            // Ensure all new controllers have a valid router set
-            for (RouterTransaction transaction : newBackstack) {
-                transaction.controller.setRouter(this);
-            }
         }
     }
 
