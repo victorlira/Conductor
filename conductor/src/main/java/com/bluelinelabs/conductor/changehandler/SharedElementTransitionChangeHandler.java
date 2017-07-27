@@ -34,7 +34,7 @@ public abstract class SharedElementTransitionChangeHandler extends TransitionCha
     @NonNull private final ArrayMap<String, String> sharedElementNames = new ArrayMap<>();
 
     @NonNull private final List<String> waitForTransitionNames = new ArrayList<>();
-    @NonNull private final List<ViewVisibilityPair> removedViews = new ArrayList<>();
+    @NonNull private final List<ViewParentPair> removedViews = new ArrayList<>();
 
     @Nullable private Transition exitTransition;
     @Nullable private Transition enterTransition;
@@ -68,6 +68,8 @@ public abstract class SharedElementTransitionChangeHandler extends TransitionCha
             }
         };
 
+        configureSharedElements(container, from, to, isPush);
+
         if (to != null && to.getParent() == null && waitForTransitionNames.size() > 0) {
             waitOnAllTransitionNames(to, listener);
             container.addView(to);
@@ -81,8 +83,8 @@ public abstract class SharedElementTransitionChangeHandler extends TransitionCha
         if (to != null && removedViews.size() > 0) {
             to.setVisibility(View.VISIBLE);
 
-            for (ViewVisibilityPair removedView : removedViews) {
-                removedView.view.setVisibility(removedView.visibility);
+            for (ViewParentPair removedView : removedViews) {
+                removedView.parent.addView(removedView.view);
             }
 
             removedViews.clear();
@@ -99,8 +101,6 @@ public abstract class SharedElementTransitionChangeHandler extends TransitionCha
     }
 
     private void configureTransition(@NonNull final ViewGroup container, @Nullable View from, @Nullable View to, @NonNull final Transition transition, boolean isPush) {
-        configureSharedElements(container, from, to, isPush);
-
         final View nonExistentView = new View(container.getContext());
 
         List<View> fromSharedElements = new ArrayList<>();
@@ -162,8 +162,8 @@ public abstract class SharedElementTransitionChangeHandler extends TransitionCha
                 public void run() {
                     waitForTransitionNames.remove(view.getTransitionName());
 
-                    removedViews.add(new ViewVisibilityPair(view, view.getVisibility()));
-                    view.setVisibility(View.GONE);
+                    removedViews.add(new ViewParentPair(view, (ViewGroup)view.getParent()));
+                    ((ViewGroup)view.getParent()).removeView(view);
 
                     if (waitForTransitionNames.size() == 0) {
                         to.getViewTreeObserver().removeOnPreDrawListener(parentPreDrawListener);
@@ -321,8 +321,7 @@ public abstract class SharedElementTransitionChangeHandler extends TransitionCha
 
         final ArrayMap<String, View> toSharedElements = new ArrayMap<>();
         TransitionUtils.findNamedViews(toSharedElements, to);
-        //TODO: is this right?
-        for (ViewVisibilityPair removedView : removedViews) {
+        for (ViewParentPair removedView : removedViews) {
             toSharedElements.put(removedView.view.getTransitionName(), removedView.view);
         }
 
@@ -646,13 +645,13 @@ public abstract class SharedElementTransitionChangeHandler extends TransitionCha
 
     }
 
-    private static class ViewVisibilityPair {
+    private static class ViewParentPair {
         @NonNull final View view;
-        final int visibility;
+        @NonNull final ViewGroup parent;
 
-        ViewVisibilityPair(@NonNull View view, int visibility) {
+        ViewParentPair(@NonNull View view, ViewGroup parent) {
             this.view = view;
-            this.visibility = visibility;
+            this.parent = parent;
         }
     }
 
