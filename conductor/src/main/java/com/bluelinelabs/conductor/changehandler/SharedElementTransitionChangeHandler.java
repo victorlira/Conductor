@@ -231,7 +231,7 @@ public abstract class SharedElementTransitionChangeHandler extends TransitionCha
             return;
         }
 
-        ArrayMap<String, View> capturedFromSharedElements = captureFromSharedElements(from, isPush);
+        ArrayMap<String, View> capturedFromSharedElements = captureFromSharedElements(from);
 
         if (sharedElementNames.isEmpty()) {
             sharedElementTransition = null;
@@ -368,7 +368,7 @@ public abstract class SharedElementTransitionChangeHandler extends TransitionCha
     }
 
     @Nullable
-    private ArrayMap<String, View> captureFromSharedElements(@NonNull View from, boolean isPush) {
+    private ArrayMap<String, View> captureFromSharedElements(@NonNull View from) {
         if (sharedElementNames.isEmpty() || sharedElementTransition == null) {
             sharedElementNames.clear();
             return null;

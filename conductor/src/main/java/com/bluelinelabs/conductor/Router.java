@@ -822,7 +822,7 @@ public abstract class Router {
         }
 
         final int childCount = container.getChildCount();
-        for (int i = 0; i < childCount; i++) {
+        for (int i = childCount - 1; i >= 0; i--) {
             final View child = container.getChildAt(i);
             if (!views.contains(child)) {
                 container.removeView(child);
