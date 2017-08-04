@@ -454,6 +454,23 @@ public abstract class Router {
             }
 
         }
+
+        // Destroy all old controllers that are no longer on the backstack. We don't do this when we initially
+        // set the backstack to prevent the possibility that they'll be destroyed before the controller
+        // change handler runs.
+        for (RouterTransaction oldTransaction : oldTransactions) {
+            boolean contains = false;
+            for (RouterTransaction newTransaction : newBackstack) {
+                if (oldTransaction.controller == newTransaction.controller) {
+                    contains = true;
+                    break;
+                }
+            }
+
+            if (!contains) {
+                oldTransaction.controller.destroy();
+            }
+        }
     }
 
     /**
