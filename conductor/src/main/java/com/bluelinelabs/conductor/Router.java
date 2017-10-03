@@ -408,7 +408,9 @@ public abstract class Router {
         backstack.setBackstack(newBackstack);
 
         // Ensure all new controllers have a valid router set
-        for (RouterTransaction transaction : backstack) {
+        Iterator<RouterTransaction> backstackIterator = backstack.reverseIterator();
+        while (backstackIterator.hasNext()) {
+            RouterTransaction transaction = backstackIterator.next();
             transaction.onAttachedToRouter();
             setControllerRouter(transaction.controller);
         }
