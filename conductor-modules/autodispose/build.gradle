@@ -21,8 +21,8 @@ android {
 }
 
 dependencies {
-    implementation rootProject.ext.rxJava2
-    implementation rootProject.ext.autodispose
+    api rootProject.ext.rxJava2
+    api rootProject.ext.autodispose
 
     implementation project(':conductor')
 }

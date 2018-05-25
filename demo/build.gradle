@@ -38,6 +38,7 @@ dependencies {
     implementation rootProject.ext.butterknife
     implementation rootProject.ext.picasso
 
+    implementation project(':conductor')
     implementation project(':conductor-modules:support')
     implementation project(':conductor-modules:rxlifecycle')
     implementation project(':conductor-modules:rxlifecycle2')

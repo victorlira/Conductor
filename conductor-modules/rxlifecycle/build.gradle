@@ -21,9 +21,9 @@ android {
 }
 
 dependencies {
-    implementation rootProject.ext.rxJava
-    implementation rootProject.ext.rxLifecycle
-    implementation rootProject.ext.rxLifecycleAndroid
+    api rootProject.ext.rxJava
+    api rootProject.ext.rxLifecycle
+    api rootProject.ext.rxLifecycleAndroid
 
     implementation project(':conductor')
 }
