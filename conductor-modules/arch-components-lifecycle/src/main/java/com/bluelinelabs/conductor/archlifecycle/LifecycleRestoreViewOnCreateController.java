@@ -20,8 +20,7 @@ public abstract class LifecycleRestoreViewOnCreateController extends RestoreView
         super(args);
     }
 
-    @NonNull
-    @Override
+    @Override @NonNull
     public Lifecycle getLifecycle() {
         return mLifecycleOwner.getLifecycle();
     }

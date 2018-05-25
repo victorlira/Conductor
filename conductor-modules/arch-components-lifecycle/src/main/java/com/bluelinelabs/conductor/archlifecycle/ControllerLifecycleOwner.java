@@ -13,35 +13,35 @@ import com.bluelinelabs.conductor.Controller.LifecycleListener;
 
 public class ControllerLifecycleOwner implements LifecycleOwner {
 
-    private final LifecycleRegistry mLifecycleRegistry;
+    private final LifecycleRegistry lifecycleRegistry;
 
     public <T extends Controller & LifecycleOwner> ControllerLifecycleOwner(@NonNull T lifecycleController) {
-        mLifecycleRegistry = new LifecycleRegistry(lifecycleController); // --> State.INITIALIZED
-        lifecycleController.addLifecycleListener(new LifecycleListener() {
+        lifecycleRegistry = new LifecycleRegistry(lifecycleController); // --> State.INITIALIZED
 
+        lifecycleController.addLifecycleListener(new LifecycleListener() {
             @Override
             public void postContextAvailable(@NonNull Controller controller, @NonNull Context context) {
-                mLifecycleRegistry.handleLifecycleEvent(Event.ON_CREATE); // --> State.CREATED;
+                lifecycleRegistry.handleLifecycleEvent(Event.ON_CREATE); // --> State.CREATED;
             }
 
             @Override
             public void postCreateView(@NonNull Controller controller, @NonNull View view) {
-                mLifecycleRegistry.handleLifecycleEvent(Event.ON_START); // --> State.STARTED;
+                lifecycleRegistry.handleLifecycleEvent(Event.ON_START); // --> State.STARTED;
             }
 
             @Override
             public void postAttach(@NonNull Controller controller, @NonNull View view) {
-                mLifecycleRegistry.handleLifecycleEvent(Event.ON_RESUME); // --> State.RESUMED;
+                lifecycleRegistry.handleLifecycleEvent(Event.ON_RESUME); // --> State.RESUMED;
             }
 
             @Override
             public void preDetach(@NonNull Controller controller, @NonNull View view) {
-                mLifecycleRegistry.handleLifecycleEvent(Event.ON_PAUSE); // --> State.STARTED;
+                lifecycleRegistry.handleLifecycleEvent(Event.ON_PAUSE); // --> State.STARTED;
             }
 
             @Override
             public void preDestroyView(@NonNull Controller controller, @NonNull View view) {
-                mLifecycleRegistry.handleLifecycleEvent(Event.ON_STOP); // --> State.CREATED;
+                lifecycleRegistry.handleLifecycleEvent(Event.ON_STOP); // --> State.CREATED;
             }
 
             @Override
@@ -51,16 +51,15 @@ public class ControllerLifecycleOwner implements LifecycleOwner {
 
             @Override
             public void preDestroy(@NonNull Controller controller) {
-                mLifecycleRegistry.handleLifecycleEvent(Event.ON_DESTROY); // --> State.DESTROYED;
+                lifecycleRegistry.handleLifecycleEvent(Event.ON_DESTROY); // --> State.DESTROYED;
             }
 
         });
     }
 
-    @NonNull
-    @Override
+    @Override @NonNull
     public Lifecycle getLifecycle() {
-        return mLifecycleRegistry;
+        return lifecycleRegistry;
     }
 
 }

@@ -10,7 +10,7 @@ import com.bluelinelabs.conductor.Controller;
 
 public abstract class LifecycleController extends Controller implements LifecycleOwner {
 
-    private final ControllerLifecycleOwner mLifecycleOwner = new ControllerLifecycleOwner(this);
+    private final ControllerLifecycleOwner lifecycleOwner = new ControllerLifecycleOwner(this);
 
     public LifecycleController() {
         super();
@@ -20,10 +20,9 @@ public abstract class LifecycleController extends Controller implements Lifecycl
         super(args);
     }
 
-    @NonNull
-    @Override
+    @Override @NonNull
     public Lifecycle getLifecycle() {
-        return mLifecycleOwner.getLifecycle();
+        return lifecycleOwner.getLifecycle();
     }
 
 }
