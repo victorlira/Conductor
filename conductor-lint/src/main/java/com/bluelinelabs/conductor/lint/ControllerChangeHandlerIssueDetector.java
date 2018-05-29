@@ -19,6 +19,8 @@ import java.util.List;
 
 public final class ControllerChangeHandlerIssueDetector extends Detector implements Detector.UastScanner {
 
+    private static final String CLASS_NAME = "com.bluelinelabs.conductor.ControllerChangeHandler";
+
     public static final Issue ISSUE =
             Issue.create("ValidControllerChangeHandler", "ControllerChangeHandler not instantiatable",
                     "Non-abstract ControllerChangeHandler instances must have a default constructor for the"
@@ -28,7 +30,7 @@ public final class ControllerChangeHandlerIssueDetector extends Detector impleme
 
     @Override
     public List<String> applicableSuperClasses() {
-        return Collections.singletonList("com.bluelinelabs.conductor.ControllerChangeHandler");
+        return Collections.singletonList(CLASS_NAME);
     }
 
     @Override
@@ -43,6 +45,10 @@ public final class ControllerChangeHandlerIssueDetector extends Detector impleme
             public void visitClass(UClass node) {
                 final JavaEvaluator evaluator = context.getEvaluator();
                 if (evaluator.isAbstract(node)) {
+                    return;
+                }
+
+                if (!evaluator.inheritsFrom(node.getPsi(), CLASS_NAME, false)) {
                     return;
                 }
 

@@ -21,6 +21,8 @@ import java.util.List;
 
 public final class ControllerIssueDetector extends Detector implements Detector.UastScanner {
 
+    private static final String CLASS_NAME = "com.bluelinelabs.conductor.Controller";
+
     public static final Issue ISSUE =
             Issue.create("ValidController", "Controller not instantiatable",
                     "Non-abstract Controller instances must have a default or single-argument constructor"
@@ -30,7 +32,7 @@ public final class ControllerIssueDetector extends Detector implements Detector.
 
     @Override
     public List<String> applicableSuperClasses() {
-        return Collections.singletonList("com.bluelinelabs.conductor.Controller");
+        return Collections.singletonList(CLASS_NAME);
     }
 
     @Override
@@ -45,6 +47,10 @@ public final class ControllerIssueDetector extends Detector implements Detector.
             public void visitClass(UClass node) {
                 final JavaEvaluator evaluator = context.getEvaluator();
                 if (evaluator.isAbstract(node)) {
+                    return;
+                }
+
+                if (!evaluator.inheritsFrom(node.getPsi(), CLASS_NAME, false)) {
                     return;
                 }
 
