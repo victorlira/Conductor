@@ -12,7 +12,6 @@ apply plugin: 'de.mobilej.unmock'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
@@ -33,13 +32,6 @@ dependencies {
 
     implementation rootProject.ext.supportAppCompat
     implementation project(':conductor')
-
-    unmock 'org.robolectric:android-all:4.3_r2-robolectric-0'
-}
-
-unMock {
-    keep "android.os.Bundle"
-    keep "android.os.BaseBundle"
 }
 
 ext.artifactId = 'conductor-support'
