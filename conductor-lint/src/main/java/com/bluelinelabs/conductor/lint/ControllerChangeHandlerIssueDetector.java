@@ -9,17 +9,16 @@ import com.android.tools.lint.detector.api.Issue;
 import com.android.tools.lint.detector.api.JavaContext;
 import com.android.tools.lint.detector.api.Scope;
 import com.android.tools.lint.detector.api.Severity;
-import com.intellij.psi.PsiMethod;
 
 import org.jetbrains.uast.UClass;
 import org.jetbrains.uast.UElement;
+import org.jetbrains.uast.UMethod;
+import org.jetbrains.uast.UTypeReferenceExpression;
 
 import java.util.Collections;
 import java.util.List;
 
 public final class ControllerChangeHandlerIssueDetector extends Detector implements Detector.UastScanner {
-
-    private static final String CLASS_NAME = "com.bluelinelabs.conductor.ControllerChangeHandler";
 
     public static final Issue ISSUE =
             Issue.create("ValidControllerChangeHandler", "ControllerChangeHandler not instantiatable",
@@ -28,10 +27,7 @@ public final class ControllerChangeHandlerIssueDetector extends Detector impleme
                     Category.CORRECTNESS, 6, Severity.FATAL,
                     new Implementation(ControllerChangeHandlerIssueDetector.class, Scope.JAVA_FILE_SCOPE));
 
-    @Override
-    public List<String> applicableSuperClasses() {
-        return Collections.singletonList(CLASS_NAME);
-    }
+    private static final String CLASS_NAME = "com.bluelinelabs.conductor.ControllerChangeHandler";
 
     @Override
     public List<Class<? extends UElement>> getApplicableUastTypes() {
@@ -40,15 +36,24 @@ public final class ControllerChangeHandlerIssueDetector extends Detector impleme
 
     @Override
     public UElementHandler createUastHandler(final JavaContext context) {
+        final JavaEvaluator evaluator = context.getEvaluator();
+
         return new UElementHandler() {
+
             @Override
             public void visitClass(UClass node) {
-                final JavaEvaluator evaluator = context.getEvaluator();
                 if (evaluator.isAbstract(node)) {
                     return;
                 }
 
-                if (!evaluator.inheritsFrom(node.getPsi(), CLASS_NAME, false)) {
+                boolean hasSuperType = false;
+                for (UTypeReferenceExpression superType : node.getUastSuperTypes()) {
+                    if (CLASS_NAME.equals(superType.asRenderString())) {
+                        hasSuperType = true;
+                        break;
+                    }
+                }
+                if (!hasSuperType) {
                     return;
                 }
 
@@ -64,18 +69,19 @@ public final class ControllerChangeHandlerIssueDetector extends Detector impleme
                     return;
                 }
 
+                boolean hasConstructor = false;
                 boolean hasDefaultConstructor = false;
-                PsiMethod[] constructors = node.getConstructors();
-                for (PsiMethod constructor : constructors) {
-                    if (evaluator.isPublic(constructor)) {
-                        if (constructor.getParameterList().getParametersCount() == 0) {
+                for (UMethod method : node.getMethods()) {
+                    if (method.isConstructor()) {
+                        hasConstructor = true;
+                        if (evaluator.isPublic(method) && method.getUastParameters().size() == 0) {
                             hasDefaultConstructor = true;
                             break;
                         }
                     }
                 }
 
-                if (constructors.length > 0 && !hasDefaultConstructor) {
+                if (hasConstructor && !hasDefaultConstructor) {
                     String message = String.format(
                             "This ControllerChangeHandler needs to have a public default constructor (`%1$s`)", node.getQualifiedName());
                     context.report(ISSUE, node, context.getLocation((UElement) node), message);
@@ -83,4 +89,5 @@ public final class ControllerChangeHandlerIssueDetector extends Detector impleme
             }
         };
     }
+
 }

@@ -10,18 +10,17 @@ import com.android.tools.lint.detector.api.Issue;
 import com.android.tools.lint.detector.api.JavaContext;
 import com.android.tools.lint.detector.api.Scope;
 import com.android.tools.lint.detector.api.Severity;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiParameter;
 
 import org.jetbrains.uast.UClass;
 import org.jetbrains.uast.UElement;
+import org.jetbrains.uast.UMethod;
+import org.jetbrains.uast.UParameter;
+import org.jetbrains.uast.UTypeReferenceExpression;
 
 import java.util.Collections;
 import java.util.List;
 
 public final class ControllerIssueDetector extends Detector implements Detector.UastScanner {
-
-    private static final String CLASS_NAME = "com.bluelinelabs.conductor.Controller";
 
     public static final Issue ISSUE =
             Issue.create("ValidController", "Controller not instantiatable",
@@ -30,10 +29,7 @@ public final class ControllerIssueDetector extends Detector implements Detector.
                             + " case of the process being killed.", Category.CORRECTNESS, 6, Severity.FATAL,
                     new Implementation(ControllerIssueDetector.class, Scope.JAVA_FILE_SCOPE));
 
-    @Override
-    public List<String> applicableSuperClasses() {
-        return Collections.singletonList(CLASS_NAME);
-    }
+    private static final String CLASS_NAME = "com.bluelinelabs.conductor.Controller";
 
     @Override
     public List<Class<? extends UElement>> getApplicableUastTypes() {
@@ -42,15 +38,23 @@ public final class ControllerIssueDetector extends Detector implements Detector.
 
     @Override
     public UElementHandler createUastHandler(final JavaContext context) {
+        final JavaEvaluator evaluator = context.getEvaluator();
+
         return new UElementHandler() {
             @Override
             public void visitClass(UClass node) {
-                final JavaEvaluator evaluator = context.getEvaluator();
                 if (evaluator.isAbstract(node)) {
                     return;
                 }
 
-                if (!evaluator.inheritsFrom(node.getPsi(), CLASS_NAME, false)) {
+                boolean hasSuperType = false;
+                for (UTypeReferenceExpression superType : node.getUastSuperTypes()) {
+                    if (CLASS_NAME.equals(superType.asRenderString())) {
+                        hasSuperType = true;
+                        break;
+                    }
+                }
+                if (!hasSuperType) {
                     return;
                 }
 
@@ -66,27 +70,27 @@ public final class ControllerIssueDetector extends Detector implements Detector.
                     return;
                 }
 
-
+                boolean hasConstructor = false;
                 boolean hasDefaultConstructor = false;
                 boolean hasBundleConstructor = false;
-                PsiMethod[] constructors = node.getConstructors();
-                for (PsiMethod constructor : constructors) {
-                    if (evaluator.isPublic(constructor)) {
-                        PsiParameter[] parameters = constructor.getParameterList().getParameters();
-
-                        if (parameters.length == 0) {
-                            hasDefaultConstructor = true;
-                            break;
-                        } else if (parameters.length == 1 &&
-                                parameters[0].getType().equalsToText(SdkConstants.CLASS_BUNDLE) ||
-                                parameters[0].getType().equalsToText("Bundle")) {
-                            hasBundleConstructor = true;
-                            break;
+                for (UMethod method : node.getMethods()) {
+                    if (method.isConstructor()) {
+                        hasConstructor = true;
+                        if (evaluator.isPublic(method)) {
+                            List<UParameter> parameters = method.getUastParameters();
+                            if (parameters.size() == 0) {
+                                hasDefaultConstructor = true;
+                                break;
+                            } else if (parameters.size() == 1 &&
+                                    (parameters.get(0).getType().equalsToText(SdkConstants.CLASS_BUNDLE)) ||
+                                    parameters.get(0).getType().equalsToText("Bundle")) {
+                                hasBundleConstructor = true;
+                            }
                         }
                     }
                 }
 
-                if (constructors.length > 0 && !hasDefaultConstructor && !hasBundleConstructor) {
+                if (hasConstructor && !hasDefaultConstructor && !hasBundleConstructor) {
                     String message = String.format(
                             "This Controller needs to have either a public default constructor or a" +
                                     " public single-argument constructor that takes a Bundle. (`%1$s`)",
@@ -96,4 +100,5 @@ public final class ControllerIssueDetector extends Detector implements Detector.
             }
         };
     }
+    
 }
