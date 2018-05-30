@@ -87,8 +87,13 @@ class Backstack implements Iterable<RouterTransaction> {
         }
     }
 
-    boolean contains(@NonNull RouterTransaction transaction) {
-        return backstack.contains(transaction);
+    boolean contains(@NonNull Controller controller) {
+        for (RouterTransaction transaction : backstack) {
+            if (controller == transaction.controller) {
+                return true;
+            }
+        }
+        return false;
     }
 
     void saveInstanceState(@NonNull Bundle outState) {
