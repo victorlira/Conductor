@@ -409,6 +409,23 @@ public abstract class Router {
 
         backstack.setBackstack(newBackstack);
 
+        List<RouterTransaction> transactionsToBeRemoved = new ArrayList<>();
+        for (RouterTransaction oldTransaction : oldTransactions) {
+            boolean contains = false;
+            for (RouterTransaction newTransaction : newBackstack) {
+                if (oldTransaction.controller == newTransaction.controller) {
+                    contains = true;
+                    break;
+                }
+            }
+
+            if (!contains) {
+                // Inform the controller that it will be destroyed soon
+                oldTransaction.controller.isBeingDestroyed = true;
+                transactionsToBeRemoved.add(oldTransaction);
+            }
+        }
+
         // Ensure all new controllers have a valid router set
         Iterator<RouterTransaction> backstackIterator = backstack.reverseIterator();
         while (backstackIterator.hasNext()) {
@@ -462,18 +479,8 @@ public abstract class Router {
         // Destroy all old controllers that are no longer on the backstack. We don't do this when we initially
         // set the backstack to prevent the possibility that they'll be destroyed before the controller
         // change handler runs.
-        for (RouterTransaction oldTransaction : oldTransactions) {
-            boolean contains = false;
-            for (RouterTransaction newTransaction : newBackstack) {
-                if (oldTransaction.controller == newTransaction.controller) {
-                    contains = true;
-                    break;
-                }
-            }
-
-            if (!contains) {
-                oldTransaction.controller.destroy();
-            }
+        for (RouterTransaction removedTransaction : transactionsToBeRemoved) {
+            removedTransaction.controller.destroy();
         }
     }
 

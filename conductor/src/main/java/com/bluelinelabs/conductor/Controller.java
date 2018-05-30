@@ -62,7 +62,7 @@ public abstract class Controller {
 
     Bundle viewState;
     private Bundle savedInstanceState;
-    private boolean isBeingDestroyed;
+    boolean isBeingDestroyed;
     private boolean destroyed;
     private boolean attached;
     private boolean hasOptionsMenu;

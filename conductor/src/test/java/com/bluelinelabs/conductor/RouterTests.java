@@ -1,7 +1,10 @@
 package com.bluelinelabs.conductor;
 
+import android.support.annotation.NonNull;
+import android.view.View;
 import android.view.ViewGroup;
 
+import com.bluelinelabs.conductor.Controller.LifecycleListener;
 import com.bluelinelabs.conductor.changehandler.FadeChangeHandler;
 import com.bluelinelabs.conductor.changehandler.HorizontalChangeHandler;
 import com.bluelinelabs.conductor.util.ActivityProxy;
@@ -454,6 +457,39 @@ public class RouterTests {
         router.destroy(true);
 
         assertEquals(0, router.container.getChildCount());
+    }
+
+    @Test
+    public void testIsBeingDestroyed() {
+        final LifecycleListener lifecycleListener = new LifecycleListener() {
+            @Override
+            public void preDestroyView(@NonNull Controller controller, @NonNull View view) {
+                assertTrue(controller.isBeingDestroyed());
+            }
+        };
+
+        Controller controller1 = new TestController();
+        Controller controller2 = new TestController();
+        controller2.addLifecycleListener(lifecycleListener);
+
+        router.setRoot(RouterTransaction.with(controller1));
+        router.pushController(RouterTransaction.with(controller2));
+        assertFalse(controller1.isBeingDestroyed());
+        assertFalse(controller2.isBeingDestroyed());
+
+        router.popCurrentController();
+        assertFalse(controller1.isBeingDestroyed());
+        assertTrue(controller2.isBeingDestroyed());
+
+        Controller controller3 = new TestController();
+        controller3.addLifecycleListener(lifecycleListener);
+        router.pushController(RouterTransaction.with(controller3));
+        assertFalse(controller1.isBeingDestroyed());
+        assertFalse(controller3.isBeingDestroyed());
+
+        router.popToRoot();
+        assertFalse(controller1.isBeingDestroyed());
+        assertTrue(controller3.isBeingDestroyed());
     }
 
 }

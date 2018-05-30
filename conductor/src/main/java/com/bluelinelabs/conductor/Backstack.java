@@ -67,10 +67,6 @@ class Backstack implements Iterable<RouterTransaction> {
         return backstack.peek();
     }
 
-    void remove(@NonNull RouterTransaction transaction) {
-        backstack.removeFirstOccurrence(transaction);
-    }
-
     void push(@NonNull RouterTransaction transaction) {
         backstack.push(transaction);
     }
