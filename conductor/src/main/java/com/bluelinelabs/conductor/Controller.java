@@ -887,7 +887,7 @@ public abstract class Controller {
         }
 
         attached = true;
-        needsAttach = false;
+        needsAttach = router.isActivityStopped;
 
         onAttach(view);
 
