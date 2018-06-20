@@ -72,6 +72,7 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
             if (routerSavedState != null) {
                 router.restoreInstanceState(routerSavedState);
                 savedPages.remove(position);
+                savedPageHistory.remove((Integer) position);
             }
         }
 
@@ -96,7 +97,7 @@ public abstract class RouterPagerAdapter extends PagerAdapter {
         router.saveInstanceState(savedState);
         savedPages.put(position, savedState);
 
-        savedPageHistory.remove((Integer)position);
+        savedPageHistory.remove((Integer) position);
         savedPageHistory.add(position);
 
         ensurePagesSaved();
