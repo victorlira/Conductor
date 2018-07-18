@@ -844,9 +844,16 @@ public abstract class Controller {
     }
 
     final void activityStopped(@NonNull Activity activity) {
+        final boolean attached = this.attached;
+        
         if (viewAttachHandler != null) {
             viewAttachHandler.onActivityStopped();
         }
+
+        if (attached && activity.isChangingConfigurations()) {
+            needsAttach = true;
+        }
+
         onActivityStopped(activity);
     }
 
