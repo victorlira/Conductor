@@ -40,6 +40,7 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
     private boolean hasRegisteredCallbacks;
     private boolean destroyed;
     private boolean attached;
+    private boolean hasPreparedForHostDetach;
 
     private static final Map<Activity, LifecycleHandler> activeLifecycleHandlers = new HashMap<>();
     private SparseArray<String> permissionRequestMap = new SparseArray<>();
@@ -330,6 +331,8 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
     @Override
     public void onActivityStarted(Activity activity) {
         if (this.activity == activity) {
+            hasPreparedForHostDetach = false;
+
             for (Router router : getRouters()) {
                 router.onActivityStarted(activity);
             }
@@ -357,6 +360,8 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
     @Override
     public void onActivityStopped(Activity activity) {
         if (this.activity == activity) {
+            prepareForHostDetachIfNeeded();
+
             for (Router router : getRouters()) {
                 router.onActivityStopped(activity);
             }
@@ -366,6 +371,8 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
     @Override
     public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
         if (this.activity == activity) {
+            prepareForHostDetachIfNeeded();
+
             for (Router router : getRouters()) {
                 Bundle bundle = new Bundle();
                 router.saveInstanceState(bundle);
@@ -377,6 +384,16 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
     @Override
     public void onActivityDestroyed(Activity activity) {
         activeLifecycleHandlers.remove(activity);
+    }
+
+    private void prepareForHostDetachIfNeeded() {
+        if (!hasPreparedForHostDetach) {
+            hasPreparedForHostDetach = true;
+
+            for (Router router : getRouters()) {
+                router.prepareForHostDetach();
+            }
+        }
     }
 
     private static class PendingPermissionRequest implements Parcelable {

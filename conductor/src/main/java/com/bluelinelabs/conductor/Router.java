@@ -607,7 +607,7 @@ public abstract class Router {
         container = null;
     }
 
-    void prepareForHostDetach() {
+    public void prepareForHostDetach() {
         for (RouterTransaction transaction : backstack) {
             if (ControllerChangeHandler.completeHandlerImmediately(transaction.controller.getInstanceId())) {
                 transaction.controller.setNeedsAttach(true);
@@ -617,8 +617,6 @@ public abstract class Router {
     }
 
     public void saveInstanceState(@NonNull Bundle outState) {
-        prepareForHostDetach();
-
         Bundle backstackState = new Bundle();
         backstack.saveInstanceState(backstackState);
 
