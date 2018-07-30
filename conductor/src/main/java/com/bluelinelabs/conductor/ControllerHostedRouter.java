@@ -236,6 +236,12 @@ class ControllerHostedRouter extends Router {
 
     @Override @Nullable
     TransactionIndexer getTransactionIndexer() {
-        return getRootRouter().getTransactionIndexer();
+        Router rootRouter = getRootRouter();
+        if (rootRouter == this) {
+            return null;
+        } else {
+            return getRootRouter().getTransactionIndexer();
+        }
     }
+
 }
