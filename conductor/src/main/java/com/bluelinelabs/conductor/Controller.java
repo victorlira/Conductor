@@ -76,6 +76,7 @@ public abstract class Controller {
     private String targetInstanceId;
     private boolean needsAttach;
     private boolean attachedToUnownedParent;
+    private boolean awaitingParentAttach;
     private boolean hasSavedViewState;
     boolean isDetachFrozen;
     private ControllerChangeHandler overriddenPushHandler;
@@ -886,6 +887,13 @@ public abstract class Controller {
             return;
         }
 
+        if (parentController != null && !parentController.attached) {
+            awaitingParentAttach = true;
+            return;
+        } else {
+            awaitingParentAttach = false;
+        }
+
         hasSavedViewState = false;
 
         List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
@@ -906,6 +914,14 @@ public abstract class Controller {
         for (LifecycleListener lifecycleListener : listeners) {
             lifecycleListener.postAttach(Controller.this, view);
         }
+
+        for (ControllerHostedRouter childRouter : childRouters) {
+            for (RouterTransaction childTransaction : childRouter.backstack) {
+                if (childTransaction.controller.awaitingParentAttach) {
+                    childTransaction.controller.attach(childTransaction.controller.view);
+                }
+            }
+        }
     }
 
     void detach(@NonNull View view, boolean forceViewRefRemoval, boolean blockViewRefRemoval) {
@@ -924,7 +940,10 @@ public abstract class Controller {
             }
 
             attached = false;
-            onDetach(view);
+
+            if (!awaitingParentAttach) {
+                onDetach(view);
+            }
 
             if (hasOptionsMenu && !optionsMenuHidden) {
                 router.invalidateOptionsMenu();
