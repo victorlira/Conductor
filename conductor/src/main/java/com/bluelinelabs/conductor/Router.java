@@ -476,6 +476,14 @@ public abstract class Router {
                 }
             }
 
+        } else {
+            // Remove all visible controllers that were previously on the backstack
+            for (int i = oldVisibleTransactions.size() - 1; i >= 0; i--) {
+                RouterTransaction transaction = oldVisibleTransactions.get(i);
+                ControllerChangeHandler localHandler = changeHandler != null ? changeHandler.copy() : new SimpleSwapChangeHandler();
+                ControllerChangeHandler.completeHandlerImmediately(transaction.controller.getInstanceId());
+                performControllerChange(null, transaction, false, localHandler);
+            }
         }
 
         // Destroy all old controllers that are no longer on the backstack. We don't do this when we initially
