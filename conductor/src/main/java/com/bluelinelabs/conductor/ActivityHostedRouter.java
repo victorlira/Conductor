@@ -125,7 +125,7 @@ public class ActivityHostedRouter extends Router {
         return this;
     }
 
-    @Override @Nullable
+    @Override @NonNull
     TransactionIndexer getTransactionIndexer() {
         return transactionIndexer;
     }

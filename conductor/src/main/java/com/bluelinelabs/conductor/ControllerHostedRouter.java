@@ -15,6 +15,7 @@ import com.bluelinelabs.conductor.internal.TransactionIndexer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 class ControllerHostedRouter extends Router {
 
@@ -234,11 +235,18 @@ class ControllerHostedRouter extends Router {
         }
     }
 
-    @Override @Nullable
+    @Override @NonNull
     TransactionIndexer getTransactionIndexer() {
         Router rootRouter = getRootRouter();
         if (rootRouter == this) {
-            return null;
+            String debugInfo;
+            if (hostController != null) {
+                debugInfo = String.format(Locale.ENGLISH, "%s (attached? %b, destroyed? %b, parent: %s)",
+                        hostController.getClass().getSimpleName(), hostController.isAttached(), hostController.isBeingDestroyed, hostController.getParentController());
+            } else {
+                debugInfo = "null host controller";
+            }
+            throw new IllegalStateException("Unable to retrieve TransactionIndexer from " + debugInfo);
         } else {
             return getRootRouter().getTransactionIndexer();
         }

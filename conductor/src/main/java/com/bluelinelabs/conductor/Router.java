@@ -959,6 +959,6 @@ public abstract class Router {
     abstract boolean hasHost();
     @NonNull abstract List<Router> getSiblingRouters();
     @NonNull abstract Router getRootRouter();
-    @Nullable abstract TransactionIndexer getTransactionIndexer();
+    @NonNull abstract TransactionIndexer getTransactionIndexer();
 
 }
