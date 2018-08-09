@@ -139,6 +139,9 @@ public abstract class Router {
             RouterTransaction removedTransaction = null;
             RouterTransaction nextTransaction = null;
             Iterator<RouterTransaction> iterator = backstack.iterator();
+            ControllerChangeHandler topPushHandler = topTransaction != null ? topTransaction.pushChangeHandler() : null;
+            final boolean needsNextTransactionAttach = topPushHandler != null ? !topPushHandler.removesFromViewOnPush() : false;
+
             while (iterator.hasNext()) {
                 RouterTransaction transaction = iterator.next();
                 if (transaction.controller == controller) {
@@ -148,7 +151,7 @@ public abstract class Router {
                     iterator.remove();
                     removedTransaction = transaction;
                 } else if (removedTransaction != null) {
-                    if (!transaction.controller.isAttached()) {
+                    if (needsNextTransactionAttach && !transaction.controller.isAttached()) {
                         nextTransaction = transaction;
                     }
                     break;
