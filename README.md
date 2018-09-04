@@ -132,6 +132,14 @@ The lifecycle of a Controller is significantly simpler to understand than that o
 ### RxJava Lifecycle
 If the AutoDispose dependency has been added, there is a `ControllerScopeProvider` available that can be used along with the standard [AutoDispose library](https://github.com/uber/AutoDispose).
 
+## Community Projects
+The community has provided several helpful modules to make developing apps with Conductor even easier. Here's a collection of helpful libraries:
+
+* [CondutorGlide](https://github.com/MkhytarMkhoian/ConductorGlide) - Adds Glide lifecycle support to Controllers
+* [CondutorDialog](https://github.com/MkhytarMkhoian/ConductorDialog) - Adds a helpful DialogController (a Conductor version of DialogFragment)
+* [Mosby-Conductor](https://github.com/sockeqwe/mosby-conductor) - A plugin to integrate Mosby, an MVP/MVI library
+
+
 ## License
 ```
 Copyright 2016 BlueLine Labs, Inc.
