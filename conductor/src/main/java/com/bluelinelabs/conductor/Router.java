@@ -546,6 +546,8 @@ public abstract class Router {
 
             if (transaction.controller.getNeedsAttach()) {
                 performControllerChange(transaction, null, true, new SimpleSwapChangeHandler(false));
+            } else {
+                setControllerRouter(transaction.controller);
             }
         }
     }
