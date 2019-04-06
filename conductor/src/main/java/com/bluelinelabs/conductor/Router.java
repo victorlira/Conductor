@@ -496,10 +496,15 @@ public abstract class Router {
         for (RouterTransaction removedTransaction : transactionsToBeRemoved) {
 
             // Still need to ensure the controller isn't queued up to be removed later on.
+            boolean willBeRemoved = false;
             for (ChangeTransaction pendingTransaction : pendingControllerChanges) {
-                if (pendingTransaction.from != removedTransaction.controller) {
-                    removedTransaction.controller.destroy();
+                if (pendingTransaction.from == removedTransaction.controller) {
+                    willBeRemoved = true;
                 }
+            }
+
+            if (!willBeRemoved) {
+                removedTransaction.controller.destroy();
             }
         }
     }
