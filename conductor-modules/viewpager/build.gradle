@@ -34,7 +34,7 @@ dependencies {
     implementation project(':conductor')
 }
 
-ext.artifactId = 'conductor-support'
+ext.artifactId = 'conductor-viewpager'
 
 apply from: rootProject.file('dependencies.gradle')
 apply from: rootProject.file('gradle-mvn-push.gradle')

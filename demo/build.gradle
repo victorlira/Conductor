@@ -40,7 +40,7 @@ dependencies {
     implementation rootProject.ext.picasso
 
     implementation project(':conductor')
-    implementation project(':conductor-modules:support')
+    implementation project(':conductor-modules:viewpager')
     implementation project(':conductor-modules:rxlifecycle')
     implementation project(':conductor-modules:rxlifecycle2')
     implementation project(':conductor-modules:autodispose')

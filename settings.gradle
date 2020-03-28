@@ -1,6 +1,6 @@
 include ':conductor'
 include ':conductor-lint'
-include ':conductor-modules:support'
+include ':conductor-modules:viewpager'
 include ':conductor-modules:rxlifecycle'
 include ':conductor-modules:rxlifecycle2'
 include ':conductor-modules:autodispose'
