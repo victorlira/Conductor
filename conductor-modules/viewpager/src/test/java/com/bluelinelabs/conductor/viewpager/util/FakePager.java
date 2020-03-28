@@ -1,9 +1,9 @@
-package com.bluelinelabs.conductor.support.util;
+package com.bluelinelabs.conductor.viewpager.util;
 
 import android.util.SparseArray;
 import android.view.ViewGroup;
 
-import com.bluelinelabs.conductor.support.RouterPagerAdapter;
+import com.bluelinelabs.conductor.viewpager.RouterPagerAdapter;
 
 import java.util.ArrayList;
 import java.util.List;

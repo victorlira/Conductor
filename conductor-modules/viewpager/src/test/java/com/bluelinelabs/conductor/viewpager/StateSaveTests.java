@@ -1,4 +1,4 @@
-package com.bluelinelabs.conductor.support;
+package com.bluelinelabs.conductor.viewpager;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -9,8 +9,8 @@ import android.widget.FrameLayout;
 import com.bluelinelabs.conductor.Conductor;
 import com.bluelinelabs.conductor.Router;
 import com.bluelinelabs.conductor.RouterTransaction;
-import com.bluelinelabs.conductor.support.util.FakePager;
-import com.bluelinelabs.conductor.support.util.TestController;
+import com.bluelinelabs.conductor.viewpager.util.FakePager;
+import com.bluelinelabs.conductor.viewpager.util.TestController;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package com.bluelinelabs.conductor.support;
+package com.bluelinelabs.conductor.viewpager;
 
 import android.os.Bundle;
 import android.os.Parcelable;

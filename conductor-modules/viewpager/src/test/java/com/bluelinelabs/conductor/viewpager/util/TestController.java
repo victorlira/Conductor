@@ -1,4 +1,4 @@
-package com.bluelinelabs.conductor.support.util;
+package com.bluelinelabs.conductor.viewpager.util;
 
 import androidx.annotation.NonNull;
 import android.view.LayoutInflater;
