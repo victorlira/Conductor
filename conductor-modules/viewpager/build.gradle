@@ -1,14 +1,4 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'de.mobilej.unmock:UnMockPlugin:0.6.5'
-    }
-}
-
 apply plugin: 'com.android.library'
-apply plugin: 'de.mobilej.unmock'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
