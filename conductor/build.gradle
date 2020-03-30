@@ -13,10 +13,6 @@ android {
     }
 }
 
-configurations {
-    lintChecks
-}
-
 dependencies {
     testImplementation rootProject.ext.junit
     testImplementation rootProject.ext.roboelectric
@@ -24,19 +20,7 @@ dependencies {
     api rootProject.ext.androidxAnnotations
     api kotlinStd
 
-    lintChecks project(path: ':conductor-lint', configuration: 'lintChecks')
-}
-
-task copyLintJar(type: Copy) {
-    from(configurations.lintChecks) {
-        rename { 'lint.jar' }
-    }
-    into 'build/intermediates/lint/'
-}
-
-project.afterEvaluate {
-    def compileLintTask = project.tasks.find { it.name == 'compileLint' }
-    compileLintTask.dependsOn(copyLintJar)
+    lintPublish project(':conductor-lint')
 }
 
 ext.artifactId = 'conductor'
