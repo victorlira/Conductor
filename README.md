@@ -98,7 +98,7 @@ public class MainActivity extends Activity {
 public class HomeController extends Controller {
 
     @Override
-    protected View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
+    protected View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container, @Nullable Bundle savedViewState) {
         View view = inflater.inflate(R.layout.controller_home, container, false);
         ((TextView) view.findViewById(R.id.tv_title)).setText("Hello World");
         return view;

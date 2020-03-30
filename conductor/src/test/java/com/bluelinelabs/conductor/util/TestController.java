@@ -12,6 +12,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.bluelinelabs.conductor.Controller;
 import com.bluelinelabs.conductor.ControllerChangeHandler;
@@ -30,7 +31,7 @@ public class TestController extends Controller {
 
     @NonNull
     @Override
-    protected View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
+    protected View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container, @Nullable Bundle savedViewState) {
         currentCallState.createViewCalls++;
         FrameLayout view = new AttachFakingFrameLayout(inflater.getContext());
         view.setId(VIEW_ID);
