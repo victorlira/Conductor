@@ -13,15 +13,15 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnPreDrawListener;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.bluelinelabs.conductor.Controller;
 import com.bluelinelabs.conductor.ControllerChangeHandler;
 import com.bluelinelabs.conductor.internal.LegacyTransitionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * A TransitionChangeHandler that facilitates using different Transitions for the entering view, the exiting view,
@@ -64,12 +64,9 @@ public abstract class SharedElementTransitionChangeHandler extends TransitionCha
 
     @Override
     public void prepareForTransition(@NonNull final ViewGroup container, @Nullable final View from, @Nullable final View to, @NonNull final Transition transition, final boolean isPush, @NonNull final OnTransitionPreparedListener onTransitionPreparedListener) {
-        OnTransitionPreparedListener listener = new OnTransitionPreparedListener() {
-            @Override
-            public void onPrepared() {
-                configureTransition(container, from, to, transition, isPush);
-                onTransitionPreparedListener.onPrepared();
-            }
+        OnTransitionPreparedListener listener = () -> {
+            configureTransition(container, from, to, transition, isPush);
+            onTransitionPreparedListener.onPrepared();
         };
 
         configureSharedElements(container, from, to, isPush);
@@ -168,19 +165,16 @@ public abstract class SharedElementTransitionChangeHandler extends TransitionCha
 
     void waitOnChildTransitionNames(@NonNull final View to, @NonNull List<View> foundViews, @NonNull final OnPreDrawListener parentPreDrawListener, @NonNull final OnTransitionPreparedListener onTransitionPreparedListener) {
         for (final View view : foundViews) {
-            OneShotPreDrawListener.add(true, view, new Runnable() {
-                @Override
-                public void run() {
-                    waitForTransitionNames.remove(view.getTransitionName());
+            OneShotPreDrawListener.add(true, view, () -> {
+                waitForTransitionNames.remove(view.getTransitionName());
 
-                    removedViews.add(new ViewParentPair(view, (ViewGroup)view.getParent()));
-                    ((ViewGroup)view.getParent()).removeView(view);
+                removedViews.add(new ViewParentPair(view, (ViewGroup) view.getParent()));
+                ((ViewGroup) view.getParent()).removeView(view);
 
-                    if (waitForTransitionNames.size() == 0) {
-                        to.getViewTreeObserver().removeOnPreDrawListener(parentPreDrawListener);
-                        to.setVisibility(View.INVISIBLE);
-                        onTransitionPreparedListener.onPrepared();
-                    }
+                if (waitForTransitionNames.size() == 0) {
+                    to.getViewTreeObserver().removeOnPreDrawListener(parentPreDrawListener);
+                    to.setVisibility(View.INVISIBLE);
+                    onTransitionPreparedListener.onPrepared();
                 }
             });
         }
@@ -188,24 +182,21 @@ public abstract class SharedElementTransitionChangeHandler extends TransitionCha
 
     private void scheduleTargetChange(@NonNull final ViewGroup container, @Nullable final View to, @NonNull final View nonExistentView,
                                       @NonNull final List<View> toSharedElements, @NonNull final List<View> enteringViews, @Nullable final List<View> exitingViews) {
-        OneShotPreDrawListener.add(true, container, new Runnable() {
-            @Override
-            public void run() {
-                if (enterTransition != null) {
-                    enterTransition.removeTarget(nonExistentView);
-                    List<View> views = configureEnteringExitingViews(enterTransition, to, toSharedElements, nonExistentView);
-                    enteringViews.addAll(views);
-                }
+        OneShotPreDrawListener.add(true, container, () -> {
+            if (enterTransition != null) {
+                enterTransition.removeTarget(nonExistentView);
+                List<View> views = configureEnteringExitingViews(enterTransition, to, toSharedElements, nonExistentView);
+                enteringViews.addAll(views);
+            }
 
-                if (exitingViews != null) {
-                    if (exitTransition != null) {
-                        List<View> tempExiting = new ArrayList<>();
-                        tempExiting.add(nonExistentView);
-                        LegacyTransitionUtils.replaceTargets(exitTransition, exitingViews, tempExiting);
-                    }
-                    exitingViews.clear();
-                    exitingViews.add(nonExistentView);
+            if (exitingViews != null) {
+                if (exitTransition != null) {
+                    List<View> tempExiting = new ArrayList<>();
+                    tempExiting.add(nonExistentView);
+                    LegacyTransitionUtils.replaceTargets(exitTransition, exitingViews, tempExiting);
                 }
+                exitingViews.clear();
+                exitingViews.add(nonExistentView);
             }
         });
     }
@@ -275,26 +266,23 @@ public abstract class SharedElementTransitionChangeHandler extends TransitionCha
             toEpicenter = null;
         }
 
-        OneShotPreDrawListener.add(true, container, new Runnable() {
-            @Override
-            public void run() {
-                ArrayMap<String, View> capturedToSharedElements = captureToSharedElements(to, isPush);
+        OneShotPreDrawListener.add(true, container, () -> {
+            ArrayMap<String, View> capturedToSharedElements = captureToSharedElements(to, isPush);
 
-                if (capturedToSharedElements != null) {
-                    toSharedElements.addAll(capturedToSharedElements.values());
-                    toSharedElements.add(nonExistentView);
-                }
+            if (capturedToSharedElements != null) {
+                toSharedElements.addAll(capturedToSharedElements.values());
+                toSharedElements.add(nonExistentView);
+            }
 
-                callSharedElementStartEnd(capturedToSharedElements, false);
-                if (sharedElementTransition != null) {
-                    sharedElementTransition.getTargets().clear();
-                    sharedElementTransition.getTargets().addAll(toSharedElements);
-                    LegacyTransitionUtils.replaceTargets(sharedElementTransition, fromSharedElements, toSharedElements);
+            callSharedElementStartEnd(capturedToSharedElements, false);
+            if (sharedElementTransition != null) {
+                sharedElementTransition.getTargets().clear();
+                sharedElementTransition.getTargets().addAll(toSharedElements);
+                LegacyTransitionUtils.replaceTargets(sharedElementTransition, fromSharedElements, toSharedElements);
 
-                    final View toEpicenterView = getToEpicenterView(capturedToSharedElements);
-                    if (toEpicenterView != null && toEpicenter != null) {
-                        LegacyTransitionUtils.getBoundsOnScreen(toEpicenterView, toEpicenter);
-                    }
+                final View toEpicenterView = getToEpicenterView(capturedToSharedElements);
+                if (toEpicenterView != null && toEpicenter != null) {
+                    LegacyTransitionUtils.getBoundsOnScreen(toEpicenterView, toEpicenter);
                 }
             }
         });
@@ -474,33 +462,27 @@ public abstract class SharedElementTransitionChangeHandler extends TransitionCha
     }
 
     private void setNameOverrides(@NonNull final View container, @NonNull final List<View> toSharedElements) {
-        OneShotPreDrawListener.add(true, container, new Runnable() {
-            @Override
-            public void run() {
-                final int numSharedElements = toSharedElements.size();
-                for (int i = 0; i < numSharedElements; i++) {
-                    View view = toSharedElements.get(i);
-                    String name = view.getTransitionName();
-                    if (name != null) {
-                        String inName = findKeyForValue(sharedElementNames, name);
-                        view.setTransitionName(inName);
-                    }
+        OneShotPreDrawListener.add(true, container, () -> {
+            final int numSharedElements = toSharedElements.size();
+            for (int i = 0; i < numSharedElements; i++) {
+                View view = toSharedElements.get(i);
+                String name = view.getTransitionName();
+                if (name != null) {
+                    String inName = findKeyForValue(sharedElementNames, name);
+                    view.setTransitionName(inName);
                 }
             }
         });
     }
 
     private void scheduleNameReset(@NonNull final ViewGroup container, @NonNull final List<View> toSharedElements) {
-        OneShotPreDrawListener.add(true, container, new Runnable() {
-            @Override
-            public void run() {
-                final int numSharedElements = toSharedElements.size();
-                for (int i = 0; i < numSharedElements; i++) {
-                    final View view = toSharedElements.get(i);
-                    final String name = view.getTransitionName();
-                    final String inName = sharedElementNames.get(name);
-                    view.setTransitionName(inName);
-                }
+        OneShotPreDrawListener.add(true, container, () -> {
+            final int numSharedElements = toSharedElements.size();
+            for (int i = 0; i < numSharedElements; i++) {
+                final View view = toSharedElements.get(i);
+                final String name = view.getTransitionName();
+                final String inName = sharedElementNames.get(name);
+                view.setTransitionName(inName);
             }
         });
     }

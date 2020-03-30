@@ -18,6 +18,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.bluelinelabs.conductor.internal.ClassUtils;
 import com.bluelinelabs.conductor.internal.RouterRequiringFunc;
 import com.bluelinelabs.conductor.internal.ViewAttachHandler;
@@ -28,13 +32,8 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-
-import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * A Controller manages portions of the UI. It is similar to an Activity or Fragment in that it manages its
@@ -108,10 +107,10 @@ public abstract class Controller {
         Controller controller;
         try {
             if (bundleConstructor != null) {
-                controller = (Controller)bundleConstructor.newInstance(args);
+                controller = (Controller) bundleConstructor.newInstance(args);
             } else {
                 //noinspection ConstantConditions
-                controller = (Controller)getDefaultConstructor(constructors).newInstance();
+                controller = (Controller) getDefaultConstructor(constructors).newInstance();
 
                 // Restore the args that existed before the last process death
                 if (args != null) {
@@ -190,7 +189,7 @@ public abstract class Controller {
      * the same container unless you have a great reason to do so (ex: ViewPagers).
      *
      * @param container The ViewGroup that hosts the child Router
-     * @param tag The router's tag or {@code null} if none is needed
+     * @param tag       The router's tag or {@code null} if none is needed
      */
     @NonNull
     public final Router getChildRouter(@NonNull ViewGroup container, @Nullable String tag) {
@@ -205,8 +204,8 @@ public abstract class Controller {
      * The only time this method will return {@code null} is when the child router does not exist prior
      * to calling this method and the createIfNeeded parameter is set to false.
      *
-     * @param container The ViewGroup that hosts the child Router
-     * @param tag The router's tag or {@code null} if none is needed
+     * @param container      The ViewGroup that hosts the child Router
+     * @param tag            The router's tag or {@code null} if none is needed
      * @param createIfNeeded If true, a router will be created if one does not yet exist. Else {@code null} will be returned in this case.
      */
     @Nullable
@@ -394,7 +393,8 @@ public abstract class Controller {
      *
      * @param view The View to which this Controller should be bound.
      */
-    protected void onDestroyView(@NonNull View view) { }
+    protected void onDestroyView(@NonNull View view) {
+    }
 
     /**
      * Called when this Controller begins the process of being swapped in or out of the host view.
@@ -402,7 +402,8 @@ public abstract class Controller {
      * @param changeHandler The {@link ControllerChangeHandler} that's managing the swap
      * @param changeType    The type of change that's occurring
      */
-    protected void onChangeStarted(@NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) { }
+    protected void onChangeStarted(@NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
+    }
 
     /**
      * Called when this Controller completes the process of being swapped in or out of the host view.
@@ -410,59 +411,69 @@ public abstract class Controller {
      * @param changeHandler The {@link ControllerChangeHandler} that's managing the swap
      * @param changeType    The type of change that occurred
      */
-    protected void onChangeEnded(@NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) { }
+    protected void onChangeEnded(@NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
+    }
 
     /**
      * Called when this Controller has a Context available to it. This will happen very early on in the lifecycle
      * (before a view is created). If the host activity is re-created (ex: for orientation change), this will be
      * called again when the new context is available.
      */
-    protected void onContextAvailable(@NonNull Context context) { }
+    protected void onContextAvailable(@NonNull Context context) {
+    }
 
     /**
      * Called when this Controller's Context is no longer available. This can happen when the Controller is
      * destroyed or when the host Activity is destroyed.
      */
-    protected void onContextUnavailable() { }
+    protected void onContextUnavailable() {
+    }
 
     /**
      * Called when this Controller is attached to its host ViewGroup
      *
      * @param view The View for this Controller (passed for convenience)
      */
-    protected void onAttach(@NonNull View view) { }
+    protected void onAttach(@NonNull View view) {
+    }
 
     /**
      * Called when this Controller is detached from its host ViewGroup
      *
      * @param view The View for this Controller (passed for convenience)
      */
-    protected void onDetach(@NonNull View view) { }
+    protected void onDetach(@NonNull View view) {
+    }
 
     /**
      * Called when this Controller has been destroyed.
      */
-    protected void onDestroy() { }
+    protected void onDestroy() {
+    }
 
     /**
      * Called when this Controller's host Activity is started
      */
-    protected void onActivityStarted(@NonNull Activity activity) { }
+    protected void onActivityStarted(@NonNull Activity activity) {
+    }
 
     /**
      * Called when this Controller's host Activity is resumed
      */
-    protected void onActivityResumed(@NonNull Activity activity) { }
+    protected void onActivityResumed(@NonNull Activity activity) {
+    }
 
     /**
      * Called when this Controller's host Activity is paused
      */
-    protected void onActivityPaused(@NonNull Activity activity) { }
+    protected void onActivityPaused(@NonNull Activity activity) {
+    }
 
     /**
      * Called when this Controller's host Activity is stopped
      */
-    protected void onActivityStopped(@NonNull Activity activity) { }
+    protected void onActivityStopped(@NonNull Activity activity) {
+    }
 
     /**
      * Called to save this Controller's View state. As Views can be detached and destroyed as part of the
@@ -472,7 +483,8 @@ public abstract class Controller {
      * @param view     This Controller's View, passed for convenience
      * @param outState The Bundle into which the View state should be saved
      */
-    protected void onSaveViewState(@NonNull View view, @NonNull Bundle outState) { }
+    protected void onSaveViewState(@NonNull View view, @NonNull Bundle outState) {
+    }
 
     /**
      * Restores data that was saved in the {@link #onSaveViewState(View, Bundle)} method. This should be overridden
@@ -481,14 +493,16 @@ public abstract class Controller {
      * @param view           This Controller's View, passed for convenience
      * @param savedViewState The bundle that has data to be restored
      */
-    protected void onRestoreViewState(@NonNull View view, @NonNull Bundle savedViewState) { }
+    protected void onRestoreViewState(@NonNull View view, @NonNull Bundle savedViewState) {
+    }
 
     /**
      * Called to save this Controller's state in the event that its host Activity is destroyed.
      *
      * @param outState The Bundle into which data should be saved
      */
-    protected void onSaveInstanceState(@NonNull Bundle outState) { }
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+    }
 
     /**
      * Restores data that was saved in the {@link #onSaveInstanceState(Bundle)} method. This should be overridden
@@ -496,33 +510,28 @@ public abstract class Controller {
      *
      * @param savedInstanceState The bundle that has data to be restored
      */
-    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) { }
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+    }
 
     /**
      * Calls startActivity(Intent) from this Controller's host Activity.
      */
     public final void startActivity(@NonNull final Intent intent) {
-        executeWithRouter(new RouterRequiringFunc() {
-            @Override public void execute() { router.startActivity(intent); }
-        });
+        executeWithRouter(() -> router.startActivity(intent));
     }
 
     /**
      * Calls startActivityForResult(Intent, int) from this Controller's host Activity.
      */
     public final void startActivityForResult(@NonNull final Intent intent, final int requestCode) {
-        executeWithRouter(new RouterRequiringFunc() {
-            @Override public void execute() { router.startActivityForResult(instanceId, intent, requestCode); }
-        });
+        executeWithRouter(() -> router.startActivityForResult(instanceId, intent, requestCode));
     }
 
     /**
      * Calls startActivityForResult(Intent, int, Bundle) from this Controller's host Activity.
      */
     public final void startActivityForResult(@NonNull final Intent intent, final int requestCode, @Nullable final Bundle options) {
-        executeWithRouter(new RouterRequiringFunc() {
-            @Override public void execute() { router.startActivityForResult(instanceId, intent, requestCode, options); }
-        });
+        executeWithRouter(() -> router.startActivityForResult(instanceId, intent, requestCode, options));
     }
 
     /**
@@ -540,9 +549,7 @@ public abstract class Controller {
      * @param requestCode The request code being registered for.
      */
     public final void registerForActivityResult(final int requestCode) {
-        executeWithRouter(new RouterRequiringFunc() {
-            @Override public void execute() { router.registerForActivityResult(instanceId, requestCode); }
-        });
+        executeWithRouter(() -> router.registerForActivityResult(instanceId, requestCode));
     }
 
     /**
@@ -553,7 +560,8 @@ public abstract class Controller {
      * @param resultCode  The resultCode that was returned to the host Activity's onActivityResult method
      * @param data        The data Intent that was returned to the host Activity's onActivityResult method
      */
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) { }
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    }
 
     /**
      * Calls requestPermission(String[], int) from this Controller's host Activity. Results for this request,
@@ -564,9 +572,7 @@ public abstract class Controller {
     public final void requestPermissions(@NonNull final String[] permissions, final int requestCode) {
         requestedPermissions.addAll(Arrays.asList(permissions));
 
-        executeWithRouter(new RouterRequiringFunc() {
-            @Override public void execute() { router.requestPermissions(instanceId, permissions, requestCode); }
-        });
+        executeWithRouter(() -> router.requestPermissions(instanceId, permissions, requestCode));
     }
 
     /**
@@ -586,7 +592,8 @@ public abstract class Controller {
      * @param permissions  The array of permissions requested
      * @param grantResults The results for each permission requested
      */
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) { }
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    }
 
     /**
      * Should be overridden if this Controller needs to handle the back button being pressed.
@@ -600,15 +607,10 @@ public abstract class Controller {
             childTransactions.addAll(childRouter.getBackstack());
         }
 
-        Collections.sort(childTransactions, new Comparator<RouterTransaction>() {
-            @Override
-            public int compare(RouterTransaction o1, RouterTransaction o2) {
-                return o2.transactionIndex - o1.transactionIndex;
-            }
-        });
+        Collections.sort(childTransactions, (o1, o2) -> o2.getTransactionIndex() - o1.getTransactionIndex());
 
         for (RouterTransaction transaction : childTransactions) {
-            Controller childController = transaction.controller;
+            Controller childController = transaction.controller();
 
             if (childController.isAttached() && childController.getRouter().handleBack()) {
                 return true;
@@ -728,10 +730,11 @@ public abstract class Controller {
      * Adds option items to the host Activity's standard options menu. This will only be called if
      * {@link #setHasOptionsMenu(boolean)} has been called.
      *
-     * @param menu The menu into which your options should be placed.
+     * @param menu     The menu into which your options should be placed.
      * @param inflater The inflater that can be used to inflate your menu items.
      */
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) { }
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+    }
 
     /**
      * Prepare the screen's options menu to be displayed. This is called directly before showing the
@@ -739,7 +742,8 @@ public abstract class Controller {
      *
      * @param menu The menu that will be displayed
      */
-    public void onPrepareOptionsMenu(@NonNull Menu menu) { }
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+    }
 
     /**
      * Called when an option menu item has been selected by the user.
@@ -918,8 +922,8 @@ public abstract class Controller {
 
         for (ControllerHostedRouter childRouter : childRouters) {
             for (RouterTransaction childTransaction : childRouter.backstack) {
-                if (childTransaction.controller.awaitingParentAttach) {
-                    childTransaction.controller.attach(childTransaction.controller.view);
+                if (childTransaction.controller().awaitingParentAttach) {
+                    childTransaction.controller().attach(childTransaction.controller().view);
                 }
             }
 
@@ -1063,7 +1067,7 @@ public abstract class Controller {
                 View containerView = view.findViewById(childRouter.getHostId());
 
                 if (containerView != null && containerView instanceof ViewGroup) {
-                    childRouter.setHost(this, (ViewGroup)containerView);
+                    childRouter.setHost(this, (ViewGroup) containerView);
                     childRouter.rebindIfNeeded();
                 }
             }
@@ -1353,46 +1357,84 @@ public abstract class Controller {
         return null;
     }
 
-    /** Modes that will influence when the Controller will allow its view to be destroyed */
+    /**
+     * Modes that will influence when the Controller will allow its view to be destroyed
+     */
     public enum RetainViewMode {
-        /** The Controller will release its reference to its view as soon as it is detached. */
+        /**
+         * The Controller will release its reference to its view as soon as it is detached.
+         */
         RELEASE_DETACH,
-        /** The Controller will retain its reference to its view when detached, but will still release the reference when a config change occurs. */
+        /**
+         * The Controller will retain its reference to its view when detached, but will still release the reference when a config change occurs.
+         */
         RETAIN_DETACH
     }
 
-    /** Allows external classes to listen for lifecycle events in a Controller */
-    public static abstract class LifecycleListener {
+    /**
+     * Allows external classes to listen for lifecycle events in a Controller
+     */
+    public interface LifecycleListener {
 
-        public void onChangeStart(@NonNull Controller controller, @NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) { }
-        public void onChangeEnd(@NonNull Controller controller, @NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) { }
+        default void onChangeStart(@NonNull Controller controller, @NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
+        }
 
-        public void preCreateView(@NonNull Controller controller) { }
-        public void postCreateView(@NonNull Controller controller, @NonNull View view) { }
+        default void onChangeEnd(@NonNull Controller controller, @NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
+        }
 
-        public void preAttach(@NonNull Controller controller, @NonNull View view) { }
-        public void postAttach(@NonNull Controller controller, @NonNull View view) { }
+        default void preCreateView(@NonNull Controller controller) {
+        }
 
-        public void preDetach(@NonNull Controller controller, @NonNull View view) { }
-        public void postDetach(@NonNull Controller controller, @NonNull View view) { }
+        default void postCreateView(@NonNull Controller controller, @NonNull View view) {
+        }
 
-        public void preDestroyView(@NonNull Controller controller, @NonNull View view) { }
-        public void postDestroyView(@NonNull Controller controller) { }
+        default void preAttach(@NonNull Controller controller, @NonNull View view) {
+        }
 
-        public void preDestroy(@NonNull Controller controller) { }
-        public void postDestroy(@NonNull Controller controller) { }
+        default void postAttach(@NonNull Controller controller, @NonNull View view) {
+        }
 
-        public void preContextAvailable(@NonNull Controller controller) { }
-        public void postContextAvailable(@NonNull Controller controller, @NonNull Context context) { }
+        default void preDetach(@NonNull Controller controller, @NonNull View view) {
+        }
 
-        public void preContextUnavailable(@NonNull Controller controller, @NonNull Context context) { }
-        public void postContextUnavailable(@NonNull Controller controller) { }
+        default void postDetach(@NonNull Controller controller, @NonNull View view) {
+        }
 
-        public void onSaveInstanceState(@NonNull Controller controller, @NonNull Bundle outState) { }
-        public void onRestoreInstanceState(@NonNull Controller controller, @NonNull Bundle savedInstanceState) { }
+        default void preDestroyView(@NonNull Controller controller, @NonNull View view) {
+        }
 
-        public void onSaveViewState(@NonNull Controller controller, @NonNull Bundle outState) { }
-        public void onRestoreViewState(@NonNull Controller controller, @NonNull Bundle savedViewState) { }
+        default void postDestroyView(@NonNull Controller controller) {
+        }
+
+        default void preDestroy(@NonNull Controller controller) {
+        }
+
+        default void postDestroy(@NonNull Controller controller) {
+        }
+
+        default void preContextAvailable(@NonNull Controller controller) {
+        }
+
+        default void postContextAvailable(@NonNull Controller controller, @NonNull Context context) {
+        }
+
+        default void preContextUnavailable(@NonNull Controller controller, @NonNull Context context) {
+        }
+
+        default void postContextUnavailable(@NonNull Controller controller) {
+        }
+
+        default void onSaveInstanceState(@NonNull Controller controller, @NonNull Bundle outState) {
+        }
+
+        default void onRestoreInstanceState(@NonNull Controller controller, @NonNull Bundle savedInstanceState) {
+        }
+
+        default void onSaveViewState(@NonNull Controller controller, @NonNull Bundle outState) {
+        }
+
+        default void onRestoreViewState(@NonNull Controller controller, @NonNull Bundle savedViewState) {
+        }
 
     }
 

@@ -2,13 +2,14 @@ package com.bluelinelabs.conductor.changehandler;
 
 import android.annotation.TargetApi;
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.transition.Transition;
 import android.transition.Transition.TransitionListener;
 import android.transition.TransitionManager;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.bluelinelabs.conductor.Controller;
 import com.bluelinelabs.conductor.ControllerChangeHandler;
@@ -74,12 +75,7 @@ public abstract class TransitionChangeHandler extends ControllerChangeHandler {
             return;
         }
 
-        final Runnable onTransitionNotStarted = new Runnable() {
-            @Override
-            public void run() {
-                changeListener.onChangeCompleted();
-            }
-        };
+        final Runnable onTransitionNotStarted = changeListener::onChangeCompleted;
 
         final Transition transition = getTransition(container, from, to, isPush);
         transition.addListener(new TransitionListener() {
@@ -107,14 +103,11 @@ public abstract class TransitionChangeHandler extends ControllerChangeHandler {
             public void onTransitionResume(Transition transition) { }
         });
 
-        prepareForTransition(container, from, to, transition, isPush, new OnTransitionPreparedListener() {
-            @Override
-            public void onPrepared() {
-                if (!canceled) {
-                    TransitionManager.beginDelayedTransition(container, transition);
-                    executePropertyChanges(container, from, to, transition, isPush);
-                    container.post(onTransitionNotStarted);
-                }
+        prepareForTransition(container, from, to, transition, isPush, () -> {
+            if (!canceled) {
+                TransitionManager.beginDelayedTransition(container, transition);
+                executePropertyChanges(container, from, to, transition, isPush);
+                container.post(onTransitionNotStarted);
             }
         });
     }

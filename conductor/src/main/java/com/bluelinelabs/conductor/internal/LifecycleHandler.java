@@ -17,6 +17,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.bluelinelabs.conductor.ActivityHostedRouter;
 import com.bluelinelabs.conductor.Router;
 
@@ -24,9 +27,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 public class LifecycleHandler extends Fragment implements ActivityLifecycleCallbacks {
 
@@ -101,7 +101,7 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
 
     @NonNull
     public List<Router> getRouters() {
-        return new ArrayList<Router>(routerMap.values());
+        return new ArrayList<>(routerMap.values());
     }
 
     @Nullable
@@ -133,13 +133,13 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
 
         if (savedInstanceState != null) {
             StringSparseArrayParceler permissionParcel = savedInstanceState.getParcelable(KEY_PERMISSION_REQUEST_CODES);
-            permissionRequestMap = permissionParcel != null ? permissionParcel.getStringSparseArray() : new SparseArray<String>();
+            permissionRequestMap = permissionParcel != null ? permissionParcel.getStringSparseArray() : new SparseArray<>();
 
             StringSparseArrayParceler activityParcel = savedInstanceState.getParcelable(KEY_ACTIVITY_REQUEST_CODES);
-            activityRequestMap = activityParcel != null ? activityParcel.getStringSparseArray() : new SparseArray<String>();
+            activityRequestMap = activityParcel != null ? activityParcel.getStringSparseArray() : new SparseArray<>();
 
             ArrayList<PendingPermissionRequest> pendingRequests = savedInstanceState.getParcelableArrayList(KEY_PENDING_PERMISSION_REQUESTS);
-            pendingPermissionRequests = pendingRequests != null ? pendingRequests : new ArrayList<PendingPermissionRequest>();
+            pendingPermissionRequests = pendingRequests != null ? pendingRequests : new ArrayList<>();
         }
     }
 
@@ -164,7 +164,6 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
         }
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
