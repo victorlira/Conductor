@@ -20,6 +20,11 @@ import com.bluelinelabs.conductor.changehandler.FadeChangeHandler;
 import com.bluelinelabs.conductor.demo.R;
 import com.bluelinelabs.conductor.demo.controllers.base.BaseController;
 
+import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -27,9 +32,8 @@ import butterknife.OnClick;
 public class ExternalModulesController extends BaseController {
 
     private enum DemoModel {
-        RX_LIFECYCLE("Rx Lifecycle", R.color.red_300),
-        RX_LIFECYCLE_2("Rx Lifecycle 2", R.color.blue_grey_300),
         AUTODISPOSE("Autodispose", R.color.purple_300),
+        RX_LIFECYCLE_2("Rx Lifecycle 2", R.color.blue_grey_300),
         ARCH_LIFECYCLE("Arch Components Lifecycle", R.color.orange_300);
 
         String title;
@@ -72,18 +76,13 @@ public class ExternalModulesController extends BaseController {
 
     void onModelRowClick(DemoModel model) {
         switch (model) {
-            case RX_LIFECYCLE:
-                getRouter().pushController(RouterTransaction.with(new RxLifecycleController())
+            case AUTODISPOSE:
+                getRouter().pushController(RouterTransaction.with(new AutodisposeController())
                         .pushChangeHandler(new FadeChangeHandler())
                         .popChangeHandler(new FadeChangeHandler()));
                 break;
             case RX_LIFECYCLE_2:
                 getRouter().pushController(RouterTransaction.with(new RxLifecycle2Controller())
-                        .pushChangeHandler(new FadeChangeHandler())
-                        .popChangeHandler(new FadeChangeHandler()));
-                break;
-            case AUTODISPOSE:
-                getRouter().pushController(RouterTransaction.with(new AutodisposeController())
                         .pushChangeHandler(new FadeChangeHandler())
                         .popChangeHandler(new FadeChangeHandler()));
                 break;
