@@ -20,12 +20,6 @@ import android.animation.Animator;
 import android.animation.TimeInterpolator;
 import android.annotation.TargetApi;
 import android.os.Build;
-import androidx.annotation.NonNull;
-import androidx.interpolator.view.animation.FastOutLinearInInterpolator;
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
-import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
-import androidx.transition.Transition;
-
 import android.util.ArrayMap;
 import android.util.FloatProperty;
 import android.util.IntProperty;
@@ -34,6 +28,12 @@ import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 
 import java.util.ArrayList;
+
+import androidx.annotation.NonNull;
+import androidx.interpolator.view.animation.FastOutLinearInInterpolator;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
+import androidx.transition.Transition;
 
 /**
  * Utility methods for working with animations.
