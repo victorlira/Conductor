@@ -1,5 +1,7 @@
 package com.bluelinelabs.conductor.util
 
+import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 import android.os.Bundle
 import androidx.annotation.IdRes
 import org.robolectric.Robolectric
@@ -61,8 +63,12 @@ class ActivityProxy {
   }
 
   fun rotate(): ActivityProxy {
-    activity.isChangingConfigurations = true
-    activity.recreate()
+    val requestedPortrait = activity.requestedOrientation == SCREEN_ORIENTATION_PORTRAIT
+    activity.requestedOrientation = if (requestedPortrait) {
+      SCREEN_ORIENTATION_LANDSCAPE
+    } else {
+      SCREEN_ORIENTATION_PORTRAIT
+    }
     return this
   }
 }
