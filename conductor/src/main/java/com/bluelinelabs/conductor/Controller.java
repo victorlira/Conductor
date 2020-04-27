@@ -932,7 +932,9 @@ public abstract class Controller {
                 }
             }
 
-            childRouter.rebindIfNeeded();
+            if (childRouter.hasHost()) {
+                childRouter.rebindIfNeeded();
+            }
         }
     }
 
