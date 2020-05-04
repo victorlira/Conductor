@@ -14,7 +14,7 @@ import com.bluelinelabs.conductor.ControllerChangeHandler.ControllerChangeListen
  * [ControllerChangeHandler]s are performing changes. It is not required to use this
  * ViewGroup, but it can be helpful.
  */
-class ChangeHandlerFrameLayout : FrameLayout, ControllerChangeListener {
+open class ChangeHandlerFrameLayout : FrameLayout, ControllerChangeListener {
 
   private var inProgressTransactionCount = 0
 
