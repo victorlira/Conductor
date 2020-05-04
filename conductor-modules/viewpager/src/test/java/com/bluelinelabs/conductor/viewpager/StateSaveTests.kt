@@ -3,9 +3,9 @@ package com.bluelinelabs.conductor.viewpager
 import android.app.Activity
 import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
+import com.bluelinelabs.conductor.Conductor
 import com.bluelinelabs.conductor.Router
 import com.bluelinelabs.conductor.RouterTransaction.Companion.with
-import com.bluelinelabs.conductor.attachRouter
 import com.bluelinelabs.conductor.viewpager.util.FakePager
 import com.bluelinelabs.conductor.viewpager.util.TestController
 import org.junit.Assert.assertEquals
@@ -24,8 +24,7 @@ class StateSaveTests {
 
   init {
     val activityController = Robolectric.buildActivity(Activity::class.java).setup()
-    val router = activityController.get()
-      .attachRouter(FrameLayout(activityController.get()), null)
+    val router = Conductor.attachRouter(activityController.get(), FrameLayout(activityController.get()), null)
     val controller = TestController()
     router.setRoot(with(controller))
     pager = FakePager(FrameLayout(activityController.get()).also {
