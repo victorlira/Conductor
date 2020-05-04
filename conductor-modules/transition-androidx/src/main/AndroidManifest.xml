@@ -1,3 +1,3 @@
-<manifest package="com.bluelinelabs.conductor.transition_androidx">
+<manifest package="com.bluelinelabs.conductor.androidxtransition">
     <application />
 </manifest>

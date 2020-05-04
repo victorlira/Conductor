@@ -1,4 +1,4 @@
-package com.bluelinelabs.conductor.changehandler.transition_platform;
+package com.bluelinelabs.conductor.changehandler.platformtransition;
 
 import android.annotation.TargetApi;
 import android.app.SharedElementCallback;

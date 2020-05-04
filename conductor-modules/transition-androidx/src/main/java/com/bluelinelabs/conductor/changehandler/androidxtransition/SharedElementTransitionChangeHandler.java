@@ -1,4 +1,4 @@
-package com.bluelinelabs.conductor.changehandler.transition_androidx;
+package com.bluelinelabs.conductor.changehandler.androidxtransition;
 
 import android.graphics.Rect;
 import android.view.View;
