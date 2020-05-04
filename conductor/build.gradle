@@ -26,4 +26,4 @@ dependencies {
 ext.artifactId = 'conductor'
 
 apply from: rootProject.file('dependencies.gradle')
-apply from: rootProject.file('gradle-mvn-push.gradle')
+apply plugin: "com.vanniktech.maven.publish"

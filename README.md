@@ -13,29 +13,29 @@ A small, yet full-featured framework that allows building View-based Android app
 :twisted_rightwards_arrows: | Beautiful transitions between views
 :floppy_disk: | State persistence
 :phone: | Callbacks for onActivityResult, onRequestPermissionsResult, etc
-:european_post_office: | MVP / MVVM / VIPER / MVC ready
+:european_post_office: | MVP / MVVM / MVI / VIPER / MVC ready
 
 Conductor is architecture-agnostic and does not try to force any design decisions on the developer. We here at BlueLine Labs tend to use either MVP or MVVM, but it would work equally well with standard MVC or whatever else you want to throw at it.
 
 ## Installation
 
 ```gradle
-implementation 'com.bluelinelabs:conductor:3.0.0-rc4'
+implementation 'com.bluelinelabs:conductor:3.0.0-rc5'
 
 // AndroidX Transition change handlers:
-implementation 'com.bluelinelabs:conductor-androidx-transition:3.0.0-rc4'
+implementation 'com.bluelinelabs:conductor-androidx-transition:3.0.0-rc5'
 
 // ViewPager PagerAdapter:
-implementation 'com.bluelinelabs:conductor-viewpager:3.0.0-rc4'
+implementation 'com.bluelinelabs:conductor-viewpager:3.0.0-rc5'
 
 // RxJava2 lifecycle support:
-implementation 'com.bluelinelabs:conductor-rxlifecycle2:3.0.0-rc4'
+implementation 'com.bluelinelabs:conductor-rxlifecycle2:3.0.0-rc5'
 
 // RxJava2 Autodispose support:
-implementation 'com.bluelinelabs:conductor-autodispose:3.0.0-rc4'
+implementation 'com.bluelinelabs:conductor-autodispose:3.0.0-rc5'
 
 // Lifecycle-aware Controllers (architecture components):
-implementation 'com.bluelinelabs:conductor-archlifecycle:3.0.0-rc4'
+implementation 'com.bluelinelabs:conductor-archlifecycle:3.0.0-rc5'
 ```
 
 **SNAPSHOT**

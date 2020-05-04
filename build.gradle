@@ -1,5 +1,4 @@
 buildscript {
-
     apply from: rootProject.file('dependencies.gradle')
 
     repositories {
@@ -7,8 +6,9 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.2'
+        classpath 'com.android.tools.build:gradle:3.6.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "com.vanniktech:gradle-maven-publish-plugin:$mvnPublishVersion"
     }
 }
 
