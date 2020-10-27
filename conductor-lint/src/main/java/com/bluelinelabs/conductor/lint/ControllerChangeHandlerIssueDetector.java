@@ -14,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.uast.UClass;
 import org.jetbrains.uast.UElement;
 import org.jetbrains.uast.UMethod;
-import org.jetbrains.uast.UTypeReferenceExpression;
 
 import java.util.Collections;
 import java.util.List;
@@ -48,13 +47,7 @@ public final class ControllerChangeHandlerIssueDetector extends Detector impleme
                     return;
                 }
 
-                boolean hasSuperType = false;
-                for (UTypeReferenceExpression superType : node.getUastSuperTypes()) {
-                    if (CLASS_NAME.equals(superType.asRenderString())) {
-                        hasSuperType = true;
-                        break;
-                    }
-                }
+                final boolean hasSuperType = evaluator.extendsClass(node.getPsi(), CLASS_NAME, true);
                 if (!hasSuperType) {
                     return;
                 }
