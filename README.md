@@ -28,6 +28,9 @@ implementation 'com.bluelinelabs:conductor-androidx-transition:3.0.0-rc5'
 // ViewPager PagerAdapter:
 implementation 'com.bluelinelabs:conductor-viewpager:3.0.0-rc5'
 
+// ViewPager2 Adapter:
+implementation 'com.bluelinelabs:conductor-viewpager2:3.0.0-rc4'
+
 // RxJava2 lifecycle support:
 implementation 'com.bluelinelabs:conductor-rxlifecycle2:3.0.0-rc5'
 

@@ -1,34 +1,36 @@
 package com.bluelinelabs.conductor.demo.controllers;
 
-import androidx.annotation.NonNull;
-import com.google.android.material.tabs.TabLayout;
-import androidx.viewpager.widget.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.bluelinelabs.conductor.Controller;
 import com.bluelinelabs.conductor.Router;
 import com.bluelinelabs.conductor.RouterTransaction;
 import com.bluelinelabs.conductor.demo.R;
 import com.bluelinelabs.conductor.demo.controllers.base.BaseController;
-import com.bluelinelabs.conductor.viewpager.RouterPagerAdapter;
+import com.bluelinelabs.conductor.viewpager2.RouterStateAdapter;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.Locale;
 
 import butterknife.BindView;
 
-public class PagerController extends BaseController {
+public class ViewPager2Controller extends BaseController {
 
     private int[] PAGE_COLORS = new int[]{R.color.green_300, R.color.cyan_300, R.color.deep_purple_300, R.color.lime_300, R.color.red_300};
 
     @BindView(R.id.tab_layout) TabLayout tabLayout;
-    @BindView(R.id.view_pager) ViewPager viewPager;
+    @BindView(R.id.view_pager) ViewPager2 viewPager;
 
-    private final RouterPagerAdapter pagerAdapter;
+    private final RouterStateAdapter pagerAdapter;
 
-    public PagerController() {
-        pagerAdapter = new RouterPagerAdapter(this) {
+    public ViewPager2Controller() {
+        pagerAdapter = new RouterStateAdapter(this) {
             @Override
             public void configureRouter(@NonNull Router router, int position) {
                 if (!router.hasRootController()) {
@@ -38,13 +40,8 @@ public class PagerController extends BaseController {
             }
 
             @Override
-            public int getCount() {
+            public int getItemCount() {
                 return PAGE_COLORS.length;
-            }
-
-            @Override
-            public CharSequence getPageTitle(int position) {
-                return "Page " + position;
             }
         };
     }
@@ -52,14 +49,14 @@ public class PagerController extends BaseController {
     @NonNull
     @Override
     protected View inflateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
-        return inflater.inflate(R.layout.controller_pager, container, false);
+        return inflater.inflate(R.layout.controller_view_pager2, container, false);
     }
 
     @Override
     protected void onViewBound(@NonNull View view) {
         super.onViewBound(view);
         viewPager.setAdapter(pagerAdapter);
-        tabLayout.setupWithViewPager(viewPager);
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> tab.setText("Page " + position)).attach();
     }
 
     @Override
@@ -73,7 +70,7 @@ public class PagerController extends BaseController {
 
     @Override
     protected String getTitle() {
-        return "ViewPager Demo";
+        return "ViewPager2 Demo";
     }
 
 }

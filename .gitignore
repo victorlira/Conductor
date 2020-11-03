@@ -35,6 +35,4 @@ pom.xml.*
 local.properties
 
 *.prefs
-
-# The keystore file
-app/spothero-release.keystore
+.DS_Store

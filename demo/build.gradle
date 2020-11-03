@@ -31,6 +31,7 @@ android {
 
 dependencies {
     implementation rootProject.ext.androidxAppCompat
+    implementation rootProject.ext.androidxViewPager2
     implementation rootProject.ext.material
 
     implementation rootProject.ext.archComponentsLiveDataCore // Fix duplicate classes
@@ -41,6 +42,7 @@ dependencies {
 
     implementation project(':conductor')
     implementation project(':conductor-modules:viewpager')
+    implementation project(':conductor-modules:viewpager2')
     implementation project(':conductor-modules:rxlifecycle2')
     implementation project(':conductor-modules:autodispose')
     implementation project(':conductor-modules:arch-components-lifecycle')
