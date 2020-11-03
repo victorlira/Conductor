@@ -36,12 +36,18 @@ class ControllerHostedRouter extends Router {
         this.tag = tag;
     }
 
-    final void setHost(@NonNull Controller controller, @NonNull ViewGroup container) {
+    final void setHostController(@NonNull Controller controller) {
+        if (hostController == null) {
+            hostController = controller;
+        }
+    }
+
+    final void setHostContainer(@NonNull Controller controller, @NonNull ViewGroup container) {
         if (hostController != controller || this.container != container) {
             removeHost();
 
             if (container instanceof ControllerChangeListener) {
-                addChangeListener((ControllerChangeListener)container);
+                addChangeListener((ControllerChangeListener) container);
             }
 
             hostController = controller;
@@ -57,7 +63,7 @@ class ControllerHostedRouter extends Router {
 
     final void removeHost() {
         if (container != null && container instanceof ControllerChangeListener) {
-            removeChangeListener((ControllerChangeListener)container);
+            removeChangeListener((ControllerChangeListener) container);
         }
 
         final List<Controller> controllersToDestroy = new ArrayList<>(destroyingControllers);
@@ -73,7 +79,6 @@ class ControllerHostedRouter extends Router {
         }
 
         prepareForContainerRemoval();
-        hostController = null;
         container = null;
     }
 
@@ -129,8 +134,8 @@ class ControllerHostedRouter extends Router {
     }
 
     @Override
-    public void onActivityDestroyed(@NonNull Activity activity) {
-        super.onActivityDestroyed(activity);
+    public void onActivityDestroyed(@NonNull Activity activity, boolean isConfigurationChange) {
+        super.onActivityDestroyed(activity, isConfigurationChange);
 
         removeHost();
     }
@@ -200,7 +205,7 @@ class ControllerHostedRouter extends Router {
 
     @Override
     boolean hasHost() {
-        return hostController != null;
+        return hostController != null && container != null;
     }
 
     @Override
@@ -220,9 +225,9 @@ class ControllerHostedRouter extends Router {
     }
 
     @Override
-    void setControllerRouter(@NonNull Controller controller) {
+    void setRouterOnController(@NonNull Controller controller) {
         controller.setParentController(hostController);
-        super.setControllerRouter(controller);
+        super.setRouterOnController(controller);
     }
 
     int getHostId() {

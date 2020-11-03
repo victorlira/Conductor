@@ -434,7 +434,7 @@ public abstract class Router {
         while (backstackIterator.hasNext()) {
             RouterTransaction transaction = backstackIterator.next();
             transaction.onAttachedToRouter();
-            setControllerRouter(transaction.controller());
+            setRouterOnController(transaction.controller());
         }
 
         if (newBackstack.size() > 0) {
@@ -549,7 +549,7 @@ public abstract class Router {
             if (transaction.controller().getNeedsAttach()) {
                 performControllerChange(transaction, null, true, new SimpleSwapChangeHandler(false));
             } else {
-                setControllerRouter(transaction.controller());
+                setRouterOnController(transaction.controller());
             }
         }
     }
@@ -605,7 +605,7 @@ public abstract class Router {
         isActivityStopped = true;
     }
 
-    public void onActivityDestroyed(@NonNull Activity activity) {
+    public void onActivityDestroyed(@NonNull Activity activity, boolean isConfigurationChange) {
         prepareForContainerRemoval();
         changeListeners.clear();
 
@@ -613,7 +613,7 @@ public abstract class Router {
             transaction.controller().activityDestroyed(activity);
 
             for (Router childRouter : transaction.controller().getChildRouters()) {
-                childRouter.onActivityDestroyed(activity);
+                childRouter.onActivityDestroyed(activity, isConfigurationChange);
             }
         }
 
@@ -622,7 +622,7 @@ public abstract class Router {
             controller.activityDestroyed(activity);
 
             for (Router childRouter : controller.getChildRouters()) {
-                childRouter.onActivityDestroyed(activity);
+                childRouter.onActivityDestroyed(activity, isConfigurationChange);
             }
         }
 
@@ -657,7 +657,7 @@ public abstract class Router {
 
         Iterator<RouterTransaction> backstackIterator = backstack.reverseIterator();
         while (backstackIterator.hasNext()) {
-            setControllerRouter(backstackIterator.next().controller());
+            setRouterOnController(backstackIterator.next().controller());
         }
     }
 
@@ -784,7 +784,7 @@ public abstract class Router {
 
         if (to != null) {
             to.ensureValidIndex(getTransactionIndexer());
-            setControllerRouter(toController);
+            setRouterOnController(toController);
         } else if (backstack.size() == 0 && !popsLastView) {
             // We're emptying out the backstack. Views get weird if you transition them out, so just no-op it. The host
             // Activity or controller should be handling this by finishing or at least hiding this view.
@@ -802,7 +802,7 @@ public abstract class Router {
             if (fromController.getView() != null) {
                 fromController.detach(fromController.getView(), true, false);
             } else {
-                from.controller().destroy();
+                fromController.destroy();
             }
         }
     }
@@ -963,7 +963,7 @@ public abstract class Router {
         return true;
     }
 
-    void setControllerRouter(@NonNull Controller controller) {
+    void setRouterOnController(@NonNull Controller controller) {
         controller.setRouter(this);
         controller.onContextAvailable();
     }

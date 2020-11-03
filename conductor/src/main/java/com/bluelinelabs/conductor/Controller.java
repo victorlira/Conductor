@@ -228,7 +228,7 @@ public abstract class Controller {
         if (childRouter == null) {
             if (createIfNeeded) {
                 childRouter = new ControllerHostedRouter(container.getId(), tag);
-                childRouter.setHost(this, container);
+                childRouter.setHostContainer(this, container);
                 childRouters.add(childRouter);
 
                 if (isPerformingExitTransition) {
@@ -236,7 +236,7 @@ public abstract class Controller {
                 }
             }
         } else if (!childRouter.hasHost()) {
-            childRouter.setHost(this, container);
+            childRouter.setHostContainer(this, container);
             childRouter.rebindIfNeeded();
         }
 
@@ -1075,7 +1075,7 @@ public abstract class Controller {
                 View containerView = view.findViewById(childRouter.getHostId());
 
                 if (containerView != null && containerView instanceof ViewGroup) {
-                    childRouter.setHost(this, (ViewGroup) containerView);
+                    childRouter.setHostContainer(this, (ViewGroup) containerView);
                     childRouter.rebindIfNeeded();
                 }
             }
@@ -1234,6 +1234,7 @@ public abstract class Controller {
         List<Bundle> childBundles = savedInstanceState.getParcelableArrayList(KEY_CHILD_ROUTERS);
         for (Bundle childBundle : childBundles) {
             ControllerHostedRouter childRouter = new ControllerHostedRouter();
+            childRouter.setHostController(this);
             childRouter.restoreInstanceState(childBundle);
             childRouters.add(childRouter);
         }

@@ -159,13 +159,16 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
         if (activity != null) {
             activity.getApplication().unregisterActivityLifecycleCallbacks(this);
             activeLifecycleHandlers.remove(activity);
-            destroyRouters();
+            destroyRouters(false);
             activity = null;
         }
+
+        routerMap.clear();
     }
 
     @Override
     public void onAttach(Activity activity) {
+        this.activity = activity;
         super.onAttach(activity);
         destroyed = false;
         setAttached();
@@ -173,6 +176,10 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
 
     @Override
     public void onAttach(Context context) {
+        if (context instanceof Activity) {
+            this.activity = (Activity) context;
+        }
+
         super.onAttach(context);
         destroyed = false;
         setAttached();
@@ -183,7 +190,10 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
         super.onDetach();
 
         attached = false;
-        destroyRouters();
+
+        if (activity != null) {
+            destroyRouters(activity.isChangingConfigurations());
+        }
     }
 
     private void setAttached() {
@@ -194,20 +204,20 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
                 PendingPermissionRequest request = pendingPermissionRequests.remove(i);
                 requestPermissions(request.instanceId, request.permissions, request.requestCode);
             }
-        }
 
-        for (ActivityHostedRouter router : new ArrayList<>(routerMap.values())) {
-            router.onContextAvailable();
+            for (ActivityHostedRouter router : new ArrayList<>(routerMap.values())) {
+                router.onContextAvailable();
+            }
         }
     }
 
-    private void destroyRouters() {
+    private void destroyRouters(boolean configurationChange) {
         if (!destroyed) {
             destroyed = true;
 
             if (activity != null) {
                 for (Router router : getRouters()) {
-                    router.onActivityDestroyed(activity);
+                    router.onActivityDestroyed(activity, configurationChange);
                 }
             }
         }
@@ -319,7 +329,7 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
 
     @Override
     public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-        if (this.activity == null && findInActivity(activity) == LifecycleHandler.this) {
+        if (findInActivity(activity) == LifecycleHandler.this) {
             this.activity = activity;
 
             for (ActivityHostedRouter router : new ArrayList<>(routerMap.values())) {
