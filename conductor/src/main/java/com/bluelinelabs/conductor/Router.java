@@ -205,7 +205,7 @@ public abstract class Router {
             final boolean oldHandlerRemovedViews = topTransaction.pushChangeHandler() == null || topTransaction.pushChangeHandler().removesFromViewOnPush();
             final boolean newHandlerRemovesViews = handler == null || handler.removesFromViewOnPush();
             if (!oldHandlerRemovedViews && newHandlerRemovesViews) {
-                for (RouterTransaction visibleTransaction : getVisibleTransactions(backstack.iterator())) {
+                for (RouterTransaction visibleTransaction : getVisibleTransactions(backstack.iterator(), true)) {
                     performControllerChange(null, visibleTransaction, true, handler);
                 }
             }
@@ -404,7 +404,7 @@ public abstract class Router {
         ThreadUtils.ensureMainThread();
 
         List<RouterTransaction> oldTransactions = getBackstack();
-        List<RouterTransaction> oldVisibleTransactions = getVisibleTransactions(backstack.iterator());
+        List<RouterTransaction> oldVisibleTransactions = getVisibleTransactions(backstack.iterator(), false);
 
         removeAllExceptVisibleAndUnowned();
         ensureOrderedTransactionIndices(newBackstack);
@@ -440,7 +440,7 @@ public abstract class Router {
         if (newBackstack.size() > 0) {
             List<RouterTransaction> reverseNewBackstack = new ArrayList<>(newBackstack);
             Collections.reverse(reverseNewBackstack);
-            List<RouterTransaction> newVisibleTransactions = getVisibleTransactions(reverseNewBackstack.iterator());
+            List<RouterTransaction> newVisibleTransactions = getVisibleTransactions(reverseNewBackstack.iterator(), false);
             boolean newRootRequiresPush = !(newVisibleTransactions.size() > 0 && oldTransactions.contains(newVisibleTransactions.get(0)));
 
             boolean visibleTransactionsChanged = !backstacksAreEqual(newVisibleTransactions, oldVisibleTransactions);
@@ -464,7 +464,10 @@ public abstract class Router {
                         ControllerChangeHandler localHandler = changeHandler != null ? changeHandler.copy() : new SimpleSwapChangeHandler();
                         localHandler.setForceRemoveViewOnPush(true);
                         ControllerChangeHandler.completeHandlerImmediately(transaction.controller().getInstanceId());
-                        performControllerChange(null, transaction, newRootRequiresPush, localHandler);
+
+                        if (transaction.controller().view != null) {
+                            performControllerChange(null, transaction, newRootRequiresPush, localHandler);
+                        }
                     }
                 }
 
@@ -873,7 +876,7 @@ public abstract class Router {
     private void removeAllExceptVisibleAndUnowned() {
         List<View> views = new ArrayList<>();
 
-        for (RouterTransaction transaction : getVisibleTransactions(backstack.iterator())) {
+        for (RouterTransaction transaction : getVisibleTransactions(backstack.iterator(), false)) {
             if (transaction.controller().getView() != null) {
                 views.add(transaction.controller().getView());
             }
@@ -933,14 +936,20 @@ public abstract class Router {
         }
     }
 
-    private List<RouterTransaction> getVisibleTransactions(@NonNull Iterator<RouterTransaction> backstackIterator) {
+    private List<RouterTransaction> getVisibleTransactions(@NonNull Iterator<RouterTransaction> backstackIterator, boolean onlyTop) {
+        boolean visible = true;
+
         List<RouterTransaction> transactions = new ArrayList<>();
         while (backstackIterator.hasNext()) {
             RouterTransaction transaction = backstackIterator.next();
-            transactions.add(transaction);
 
-            //noinspection ConstantConditions
-            if (transaction.pushChangeHandler() == null || transaction.pushChangeHandler().removesFromViewOnPush()) {
+            if (visible) {
+                transactions.add(transaction);
+            }
+
+            visible = transaction.pushChangeHandler() != null && !transaction.pushChangeHandler().removesFromViewOnPush();
+
+            if (onlyTop && !visible) {
                 break;
             }
         }
