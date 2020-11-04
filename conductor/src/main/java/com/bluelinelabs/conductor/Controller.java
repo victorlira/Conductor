@@ -987,7 +987,11 @@ public abstract class Controller {
 
             onDestroyView(view);
 
-            viewAttachHandler.unregisterAttachListener(view);
+            // viewAttachHandler may be null iff the controller was popped before we got here
+            if (viewAttachHandler != null) {
+                viewAttachHandler.unregisterAttachListener(view);
+            }
+
             viewAttachHandler = null;
             viewIsAttached = false;
 
@@ -1036,32 +1040,34 @@ public abstract class Controller {
 
             restoreViewState(view);
 
-            viewAttachHandler = new ViewAttachHandler(new ViewAttachListener() {
-                @Override
-                public void onAttached() {
-                    viewIsAttached = true;
-                    viewWasDetached = false;
-                    attach(view);
-                }
-
-                @Override
-                public void onDetached(boolean fromActivityStop) {
-                    viewIsAttached = false;
-                    viewWasDetached = true;
-
-                    if (!isDetachFrozen) {
-                        detach(view, false, fromActivityStop);
+            if (!isBeingDestroyed) {
+                viewAttachHandler = new ViewAttachHandler(new ViewAttachListener() {
+                    @Override
+                    public void onAttached() {
+                        viewIsAttached = true;
+                        viewWasDetached = false;
+                        attach(view);
                     }
-                }
 
-                @Override
-                public void onViewDetachAfterStop() {
-                    if (!isDetachFrozen) {
-                        detach(view, false, false);
+                    @Override
+                    public void onDetached(boolean fromActivityStop) {
+                        viewIsAttached = false;
+                        viewWasDetached = true;
+
+                        if (!isDetachFrozen) {
+                            detach(view, false, fromActivityStop);
+                        }
                     }
-                }
-            });
-            viewAttachHandler.listenForAttach(view);
+
+                    @Override
+                    public void onViewDetachAfterStop() {
+                        if (!isDetachFrozen) {
+                            detach(view, false, false);
+                        }
+                    }
+                });
+                viewAttachHandler.listenForAttach(view);
+            }
         } else if (retainViewMode == RetainViewMode.RETAIN_DETACH) {
             restoreChildControllerHosts();
         }

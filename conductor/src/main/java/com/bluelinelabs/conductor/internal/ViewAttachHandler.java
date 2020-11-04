@@ -43,7 +43,6 @@ public class ViewAttachHandler implements OnAttachStateChangeListener {
         listenForDeepestChildAttach(v, () -> {
             childrenAttached = true;
             reportAttached();
-
         });
     }
 
