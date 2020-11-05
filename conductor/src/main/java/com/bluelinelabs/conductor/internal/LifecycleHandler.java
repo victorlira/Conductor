@@ -101,7 +101,7 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
 
     @NonNull
     public List<Router> getRouters() {
-        return new ArrayList<>(routerMap.values());
+        return new ArrayList<Router>(routerMap.values());
     }
 
     @Nullable
@@ -133,13 +133,13 @@ public class LifecycleHandler extends Fragment implements ActivityLifecycleCallb
 
         if (savedInstanceState != null) {
             StringSparseArrayParceler permissionParcel = savedInstanceState.getParcelable(KEY_PERMISSION_REQUEST_CODES);
-            permissionRequestMap = permissionParcel != null ? permissionParcel.getStringSparseArray() : new SparseArray<>();
+            permissionRequestMap = permissionParcel != null ? permissionParcel.getStringSparseArray() : new SparseArray<String>();
 
             StringSparseArrayParceler activityParcel = savedInstanceState.getParcelable(KEY_ACTIVITY_REQUEST_CODES);
-            activityRequestMap = activityParcel != null ? activityParcel.getStringSparseArray() : new SparseArray<>();
+            activityRequestMap = activityParcel != null ? activityParcel.getStringSparseArray() : new SparseArray<String>();
 
             ArrayList<PendingPermissionRequest> pendingRequests = savedInstanceState.getParcelableArrayList(KEY_PENDING_PERMISSION_REQUESTS);
-            pendingPermissionRequests = pendingRequests != null ? pendingRequests : new ArrayList<>();
+            pendingPermissionRequests = pendingRequests != null ? pendingRequests : new ArrayList<PendingPermissionRequest>();
         }
     }
 

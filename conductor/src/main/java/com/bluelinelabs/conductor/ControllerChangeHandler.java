@@ -206,29 +206,32 @@ public abstract class ControllerChangeHandler {
                 fromView = null;
             }
 
-            handler.performChange(container, fromView, toView, isPush, () -> {
-                if (from != null) {
-                    from.changeEnded(handler, fromChangeType);
-                }
-
-                if (to != null) {
-                    inProgressChangeHandlers.remove(to.getInstanceId());
-                    to.changeEnded(handler, toChangeType);
-                }
-
-                for (ControllerChangeListener listener : listeners) {
-                    listener.onChangeCompleted(to, from, isPush, container, handler);
-                }
-
-                if (handler.forceRemoveViewOnPush && fromView != null) {
-                    ViewParent fromParent = fromView.getParent();
-                    if (fromParent != null && fromParent instanceof ViewGroup) {
-                        ((ViewGroup) fromParent).removeView(fromView);
+            handler.performChange(container, fromView, toView, isPush, new ControllerChangeCompletedListener() {
+                @Override
+                public void onChangeCompleted() {
+                    if (from != null) {
+                        from.changeEnded(handler, fromChangeType);
                     }
-                }
 
-                if (handler.removesFromViewOnPush() && from != null) {
-                    from.setNeedsAttach(false);
+                    if (to != null) {
+                        inProgressChangeHandlers.remove(to.getInstanceId());
+                        to.changeEnded(handler, toChangeType);
+                    }
+
+                    for (ControllerChangeListener listener : listeners) {
+                        listener.onChangeCompleted(to, from, isPush, container, handler);
+                    }
+
+                    if (handler.forceRemoveViewOnPush && fromView != null) {
+                        ViewParent fromParent = fromView.getParent();
+                        if (fromParent != null && fromParent instanceof ViewGroup) {
+                            ((ViewGroup) fromParent).removeView(fromView);
+                        }
+                    }
+
+                    if (handler.removesFromViewOnPush() && from != null) {
+                        from.setNeedsAttach(false);
+                    }
                 }
             });
         }
@@ -258,8 +261,7 @@ public abstract class ControllerChangeHandler {
          * @param container The containing ViewGroup
          * @param handler   The change handler being used.
          */
-        default void onChangeStarted(@Nullable Controller to, @Nullable Controller from, boolean isPush, @NonNull ViewGroup container, @NonNull ControllerChangeHandler handler) {
-        }
+        void onChangeStarted(@Nullable Controller to, @Nullable Controller from, boolean isPush, @NonNull ViewGroup container, @NonNull ControllerChangeHandler handler);
 
         /**
          * Called when a {@link ControllerChangeHandler} has completed changing {@link Controller}s
@@ -270,8 +272,7 @@ public abstract class ControllerChangeHandler {
          * @param container The containing ViewGroup
          * @param handler   The change handler that was used.
          */
-        default void onChangeCompleted(@Nullable Controller to, @Nullable Controller from, boolean isPush, @NonNull ViewGroup container, @NonNull ControllerChangeHandler handler) {
-        }
+        void onChangeCompleted(@Nullable Controller to, @Nullable Controller from, boolean isPush, @NonNull ViewGroup container, @NonNull ControllerChangeHandler handler);
     }
 
     static class ChangeTransaction {

@@ -2,6 +2,7 @@ package com.bluelinelabs.conductor;
 
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 
@@ -85,7 +86,7 @@ public class ControllerLifecycleActivityReferenceTests {
         ActivityReferencingLifecycleListener listener = new ActivityReferencingLifecycleListener();
         child.addLifecycleListener(listener);
 
-        Router childRouter = parent.getChildRouter(parent.getView().findViewById(TestController.VIEW_ID));
+        Router childRouter = parent.getChildRouter((ViewGroup) parent.getView().findViewById(TestController.VIEW_ID));
         childRouter.pushController(RouterTransaction.with(child)
                 .pushChangeHandler(MockChangeHandler.defaultHandler())
                 .popChangeHandler(MockChangeHandler.defaultHandler()));
@@ -132,7 +133,7 @@ public class ControllerLifecycleActivityReferenceTests {
         ActivityReferencingLifecycleListener listener = new ActivityReferencingLifecycleListener();
         child.addLifecycleListener(listener);
 
-        Router childRouter = parent.getChildRouter(parent.getView().findViewById(TestController.VIEW_ID));
+        Router childRouter = parent.getChildRouter((ViewGroup) parent.getView().findViewById(TestController.VIEW_ID));
         childRouter.setPopsLastView(true);
         childRouter.pushController(RouterTransaction.with(child)
                 .pushChangeHandler(MockChangeHandler.defaultHandler())
@@ -161,7 +162,7 @@ public class ControllerLifecycleActivityReferenceTests {
         ActivityReferencingLifecycleListener listener = new ActivityReferencingLifecycleListener();
         child.addLifecycleListener(listener);
 
-        Router childRouter = parent.getChildRouter(parent.getView().findViewById(TestController.VIEW_ID));
+        Router childRouter = parent.getChildRouter((ViewGroup) parent.getView().findViewById(TestController.VIEW_ID));
         childRouter.setPopsLastView(true);
         childRouter.pushController(RouterTransaction.with(child)
                 .pushChangeHandler(MockChangeHandler.defaultHandler())
@@ -211,7 +212,7 @@ public class ControllerLifecycleActivityReferenceTests {
         ActivityReferencingLifecycleListener listener = new ActivityReferencingLifecycleListener();
         child.addLifecycleListener(listener);
 
-        Router childRouter = parent.getChildRouter(parent.getView().findViewById(TestController.VIEW_ID));
+        Router childRouter = parent.getChildRouter((ViewGroup) parent.getView().findViewById(TestController.VIEW_ID));
         childRouter.setPopsLastView(true);
         childRouter.pushController(RouterTransaction.with(child)
                 .pushChangeHandler(MockChangeHandler.defaultHandler())
@@ -227,7 +228,7 @@ public class ControllerLifecycleActivityReferenceTests {
         assertEquals(Collections.singletonList(true), listener.postDestroyReferences);
     }
 
-    static class ActivityReferencingLifecycleListener implements Controller.LifecycleListener {
+    static class ActivityReferencingLifecycleListener extends Controller.LifecycleListener {
         final List<Boolean> changeEndReferences = new ArrayList<>();
         final List<Boolean> postCreateViewReferences = new ArrayList<>();
         final List<Boolean> postAttachReferences = new ArrayList<>();

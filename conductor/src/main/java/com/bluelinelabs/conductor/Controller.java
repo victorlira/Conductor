@@ -32,6 +32,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -522,21 +523,36 @@ public abstract class Controller {
      * Calls startActivity(Intent) from this Controller's host Activity.
      */
     public final void startActivity(@NonNull final Intent intent) {
-        executeWithRouter(() -> router.startActivity(intent));
+        executeWithRouter(new RouterRequiringFunc() {
+            @Override
+            public void execute() {
+                router.startActivity(intent);
+            }
+        });
     }
 
     /**
      * Calls startActivityForResult(Intent, int) from this Controller's host Activity.
      */
     public final void startActivityForResult(@NonNull final Intent intent, final int requestCode) {
-        executeWithRouter(() -> router.startActivityForResult(instanceId, intent, requestCode));
+        executeWithRouter(new RouterRequiringFunc() {
+            @Override
+            public void execute() {
+                router.startActivityForResult(instanceId, intent, requestCode);
+            }
+        });
     }
 
     /**
      * Calls startActivityForResult(Intent, int, Bundle) from this Controller's host Activity.
      */
     public final void startActivityForResult(@NonNull final Intent intent, final int requestCode, @Nullable final Bundle options) {
-        executeWithRouter(() -> router.startActivityForResult(instanceId, intent, requestCode, options));
+        executeWithRouter(new RouterRequiringFunc() {
+            @Override
+            public void execute() {
+                router.startActivityForResult(instanceId, intent, requestCode, options);
+            }
+        });
     }
 
     /**
@@ -554,7 +570,12 @@ public abstract class Controller {
      * @param requestCode The request code being registered for.
      */
     public final void registerForActivityResult(final int requestCode) {
-        executeWithRouter(() -> router.registerForActivityResult(instanceId, requestCode));
+        executeWithRouter(new RouterRequiringFunc() {
+            @Override
+            public void execute() {
+                router.registerForActivityResult(instanceId, requestCode);
+            }
+        });
     }
 
     /**
@@ -577,7 +598,12 @@ public abstract class Controller {
     public final void requestPermissions(@NonNull final String[] permissions, final int requestCode) {
         requestedPermissions.addAll(Arrays.asList(permissions));
 
-        executeWithRouter(() -> router.requestPermissions(instanceId, permissions, requestCode));
+        executeWithRouter(new RouterRequiringFunc() {
+            @Override
+            public void execute() {
+                router.requestPermissions(instanceId, permissions, requestCode);
+            }
+        });
     }
 
     /**
@@ -612,7 +638,12 @@ public abstract class Controller {
             childTransactions.addAll(childRouter.getBackstack());
         }
 
-        Collections.sort(childTransactions, (o1, o2) -> o2.getTransactionIndex() - o1.getTransactionIndex());
+        Collections.sort(childTransactions, new Comparator<RouterTransaction>() {
+            @Override
+            public int compare(RouterTransaction o1, RouterTransaction o2) {
+                return o2.getTransactionIndex() - o1.getTransactionIndex();
+            }
+        });
 
         for (RouterTransaction transaction : childTransactions) {
             Controller childController = transaction.controller();
@@ -1389,66 +1420,66 @@ public abstract class Controller {
     /**
      * Allows external classes to listen for lifecycle events in a Controller
      */
-    public interface LifecycleListener {
+    public static abstract class LifecycleListener {
 
-        default void onChangeStart(@NonNull Controller controller, @NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
+        public void onChangeStart(@NonNull Controller controller, @NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
         }
 
-        default void onChangeEnd(@NonNull Controller controller, @NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
+        public void onChangeEnd(@NonNull Controller controller, @NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
         }
 
-        default void preCreateView(@NonNull Controller controller) {
+        public void preCreateView(@NonNull Controller controller) {
         }
 
-        default void postCreateView(@NonNull Controller controller, @NonNull View view) {
+        public void postCreateView(@NonNull Controller controller, @NonNull View view) {
         }
 
-        default void preAttach(@NonNull Controller controller, @NonNull View view) {
+        public void preAttach(@NonNull Controller controller, @NonNull View view) {
         }
 
-        default void postAttach(@NonNull Controller controller, @NonNull View view) {
+        public void postAttach(@NonNull Controller controller, @NonNull View view) {
         }
 
-        default void preDetach(@NonNull Controller controller, @NonNull View view) {
+        public void preDetach(@NonNull Controller controller, @NonNull View view) {
         }
 
-        default void postDetach(@NonNull Controller controller, @NonNull View view) {
+        public void postDetach(@NonNull Controller controller, @NonNull View view) {
         }
 
-        default void preDestroyView(@NonNull Controller controller, @NonNull View view) {
+        public void preDestroyView(@NonNull Controller controller, @NonNull View view) {
         }
 
-        default void postDestroyView(@NonNull Controller controller) {
+        public void postDestroyView(@NonNull Controller controller) {
         }
 
-        default void preDestroy(@NonNull Controller controller) {
+        public void preDestroy(@NonNull Controller controller) {
         }
 
-        default void postDestroy(@NonNull Controller controller) {
+        public void postDestroy(@NonNull Controller controller) {
         }
 
-        default void preContextAvailable(@NonNull Controller controller) {
+        public void preContextAvailable(@NonNull Controller controller) {
         }
 
-        default void postContextAvailable(@NonNull Controller controller, @NonNull Context context) {
+        public void postContextAvailable(@NonNull Controller controller, @NonNull Context context) {
         }
 
-        default void preContextUnavailable(@NonNull Controller controller, @NonNull Context context) {
+        public void preContextUnavailable(@NonNull Controller controller, @NonNull Context context) {
         }
 
-        default void postContextUnavailable(@NonNull Controller controller) {
+        public void postContextUnavailable(@NonNull Controller controller) {
         }
 
-        default void onSaveInstanceState(@NonNull Controller controller, @NonNull Bundle outState) {
+        public void onSaveInstanceState(@NonNull Controller controller, @NonNull Bundle outState) {
         }
 
-        default void onRestoreInstanceState(@NonNull Controller controller, @NonNull Bundle savedInstanceState) {
+        public void onRestoreInstanceState(@NonNull Controller controller, @NonNull Bundle savedInstanceState) {
         }
 
-        default void onSaveViewState(@NonNull Controller controller, @NonNull Bundle outState) {
+        public void onSaveViewState(@NonNull Controller controller, @NonNull Bundle outState) {
         }
 
-        default void onRestoreViewState(@NonNull Controller controller, @NonNull Bundle savedViewState) {
+        public void onRestoreViewState(@NonNull Controller controller, @NonNull Bundle savedViewState) {
         }
 
     }
