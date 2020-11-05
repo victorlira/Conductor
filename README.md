@@ -20,25 +20,25 @@ Conductor is architecture-agnostic and does not try to force any design decision
 ## Installation
 
 ```gradle
-implementation 'com.bluelinelabs:conductor:3.0.0-rc5'
+implementation 'com.bluelinelabs:conductor:3.0.0'
 
 // AndroidX Transition change handlers:
-implementation 'com.bluelinelabs:conductor-androidx-transition:3.0.0-rc5'
+implementation 'com.bluelinelabs:conductor-androidx-transition:3.0.0'
 
 // ViewPager PagerAdapter:
-implementation 'com.bluelinelabs:conductor-viewpager:3.0.0-rc5'
+implementation 'com.bluelinelabs:conductor-viewpager:3.0.0'
 
 // ViewPager2 Adapter:
-implementation 'com.bluelinelabs:conductor-viewpager2:3.0.0-rc4'
+implementation 'com.bluelinelabs:conductor-viewpager2:3.0.0'
 
 // RxJava2 lifecycle support:
-implementation 'com.bluelinelabs:conductor-rxlifecycle2:3.0.0-rc5'
+implementation 'com.bluelinelabs:conductor-rxlifecycle2:3.0.0'
 
 // RxJava2 Autodispose support:
-implementation 'com.bluelinelabs:conductor-autodispose:3.0.0-rc5'
+implementation 'com.bluelinelabs:conductor-autodispose:3.0.0'
 
 // Lifecycle-aware Controllers (architecture components):
-implementation 'com.bluelinelabs:conductor-archlifecycle:3.0.0-rc5'
+implementation 'com.bluelinelabs:conductor-archlifecycle:3.0.0'
 ```
 
 **SNAPSHOT**
