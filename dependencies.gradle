@@ -13,7 +13,8 @@ ext {
     autodisposeVersion = '1.0.0'
     archComponentsVersion = '2.0.0'
     junitVersion = '4.12'
-    mvnPublishVersion = '0.11.1'
+    mvnPublishVersion = '0.13.0'
+    dokkaVersion = '1.4.10.2'
 
     agpVersion = "4.1.0"
     lintVersion = agpVersion.replaceFirst(~/\d*/) { version ->
