@@ -153,11 +153,18 @@ abstract class RouterStateAdapter(private val host: Controller) :
   private fun attachRouter(holder: RouterViewHolder, position: Int) {
     val itemId = getItemId(position)
     val router = host.getChildRouter(holder.container, "$itemId")
+
+    // This should have already been handled by onViewRecycled, but it seems like this wasn't
+    // always reliably called
+    if (router != holder.currentRouter) {
+      holder.currentRouter?.let { host.removeChildRouter(it) }
+    }
+
     holder.currentRouter = router
     holder.currentItemId = itemId
 
     if (!router.hasRootController()) {
-      val routerSavedState = savedPages[position.toLong()]
+      val routerSavedState = savedPages[itemId]
       if (routerSavedState != null) {
         router.restoreInstanceState(routerSavedState)
         savedPages.remove(itemId)
@@ -210,8 +217,8 @@ abstract class RouterStateAdapter(private val host: Controller) :
 
   private fun ensurePagesSaved() {
     while (savedPages.size() > maxPagesToStateSave) {
-      val positionToRemove = savedPageHistory.removeAt(0)
-      savedPages.remove(positionToRemove)
+      val routerIdToRemove = savedPageHistory.removeAt(0)
+      savedPages.remove(routerIdToRemove)
     }
   }
 
