@@ -14,8 +14,11 @@ android {
 }
 
 dependencies {
+    implementation savedState
     testImplementation rootProject.ext.junit
-    testImplementation rootProject.ext.roboelectric
+    testImplementation rootProject.ext.robolectric
+
+    implementation archComponentsLifecycle
 
     api rootProject.ext.androidxAnnotations
     api kotlinStd
