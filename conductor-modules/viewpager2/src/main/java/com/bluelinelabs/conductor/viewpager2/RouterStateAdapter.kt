@@ -10,7 +10,7 @@ import androidx.viewpager2.adapter.StatefulAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.bluelinelabs.conductor.Controller
 import com.bluelinelabs.conductor.Router
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 /**
  * An ViewPager2 adapter that uses Routers as pages
@@ -48,7 +48,8 @@ abstract class RouterStateAdapter(private val host: Controller) :
   }
 
   private fun inferViewPager(recyclerView: RecyclerView): ViewPager2 {
-    return recyclerView.parent as? ViewPager2 ?: error("Expected ViewPager2 instance. Got: ${recyclerView.parent}")
+    return recyclerView.parent as? ViewPager2
+      ?: error("Expected ViewPager2 instance. Got: ${recyclerView.parent}")
   }
 
   override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
@@ -119,7 +120,8 @@ abstract class RouterStateAdapter(private val host: Controller) :
 
   override fun saveState(): Parcelable {
     // Ensure all visible pages are saved, starting at the outermost pages and working our way in
-    val visiblePositions = (0 until visibleRouters.size()).map { visibleRouters.keyAt(it) }.toMutableList()
+    val visiblePositions = (0 until visibleRouters.size())
+      .map { visibleRouters.keyAt(it) }.toMutableList()
     while (visiblePositions.isNotEmpty()) {
       val lastPosition = visiblePositions.removeAt(visiblePositions.lastIndex)
       savePage(getItemId(lastPosition), visibleRouters[lastPosition])
