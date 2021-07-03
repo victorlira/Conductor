@@ -1,62 +1,39 @@
-package com.bluelinelabs.conductor.internal;
+package com.bluelinelabs.conductor.internal
 
-import android.os.Parcel;
-import android.os.Parcelable;
-import androidx.annotation.NonNull;
-import android.util.SparseArray;
+import android.os.Parcel
+import android.os.Parcelable
+import android.util.SparseArray
 
-public class StringSparseArrayParceler implements Parcelable {
+class StringSparseArrayParceler(val stringSparseArray: SparseArray<String>) : Parcelable {
 
-    private final SparseArray<String> stringSparseArray;
+  override fun describeContents(): Int = 0
 
-    public StringSparseArrayParceler(@NonNull SparseArray<String> stringSparseArray) {
-        this.stringSparseArray = stringSparseArray;
+  override fun writeToParcel(out: Parcel, flags: Int) {
+    val size = stringSparseArray.size()
+    out.writeInt(size)
+    for (i in 0 until size) {
+      val key = stringSparseArray.keyAt(i)
+      out.writeInt(key)
+      out.writeString(stringSparseArray[key])
     }
+  }
 
-    StringSparseArrayParceler(@NonNull Parcel in) {
-        stringSparseArray = new SparseArray<>();
+  companion object {
 
-        final int size = in.readInt();
-
-        for (int i = 0; i < size; i++) {
-            stringSparseArray.put(in.readInt(), in.readString());
-        }
-    }
-
-    @NonNull
-    public SparseArray<String> getStringSparseArray() {
-        return stringSparseArray;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel out, int flags) {
-        final int size = stringSparseArray.size();
-
-        out.writeInt(size);
-
-        for (int i = 0; i < size; i++) {
-            int key = stringSparseArray.keyAt(i);
-
-            out.writeInt(key);
-            out.writeString(stringSparseArray.get(key));
-        }
-    }
-
-    public static final Parcelable.Creator<StringSparseArrayParceler> CREATOR = new Parcelable.Creator<StringSparseArrayParceler>() {
-        @Override
-        public StringSparseArrayParceler createFromParcel(Parcel in) {
-            return new StringSparseArrayParceler(in);
+    @Suppress("unused")
+    @JvmField
+    val CREATOR: Parcelable.Creator<StringSparseArrayParceler> =
+      object : Parcelable.Creator<StringSparseArrayParceler> {
+        override fun createFromParcel(parcel: Parcel): StringSparseArrayParceler {
+          val stringSparseArray = SparseArray<String>()
+          val size = parcel.readInt()
+          for (i in 0 until size) {
+            stringSparseArray.put(parcel.readInt(), parcel.readString())
+          }
+          return StringSparseArrayParceler(stringSparseArray)
         }
 
-        @Override
-        public StringSparseArrayParceler[] newArray(int size) {
-            return new StringSparseArrayParceler[size];
-        }
-    };
-
+        override fun newArray(size: Int): Array<StringSparseArrayParceler?> = arrayOfNulls(size)
+      }
+  }
 }
