@@ -45,6 +45,7 @@ ext {
 
     junit = "junit:junit:$junitVersion"
     robolectric = "org.robolectric:robolectric:4.5.1"
+    kotestAssertions = "io.kotest:kotest-assertions-core:4.6.0"
 
     lintapi = "com.android.tools.lint:lint-api:$lintVersion"
     lintchecks = "com.android.tools.lint:lint-checks:$lintVersion"

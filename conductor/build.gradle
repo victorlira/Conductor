@@ -17,6 +17,7 @@ dependencies {
     implementation savedState
     testImplementation rootProject.ext.junit
     testImplementation rootProject.ext.robolectric
+    testImplementation kotestAssertions
 
     implementation archComponentsLifecycle
 
