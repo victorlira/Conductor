@@ -4,7 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.util.SparseArray
 
-class StringSparseArrayParceler(val stringSparseArray: SparseArray<String>) : Parcelable {
+internal class StringSparseArrayParceler(val stringSparseArray: SparseArray<String>) : Parcelable {
 
   override fun describeContents(): Int = 0
 
