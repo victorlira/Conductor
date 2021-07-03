@@ -5,7 +5,6 @@ ext {
 
     picassoVersion = '2.5.2'
     rxJava2Version = '2.1.14'
-    rxLifecycle2Version = '2.2.1'
     autodisposeVersion = '1.0.0'
     archComponentsVersion = '2.3.1'
     junitVersion = '4.12'
@@ -34,9 +33,6 @@ ext {
     leakCanary = "com.squareup.leakcanary:leakcanary-android:2.7"
 
     rxJava2 = "io.reactivex.rxjava2:rxjava:$rxJava2Version"
-
-    rxLifecycle2 = "com.trello.rxlifecycle2:rxlifecycle:$rxLifecycle2Version"
-    rxLifecycleAndroid2 = "com.trello.rxlifecycle2:rxlifecycle-android:$rxLifecycle2Version"
 
     autodispose = "com.uber.autodispose:autodispose:$autodisposeVersion"
     autodisposeLifecycle = "com.uber.autodispose:autodispose-lifecycle:$autodisposeVersion"

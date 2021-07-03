@@ -17,7 +17,9 @@ import com.bluelinelabs.conductor.demo.databinding.RowHomeBinding
 import com.bluelinelabs.conductor.demo.util.viewBinding
 
 class ExternalModulesController : BaseController(R.layout.controller_additional_modules) {
-  private val binding: ControllerAdditionalModulesBinding by viewBinding(ControllerAdditionalModulesBinding::bind)
+  private val binding: ControllerAdditionalModulesBinding by viewBinding(
+    ControllerAdditionalModulesBinding::bind
+  )
 
   override val title = "External Module Demos"
 
@@ -40,11 +42,6 @@ class ExternalModulesController : BaseController(R.layout.controller_additional_
           .pushChangeHandler(FadeChangeHandler())
           .popChangeHandler(FadeChangeHandler())
       )
-      ModuleModel.RX_LIFECYCLE_2 -> router.pushController(
-        with(RxLifecycle2Controller())
-          .pushChangeHandler(FadeChangeHandler())
-          .popChangeHandler(FadeChangeHandler())
-      )
       ModuleModel.ARCH_LIFECYCLE -> router.pushController(
         with(ArchLifecycleController())
           .pushChangeHandler(FadeChangeHandler())
@@ -56,7 +53,6 @@ class ExternalModulesController : BaseController(R.layout.controller_additional_
 
 private enum class ModuleModel(val title: String, @ColorRes val color: Int) {
   AUTODISPOSE("Autodispose", R.color.purple_300),
-  RX_LIFECYCLE_2("Rx Lifecycle 2", R.color.blue_grey_300),
   ARCH_LIFECYCLE("Arch Components Lifecycle", R.color.orange_300);
 }
 
@@ -83,7 +79,10 @@ private class AdditionalModulesAdapter(
   ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(item: ModuleModel) {
       binding.title.text = item.title
-      binding.dot.drawable.setColorFilter(ContextCompat.getColor(itemView.context, item.color), PorterDuff.Mode.SRC_ATOP)
+      binding.dot.drawable.setColorFilter(
+        ContextCompat.getColor(itemView.context, item.color),
+        PorterDuff.Mode.SRC_ATOP
+      )
       itemView.setOnClickListener { modelClickListener(item) }
     }
   }

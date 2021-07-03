@@ -2,10 +2,10 @@ package com.bluelinelabs.conductor.demo.controllers
 
 import android.graphics.PorterDuff
 import android.os.Bundle
-import android.support.annotation.DrawableRes
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.recyclerview.widget.GridLayoutManager

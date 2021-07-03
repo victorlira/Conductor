@@ -31,9 +31,6 @@ implementation 'com.bluelinelabs:conductor-viewpager:3.1.0'
 // ViewPager2 Adapter:
 implementation 'com.bluelinelabs:conductor-viewpager2:3.1.0'
 
-// RxJava2 lifecycle support:
-implementation 'com.bluelinelabs:conductor-rxlifecycle2:3.1.0'
-
 // RxJava2 Autodispose support:
 implementation 'com.bluelinelabs:conductor-autodispose:3.1.0'
 
