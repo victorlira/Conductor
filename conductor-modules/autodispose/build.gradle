@@ -1,6 +1,7 @@
 apply from: rootProject.file('dependencies.gradle')
 
 apply plugin: 'com.android.library'
+apply plugin: "com.vanniktech.maven.publish"
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -22,4 +23,3 @@ dependencies {
 }
 
 ext.artifactId = 'conductor-autodispose'
-apply from: rootProject.file('gradle/publish.gradle')

@@ -18,8 +18,7 @@ dependencies {
     implementation project(':conductor')
 }
 
+ext.artifactId = 'conductor-androidx-transition'
 
 apply from: rootProject.file('dependencies.gradle')
-
-apply from: rootProject.file('gradle/publish.gradle')
-ext.artifactId = 'conductor-androidx-transition'
+apply plugin: "com.vanniktech.maven.publish"
