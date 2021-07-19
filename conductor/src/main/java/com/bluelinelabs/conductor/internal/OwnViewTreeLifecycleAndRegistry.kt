@@ -74,7 +74,7 @@ internal class OwnViewTreeLifecycleAndRegistry private constructor(
       ) {
         // Should only happen if pushing another controller over this one was aborted
         if (
-          controller == changeController &&
+          controller === changeController &&
           changeType.isEnter &&
           changeHandler.removesFromViewOnPush() &&
           changeController.view?.windowToken != null &&
@@ -94,9 +94,10 @@ internal class OwnViewTreeLifecycleAndRegistry private constructor(
         changeType: ControllerChangeType
       ) {
         if (
-          controller == changeController &&
+          controller === changeController &&
           !changeType.isEnter &&
           changeHandler.removesFromViewOnPush() &&
+          changeController.view != null &&
           lifecycleRegistry.currentState == Lifecycle.State.RESUMED
         ) {
           lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
