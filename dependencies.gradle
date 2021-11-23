@@ -12,7 +12,7 @@ ext {
     dokkaVersion = '1.4.32'
     composeVersion = "1.0.0-beta09"
 
-    agpVersion = "7.0.0-beta05"
+    agpVersion = '7.0.3'
     lintVersion = agpVersion.replaceFirst(~/\d*/) { version ->
         // the major version of lint is always 23 version higher than the major version of agp
         version.toInteger() + 23

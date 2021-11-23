@@ -856,6 +856,27 @@ public abstract class Controller {
         }
     }
 
+    final void onContextUnavailable(@NonNull Context context) {
+        if (isContextAvailable) {
+            for (Router childRouter : childRouters) {
+                childRouter.onContextUnavailable(context);
+            }
+
+            List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+            for (LifecycleListener lifecycleListener : listeners) {
+                lifecycleListener.preContextUnavailable(this, context);
+            }
+
+            isContextAvailable = false;
+            onContextUnavailable();
+
+            listeners = new ArrayList<>(lifecycleListeners);
+            for (LifecycleListener lifecycleListener : listeners) {
+                lifecycleListener.postContextUnavailable(this);
+            }
+        }
+    }
+
     final void executeWithRouter(@NonNull RouterRequiringFunc listener) {
         if (router != null) {
             listener.execute();
@@ -908,20 +929,7 @@ public abstract class Controller {
             destroy(true);
         }
 
-        if (isContextAvailable) {
-            List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
-            for (LifecycleListener lifecycleListener : listeners) {
-                lifecycleListener.preContextUnavailable(this, activity);
-            }
-
-            isContextAvailable = false;
-            onContextUnavailable();
-
-            listeners = new ArrayList<>(lifecycleListeners);
-            for (LifecycleListener lifecycleListener : listeners) {
-                lifecycleListener.postContextUnavailable(this);
-            }
-        }
+        onContextUnavailable(activity);
     }
 
     void attach(@NonNull View view) {
@@ -1123,18 +1131,7 @@ public abstract class Controller {
 
     private void performDestroy() {
         if (isContextAvailable) {
-            List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
-            for (LifecycleListener lifecycleListener : listeners) {
-                lifecycleListener.preContextUnavailable(this, getActivity());
-            }
-
-            isContextAvailable = false;
-            onContextUnavailable();
-
-            listeners = new ArrayList<>(lifecycleListeners);
-            for (LifecycleListener lifecycleListener : listeners) {
-                lifecycleListener.postContextUnavailable(this);
-            }
+            onContextUnavailable(getActivity());
         }
 
         if (!destroyed) {

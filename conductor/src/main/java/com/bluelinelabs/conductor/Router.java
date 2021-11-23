@@ -1,6 +1,7 @@
 package com.bluelinelabs.conductor;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
@@ -742,6 +743,15 @@ public abstract class Router {
     void onContextAvailable() {
         for (RouterTransaction transaction : backstack) {
             transaction.controller().onContextAvailable();
+        }
+    }
+
+    void onContextUnavailable(@NonNull Context context) {
+        for (RouterTransaction transaction : backstack) {
+            transaction.controller().onContextUnavailable(context);
+        }
+        for (Controller controller : destroyingControllers) {
+            controller.onContextUnavailable(context);
         }
     }
 
