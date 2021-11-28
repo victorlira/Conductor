@@ -154,7 +154,7 @@ abstract class RouterStateAdapter(private val host: Controller) :
 
   private fun attachRouter(holder: RouterViewHolder, position: Int) {
     val itemId = getItemId(position)
-    val router = host.getChildRouter(holder.container, "$itemId")
+    val router = host.getChildRouter(holder.container, "$itemId", true, false)!!
 
     // This should have already been handled by onViewRecycled, but it seems like this wasn't
     // always reliably called

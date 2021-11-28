@@ -9,7 +9,6 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -215,6 +214,23 @@ public abstract class Controller {
      */
     @Nullable
     public final Router getChildRouter(@NonNull ViewGroup container, @Nullable String tag, boolean createIfNeeded) {
+        return getChildRouter(container, tag, createIfNeeded, true);
+    }
+
+    /**
+     * Retrieves the child {@link Router} for the given container/tag combination. Note that multiple
+     * routers should not exist in the same container unless a lot of care is taken to maintain order
+     * between them. Avoid using the same container unless you have a great reason to do so (ex: ViewPagers).
+     * The only time this method will return {@code null} is when the child router does not exist prior
+     * to calling this method and the createIfNeeded parameter is set to false.
+     *
+     * @param container              The ViewGroup that hosts the child Router
+     * @param tag                    The router's tag or {@code null} if none is needed
+     * @param createIfNeeded         If true, a router will be created if one does not yet exist. Else {@code null} will be returned in this case.
+     * @param boundToHostContainerId If true, a router will only ever rebind with a container with the same view id on state restoration. Note that this must be set to true if the tag is null.
+     */
+    @Nullable
+    public final Router getChildRouter(@NonNull ViewGroup container, @Nullable String tag, boolean createIfNeeded, boolean boundToHostContainerId) {
         @IdRes final int containerId = container.getId();
         if (containerId == View.NO_ID) {
             throw new IllegalStateException("You must set an id on your container.");
@@ -222,7 +238,7 @@ public abstract class Controller {
 
         ControllerHostedRouter childRouter = null;
         for (ControllerHostedRouter router : childRouters) {
-            if (router.getHostId() == containerId && TextUtils.equals(tag, router.getTag())) {
+            if (router.matches(containerId, tag)) {
                 childRouter = router;
                 break;
             }
@@ -230,7 +246,7 @@ public abstract class Controller {
 
         if (childRouter == null) {
             if (createIfNeeded) {
-                childRouter = new ControllerHostedRouter(container.getId(), tag);
+                childRouter = new ControllerHostedRouter(container.getId(), tag, boundToHostContainerId);
                 childRouter.setHostContainer(this, container);
                 childRouters.add(childRouter);
 

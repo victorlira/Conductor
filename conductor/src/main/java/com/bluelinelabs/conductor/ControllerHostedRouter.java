@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.ViewGroup;
 
 import androidx.annotation.IdRes;
@@ -22,18 +23,28 @@ class ControllerHostedRouter extends Router {
 
     private final String KEY_HOST_ID = "ControllerHostedRouter.hostId";
     private final String KEY_TAG = "ControllerHostedRouter.tag";
+    private final String KEY_BOUND_TO_CONTAINER = "ControllerHostedRouter.boundToContainer";
 
     private Controller hostController;
 
     @IdRes private int hostId;
     private String tag;
     private boolean isDetachFrozen;
+    private boolean boundToContainer;
 
     ControllerHostedRouter() { }
 
     ControllerHostedRouter(int hostId, @Nullable String tag) {
+        this(hostId, tag, false);
+    }
+
+    ControllerHostedRouter(int hostId, @Nullable String tag, boolean boundToContainer) {
+        if (!boundToContainer && tag == null) {
+            throw new IllegalStateException("ControllerHostedRouter can't be created without a tag if not bounded to its container");
+        }
         this.hostId = hostId;
         this.tag = tag;
+        this.boundToContainer = boundToContainer;
     }
 
     final void setHostController(@NonNull Controller controller) {
@@ -213,6 +224,7 @@ class ControllerHostedRouter extends Router {
         super.saveInstanceState(outState);
 
         outState.putInt(KEY_HOST_ID, hostId);
+        outState.putBoolean(KEY_BOUND_TO_CONTAINER, boundToContainer);
         outState.putString(KEY_TAG, tag);
     }
 
@@ -221,6 +233,7 @@ class ControllerHostedRouter extends Router {
         super.restoreInstanceState(savedInstanceState);
 
         hostId = savedInstanceState.getInt(KEY_HOST_ID);
+        boundToContainer = savedInstanceState.getBoolean(KEY_BOUND_TO_CONTAINER);
         tag = savedInstanceState.getString(KEY_TAG);
     }
 
@@ -234,9 +247,18 @@ class ControllerHostedRouter extends Router {
         return hostId;
     }
 
-    @Nullable
-    String getTag() {
-        return tag;
+    boolean matches(int hostId, @Nullable String tag) {
+        if (!boundToContainer && container == null) {
+            if (this.tag == null) {
+                throw new IllegalStateException("Host ID can't be variable with a null tag");
+            }
+            if (this.tag.equals(tag)) {
+                this.hostId = hostId;
+                return true;
+            }
+        }
+
+        return this.hostId == hostId && TextUtils.equals(tag, this.tag);
     }
 
     @Override @NonNull
