@@ -1005,24 +1005,26 @@ public abstract class Controller {
         final boolean removeViewRef = !blockViewRefRemoval && (forceViewRefRemoval || retainViewMode == RetainViewMode.RELEASE_DETACH || isBeingDestroyed);
 
         if (attached) {
-            List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
-            for (LifecycleListener lifecycleListener : listeners) {
-                lifecycleListener.preDetach(this, view);
-            }
-
-            attached = false;
-
             if (!awaitingParentAttach) {
+                List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
+                for (LifecycleListener lifecycleListener : listeners) {
+                    lifecycleListener.preDetach(this, view);
+                }
+
+                attached = false;
                 onDetach(view);
-            }
 
-            if (hasOptionsMenu && !optionsMenuHidden) {
-                router.invalidateOptionsMenu();
-            }
+                if (hasOptionsMenu && !optionsMenuHidden) {
+                    router.invalidateOptionsMenu();
+                }
 
-            listeners = new ArrayList<>(lifecycleListeners);
-            for (LifecycleListener lifecycleListener : listeners) {
-                lifecycleListener.postDetach(this, view);
+                listeners = new ArrayList<>(lifecycleListeners);
+                for (LifecycleListener lifecycleListener : listeners) {
+                    lifecycleListener.postDetach(this, view);
+                }
+            } else {
+                attached = false;
+                awaitingParentAttach = false;
             }
         }
 
