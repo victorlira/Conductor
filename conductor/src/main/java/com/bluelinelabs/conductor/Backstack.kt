@@ -1,7 +1,8 @@
 package com.bluelinelabs.conductor
 
 import android.os.Bundle
-import java.util.*
+import java.util.ArrayDeque
+import java.util.Deque
 
 internal class Backstack : Iterable<RouterTransaction> {
 

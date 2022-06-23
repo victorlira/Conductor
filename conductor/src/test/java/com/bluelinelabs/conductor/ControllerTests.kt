@@ -129,16 +129,8 @@ class ControllerTests {
     assertCalls(expectedCallState, controller)
 
     // Ensure requesting the permission gets us the result back
-    try {
-      controller.requestPermissions(requestedPermissions, 1)
-    } catch (ignored: NoSuchMethodError) { }
+    controller.requestPermissions(requestedPermissions, 1)
 
-    router.onRequestPermissionsResult(
-      controller.instanceId,
-      1,
-      requestedPermissions,
-      intArrayOf(1)
-    )
     expectedCallState.onRequestPermissionsResultCalls++
     assertCalls(expectedCallState, controller)
   }
@@ -162,11 +154,8 @@ class ControllerTests {
     assertCalls(parentExpectedCallState, parent)
 
     // Ensure requesting the permission gets us the result back
-    try {
-      child.requestPermissions(requestedPermissions, 1)
-    } catch (ignored: NoSuchMethodError) { }
+    child.requestPermissions(requestedPermissions, 1)
 
-    router.onRequestPermissionsResult(child.instanceId, 1, requestedPermissions, intArrayOf(1))
     childExpectedCallState.onRequestPermissionsResultCalls++
     assertCalls(childExpectedCallState, child)
     assertCalls(parentExpectedCallState, parent)

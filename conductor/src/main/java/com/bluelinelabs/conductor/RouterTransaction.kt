@@ -16,8 +16,7 @@ private const val KEY_ATTACHED_TO_ROUTER = "RouterTransaction.attachedToRouter"
 /**
  * Metadata used for adding [Controller]s to a [Router].
  */
-class RouterTransaction
-private constructor(
+class RouterTransaction private constructor(
   @get:JvmName("controller")
   val controller: Controller,
   private var tag: String? = null,
@@ -28,7 +27,6 @@ private constructor(
   @set:RestrictTo(LIBRARY)
   var transactionIndex: Int = INVALID_INDEX
 ) {
-
 
   @RestrictTo(LIBRARY)
   internal constructor(bundle: Bundle) : this(

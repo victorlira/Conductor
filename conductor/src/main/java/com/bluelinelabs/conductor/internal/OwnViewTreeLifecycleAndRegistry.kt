@@ -7,9 +7,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
-import androidx.savedstate.ViewTreeSavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.bluelinelabs.conductor.Controller
 import com.bluelinelabs.conductor.ControllerChangeHandler
 import com.bluelinelabs.conductor.ControllerChangeType
@@ -29,6 +30,8 @@ internal class OwnViewTreeLifecycleAndRegistry private constructor(
 
   private var hasSavedState = false
   private var savedRegistryState = Bundle.EMPTY
+
+  override val savedStateRegistry: SavedStateRegistry get() = savedStateRegistryController.savedStateRegistry
 
   init {
     controller.addLifecycleListener(object : Controller.LifecycleListener() {
@@ -55,10 +58,7 @@ internal class OwnViewTreeLifecycleAndRegistry private constructor(
           view.getTag(R.id.view_tree_saved_state_registry_owner) == null
         ) {
           ViewTreeLifecycleOwner.set(view, this@OwnViewTreeLifecycleAndRegistry)
-          ViewTreeSavedStateRegistryOwner.set(
-            view,
-            this@OwnViewTreeLifecycleAndRegistry
-          )
+          view.setViewTreeSavedStateRegistryOwner(this@OwnViewTreeLifecycleAndRegistry)
         }
 
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
@@ -149,8 +149,6 @@ internal class OwnViewTreeLifecycleAndRegistry private constructor(
   }
 
   override fun getLifecycle() = lifecycleRegistry
-
-  override fun getSavedStateRegistry() = savedStateRegistryController.savedStateRegistry
 
   private fun listenForAncestorChangeStart(controller: Controller) {
     GlobalChangeStartListener.subscribe(controller, controller.ancestors()) { ancestor, changeHandler, changeType ->
