@@ -125,8 +125,7 @@ internal class OwnViewTreeLifecycleAndRegistry private constructor(
       override fun preDestroyView(controller: Controller, view: View) {
         if (controller.isBeingDestroyed && controller.router.backstackSize == 0) {
           val parent = view.parent as? View
-          parent?.addOnAttachStateChangeListener(object :
-            View.OnAttachStateChangeListener {
+          parent?.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
             override fun onViewAttachedToWindow(v: View?) = Unit
             override fun onViewDetachedFromWindow(v: View?) {
               parent.removeOnAttachStateChangeListener(this)
@@ -160,12 +159,16 @@ internal class OwnViewTreeLifecycleAndRegistry private constructor(
           changeHandler: ControllerChangeHandler,
           changeType: ControllerChangeType
         ) {
-          pauseOnChangeStart(
-            targetController = parent,
-            changeController = controller,
-            changeHandler = changeHandler,
-            changeType = changeType,
-          )
+          // No-op on the case where we (the child controller) hasn't yet created a View as our parent is being
+          // changed out.
+          if (::lifecycleRegistry.isInitialized) {
+            pauseOnChangeStart(
+              targetController = parent,
+              changeController = controller,
+              changeHandler = changeHandler,
+              changeType = changeType,
+            )
+          }
         }
       }
 
