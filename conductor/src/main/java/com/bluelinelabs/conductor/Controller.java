@@ -1035,7 +1035,11 @@ public abstract class Controller {
     }
 
     private void removeViewReference() {
+        Context context = null;
+
         if (view != null) {
+            context = view.getContext();
+
             if (!isBeingDestroyed && !hasSavedViewState) {
                 saveViewState(view);
             }
@@ -1071,7 +1075,7 @@ public abstract class Controller {
         }
 
         if (isBeingDestroyed) {
-            performDestroy();
+            performDestroy(context);
         }
     }
 
@@ -1148,9 +1152,13 @@ public abstract class Controller {
         }
     }
 
-    private void performDestroy() {
+    private void performDestroy(@Nullable Context context) {
+        if (context == null) {
+            context = getActivity();
+        }
+
         if (isContextAvailable) {
-            onContextUnavailable(getActivity());
+            onContextUnavailable(context);
         }
 
         if (!destroyed) {
