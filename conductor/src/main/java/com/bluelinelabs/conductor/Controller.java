@@ -1364,20 +1364,21 @@ public abstract class Controller {
         changeHandler.onEnd();
     }
 
-    final void setDetachFrozen(boolean frozen) {
-        if (isDetachFrozen != frozen) {
-            isDetachFrozen = frozen;
+    final void onDetachFreezeUpdated(boolean frozen) {
+        if (isDetachFrozen == frozen) {
+            return;
+        }
 
-            for (ControllerHostedRouter router : childRouters) {
-                router.setDetachFrozen(frozen);
-            }
+        isDetachFrozen = frozen;
+        for (ControllerHostedRouter router : childRouters) {
+            router.onParentDetachFreezeUpdated(frozen);
+        }
 
-            if (!frozen && view != null && viewWasDetached) {
-                View aView = view;
-                detach(view, false, false);
-                if (view == null && aView.getParent() == router.container) {
-                    router.container.removeView(aView); // need to remove the view when this controller is a child controller
-                }
+        if (!frozen && view != null && viewWasDetached) {
+            View aView = view;
+            detach(view, false, false);
+            if (view == null && aView.getParent() == router.container) {
+                router.container.removeView(aView); // need to remove the view when this controller is a child controller
             }
         }
     }
