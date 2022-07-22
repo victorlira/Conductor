@@ -709,7 +709,7 @@ public abstract class Controller {
     public void setRetainViewMode(@NonNull RetainViewMode retainViewMode) {
         this.retainViewMode = retainViewMode != null ? retainViewMode : RetainViewMode.RELEASE_DETACH;
         if (this.retainViewMode == RetainViewMode.RELEASE_DETACH && !attached) {
-            removeViewReference();
+            removeViewReference(null);
         }
     }
 
@@ -873,11 +873,11 @@ public abstract class Controller {
     }
 
     final void onContextUnavailable(@NonNull Context context) {
-        if (isContextAvailable) {
-            for (Router childRouter : childRouters) {
-                childRouter.onContextUnavailable(context);
-            }
+        for (Router childRouter : childRouters) {
+            childRouter.onContextUnavailable(context);
+        }
 
+        if (isContextAvailable) {
             List<LifecycleListener> listeners = new ArrayList<>(lifecycleListeners);
             for (LifecycleListener lifecycleListener : listeners) {
                 lifecycleListener.preContextUnavailable(this, context);
@@ -995,7 +995,7 @@ public abstract class Controller {
         }
     }
 
-    void detach(@NonNull View view, boolean forceViewRefRemoval, boolean blockViewRefRemoval) {
+    void detach(View view, boolean forceViewRefRemoval, boolean blockViewRefRemoval) {
         if (!attachedToUnownedParent) {
             for (ControllerHostedRouter router : childRouters) {
                 router.prepareForHostDetach();
@@ -1030,15 +1030,15 @@ public abstract class Controller {
         awaitingParentAttach = false;
 
         if (removeViewRef) {
-            removeViewReference();
+            removeViewReference(view != null ? view.getContext() : null);
         }
     }
 
-    private void removeViewReference() {
-        Context context = null;
-
+    private void removeViewReference(@Nullable Context context) {
         if (view != null) {
-            context = view.getContext();
+            if (context == null) {
+                context = view.getContext();
+            }
 
             if (!isBeingDestroyed && !hasSavedViewState) {
                 saveViewState(view);
@@ -1082,7 +1082,7 @@ public abstract class Controller {
     final View inflate(@NonNull ViewGroup parent) {
         if (view != null && view.getParent() != null && view.getParent() != parent) {
             detach(view, true, false);
-            removeViewReference();
+            removeViewReference(view.getContext());
         }
 
         if (view == null) {
@@ -1196,7 +1196,7 @@ public abstract class Controller {
         }
 
         if (!attached) {
-            removeViewReference();
+            removeViewReference(null);
         } else if (removeViews) {
             detach(view, true, false);
         }
