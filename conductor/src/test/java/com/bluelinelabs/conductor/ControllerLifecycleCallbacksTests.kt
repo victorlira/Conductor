@@ -572,6 +572,45 @@ class ControllerLifecycleCallbacksTests {
     Assert.assertTrue(child2.isAttached)
   }
 
+  @Test
+  fun testChildTransactionDuringParentTransaction() {
+    val parent = TestController()
+    parent.retainViewMode = RetainViewMode.RETAIN_DETACH
+    activityController.get().router.pushController(parent.asTransaction())
+
+    val child = TestController()
+    val childRouter = parent.getChildRouter(parent.getView()!!.findViewById(TestController.VIEW_ID))
+    childRouter.setRoot(child.asTransaction())
+
+    val childMockChangeHandler = MockChangeHandler.defaultHandler()
+    val childDelayHandler = childMockChangeHandler.delayTransaction()
+
+    val child2 = TestController()
+    childRouter.pushController(child2.asTransaction(
+      pushChangeHandler = childMockChangeHandler,
+    ))
+
+    shadowOf(getMainLooper()).idle()
+
+    val parentMockChangeHandler = MockChangeHandler.defaultHandler()
+    val parentDelayHandler = parentMockChangeHandler.delayTransaction()
+
+    activityController.get().router.pushController(
+      TestController().asTransaction(
+        pushChangeHandler = parentMockChangeHandler,
+      )
+    )
+
+    childDelayHandler.onDelayEnded()
+    parentDelayHandler.onDelayEnded()
+
+    activityController.get().router.popCurrentController()
+    shadowOf(getMainLooper()).idle()
+
+    Assert.assertFalse(child.isAttached)
+    Assert.assertTrue(child2.isAttached)
+  }
+
   private fun getPushHandler(
     expectedCallState: CallState,
     controller: TestController

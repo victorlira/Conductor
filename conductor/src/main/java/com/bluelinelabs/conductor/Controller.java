@@ -90,6 +90,7 @@ public abstract class Controller {
     private final ArrayList<RouterRequiringFunc> onRouterSetListeners = new ArrayList<>();
     private WeakReference<View> destroyedView;
     private boolean isPerformingExitTransition;
+    private boolean willBeDetachedAfterTransition;
     private boolean isContextAvailable;
 
     @NonNull
@@ -814,7 +815,7 @@ public abstract class Controller {
     }
 
     final void prepareForHostDetach() {
-        needsAttach = needsAttach || attached;
+        needsAttach = needsAttach || (attached && !willBeDetachedAfterTransition && view.getParent() != null);
 
         for (ControllerHostedRouter router : childRouters) {
             router.prepareForHostDetach();
@@ -1325,6 +1326,7 @@ public abstract class Controller {
     final void changeStarted(@NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
         if (!changeType.isEnter) {
             isPerformingExitTransition = true;
+            willBeDetachedAfterTransition = changeHandler.removesFromViewOnPush();
             for (ControllerHostedRouter router : childRouters) {
                 router.setDetachFrozen(true);
             }
@@ -1341,6 +1343,7 @@ public abstract class Controller {
     final void changeEnded(@NonNull ControllerChangeHandler changeHandler, @NonNull ControllerChangeType changeType) {
         if (!changeType.isEnter) {
             isPerformingExitTransition = false;
+            willBeDetachedAfterTransition = false;
             for (ControllerHostedRouter router : childRouters) {
                 router.setDetachFrozen(false);
             }
