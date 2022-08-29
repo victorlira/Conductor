@@ -1,6 +1,6 @@
 [versions]
 minsdk = "16"
-compilesdk = "28"
+compilesdk = "31"
 targetsdk = "28"
 
 activity-compose = "1.3.0"
