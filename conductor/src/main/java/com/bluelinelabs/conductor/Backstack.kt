@@ -12,6 +12,8 @@ internal class Backstack : Iterable<RouterTransaction> {
 
   val size: Int get() = backstack.size
 
+  var onBackstackUpdatedListener: OnBackstackUpdatedListener? = null
+
   fun root(): RouterTransaction? = backstack.lastOrNull()
 
   override fun iterator(): MutableIterator<RouterTransaction> {
@@ -35,6 +37,7 @@ internal class Backstack : Iterable<RouterTransaction> {
 
   fun pop(): RouterTransaction {
     return backstack.pop().also {
+      onBackstackUpdatedListener?.onBackstackUpdated()
       it.controller.destroy()
     }
   }
@@ -43,6 +46,7 @@ internal class Backstack : Iterable<RouterTransaction> {
 
   fun push(transaction: RouterTransaction) {
     backstack.push(transaction)
+    onBackstackUpdatedListener?.onBackstackUpdated()
   }
 
   fun popAll(): List<RouterTransaction> {
@@ -58,6 +62,8 @@ internal class Backstack : Iterable<RouterTransaction> {
     backstack.forEach { transaction ->
       this.backstack.push(transaction)
     }
+
+    onBackstackUpdatedListener?.onBackstackUpdated()
   }
 
   operator fun contains(controller: Controller): Boolean {
@@ -82,6 +88,12 @@ internal class Backstack : Iterable<RouterTransaction> {
         backstack.push(RouterTransaction(transactionBundle!!))
       }
     }
+
+    onBackstackUpdatedListener?.onBackstackUpdated()
+  }
+
+  fun interface OnBackstackUpdatedListener {
+    fun onBackstackUpdated()
   }
 
   companion object {

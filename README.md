@@ -84,14 +84,6 @@ public class MainActivity extends Activity {
             router.setRoot(RouterTransaction.with(new HomeController()));
         }
     }
-
-    @Override
-    public void onBackPressed() {
-        if (!router.handleBack()) {
-            super.onBackPressed();
-        }
-    }
-
 }
 ```
 

@@ -46,6 +46,7 @@ class ControllerHostedRouter extends Router {
     final void setHostController(@NonNull Controller controller) {
         if (hostController == null) {
             hostController = controller;
+            setOnBackPressedDispatcherEnabled(controller.onBackPressedDispatcherEnabled);
         }
     }
 
@@ -59,6 +60,7 @@ class ControllerHostedRouter extends Router {
 
             hostController = controller;
             this.container = container;
+            setOnBackPressedDispatcherEnabled(controller.onBackPressedDispatcherEnabled);
 
             for (RouterTransaction transaction : backstack) {
                 transaction.controller().setParentController(controller);

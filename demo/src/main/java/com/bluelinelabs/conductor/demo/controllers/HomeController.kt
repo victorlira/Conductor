@@ -153,13 +153,6 @@ class HomeController : BaseController(R.layout.controller_home) {
             .popChangeHandler(HorizontalChangeHandler())
         )
       }
-      DemoModel.MULTIPLE_CHILD_ROUTERS -> {
-        router.pushController(
-          RouterTransaction.with(MultipleChildRouterController())
-            .pushChangeHandler(FadeChangeHandler())
-            .popChangeHandler(FadeChangeHandler())
-        )
-      }
       DemoModel.MASTER_DETAIL -> {
         router.pushController(
           RouterTransaction.with(MasterDetailListController())
@@ -220,7 +213,6 @@ private enum class DemoModel(val title: String, @ColorRes val color: Int) {
   VIEW_PAGER("ViewPager", R.color.green_300),
   VIEW_PAGER_2("ViewPager2", R.color.pink_300),
   TARGET_CONTROLLER("Target Controller", R.color.deep_orange_300),
-  MULTIPLE_CHILD_ROUTERS("Multiple Child Routers", R.color.grey_300),
   MASTER_DETAIL("Master Detail", R.color.lime_300),
   DRAG_DISMISS("Drag Dismiss", R.color.teal_300),
   EXTERNAL_MODULES("Bonus Modules", R.color.deep_purple_300)

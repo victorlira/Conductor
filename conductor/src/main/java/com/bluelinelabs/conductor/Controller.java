@@ -15,9 +15,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.activity.ComponentActivity;
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.OnBackPressedDispatcher;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.bluelinelabs.conductor.internal.ClassUtils;
 import com.bluelinelabs.conductor.internal.OwnViewTreeLifecycleAndRegistry;
 import com.bluelinelabs.conductor.internal.RouterRequiringFunc;
@@ -76,6 +81,7 @@ public abstract class Controller {
     private boolean awaitingParentAttach;
     private boolean hasSavedViewState;
     boolean isDetachFrozen;
+    boolean onBackPressedDispatcherEnabled;
     private ControllerChangeHandler overriddenPushHandler;
     private ControllerChangeHandler overriddenPopHandler;
     private RetainViewMode retainViewMode = RetainViewMode.RELEASE_DETACH;
@@ -87,6 +93,23 @@ public abstract class Controller {
     private WeakReference<View> destroyedView;
     private boolean isPerformingExitTransition;
     private boolean isContextAvailable;
+
+    final OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            // Root-level routers should have PopRootControllerMode.NEVER, and so should never return false here.
+            // This is meant to handle higher-level pops only, where the predictive back gesture doesn't come into play.
+            if (!router.getRootRouter().handleBackDispatch()) {
+                // Disable to ensure we don't have an infinite call loop.
+                setEnabled(false);
+                getOnBackPressedDispatcher().onBackPressed();
+
+                if (!isBeingDestroyed) {
+                    setEnabled(true);
+                }
+            }
+        }
+    };
 
     @NonNull
     static Controller newInstance(@NonNull Bundle bundle) {
@@ -307,6 +330,17 @@ public abstract class Controller {
     @Nullable
     public final Activity getActivity() {
         return router != null ? router.getActivity() : null;
+    }
+
+    /**
+     * Returns the OnBackPressedDispatcher for this Controller's {@link Router} or {@code null} if:
+     *   - This Router has not yet been attached to an Activity
+     *   - The attached Activity does not extend ComponentActivity
+     *   - The Activity has been destroyed
+     */
+    @Nullable
+    public final OnBackPressedDispatcher getOnBackPressedDispatcher() {
+        return router != null ? router.getOnBackPressedDispatcher() : null;
     }
 
     /**
@@ -617,8 +651,11 @@ public abstract class Controller {
     /**
      * Should be overridden if this Controller needs to handle the back button being pressed.
      *
+     * Note: This method has been deprecated and should be replaced with registering an OnBackPressedCallback.
+     *
      * @return True if this Controller has consumed the back button press, otherwise false
      */
+    @Deprecated
     public boolean handleBack() {
         List<RouterTransaction> childTransactions = new ArrayList<>();
 
@@ -823,6 +860,14 @@ public abstract class Controller {
                 lifecycleListener.preContextAvailable(this);
             }
 
+            onBackPressedDispatcherEnabled = router.onBackPressedDispatcherEnabled;
+            if (onBackPressedDispatcherEnabled) {
+                if (!(context instanceof ComponentActivity)) {
+                    throw new IllegalStateException("Host activities must extend ComponentActivity when enabling OnBackPressedDispatcher support.");
+                }
+                getOnBackPressedDispatcher().addCallback(onBackPressedCallback);
+            }
+
             isContextAvailable = true;
             onContextAvailable(context);
 
@@ -850,6 +895,10 @@ public abstract class Controller {
 
             isContextAvailable = false;
             onContextUnavailable();
+
+            if (onBackPressedDispatcherEnabled) {
+                onBackPressedCallback.remove();
+            }
 
             listeners = new ArrayList<>(lifecycleListeners);
             for (LifecycleListener lifecycleListener : listeners) {
