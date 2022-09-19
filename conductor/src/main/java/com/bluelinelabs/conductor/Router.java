@@ -560,10 +560,9 @@ public abstract class Router {
     public void rebindIfNeeded() {
         ThreadUtils.ensureMainThread();
 
-        Iterator<RouterTransaction> backstackIterator = backstack.reverseIterator();
-        while (backstackIterator.hasNext()) {
-            RouterTransaction transaction = backstackIterator.next();
-
+        // Not directly using the iterator in order to prevent ConcurrentModificationExceptions if controllers pop
+        // themselves on re-attach.
+        for (RouterTransaction transaction : getTransactions()) {
             if (transaction.controller().getNeedsAttach()) {
                 performControllerChange(transaction, null, true, new SimpleSwapChangeHandler(false));
             } else {
@@ -780,6 +779,18 @@ public abstract class Router {
         }
 
         return controllers;
+    }
+
+    @NonNull
+    final List<RouterTransaction> getTransactions() {
+        List<RouterTransaction> transactions = new ArrayList<>(backstack.getSize());
+
+        Iterator<RouterTransaction> backstackIterator = backstack.reverseIterator();
+        while (backstackIterator.hasNext()) {
+            transactions.add(backstackIterator.next());
+        }
+
+        return transactions;
     }
 
     @Nullable
