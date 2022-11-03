@@ -51,7 +51,10 @@ public class ControllerLifecycleOwner implements LifecycleOwner {
 
             @Override
             public void preDestroy(@NonNull Controller controller) {
-                lifecycleRegistry.handleLifecycleEvent(Event.ON_DESTROY); // --> State.DESTROYED;
+                // Only act on Controllers that have had at least the onContextAvailable call made on them.
+                if (lifecycleRegistry.getCurrentState() != Lifecycle.State.INITIALIZED) {
+                    lifecycleRegistry.handleLifecycleEvent(Event.ON_DESTROY); // --> State.DESTROYED;
+                }
             }
 
         });
