@@ -22,7 +22,7 @@ kotlin = "1.6.10"
 leakCanary = "2.7"
 lint = "30.2.1" # Should always be agp + 23
 material = "1.2.1"
-mvnpublish = "0.13.0"
+mvnpublish = "0.23.2"
 picasso = "2.5.2"
 robolectric = "4.5.1"
 rxjava2 = "2.1.14"
@@ -58,7 +58,9 @@ lint-api = { module = "com.android.tools.lint:lint-api", version.ref = "lint" }
 lint-checks = { module = "com.android.tools.lint:lint-checks", version.ref = "lint" }
 lint-tests = { module = "com.android.tools.lint:lint-tests", version.ref = "lint" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
-mvnpublish = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "mvnpublish" }
 picasso = { module = "com.squareup.picasso:picasso", version.ref = "picasso" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 rxjava2 = { module = "io.reactivex.rxjava2:rxjava", version.ref = "rxjava2" }
+
+[plugins]
+mvnpublish = { id = "com.vanniktech.maven.publish", version.ref = "mvnpublish" }

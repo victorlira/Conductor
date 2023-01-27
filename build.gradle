@@ -6,7 +6,6 @@ buildscript {
     dependencies {
         classpath libs.agp
         classpath libs.kotlin.plugin
-        classpath libs.mvnpublish
         classpath libs.dokka
     }
 }
@@ -15,5 +14,21 @@ allprojects {
     repositories {
         mavenCentral()
         google()
+    }
+
+    if (project.hasProperty('maven_publish_url')) {
+        pluginManager.withPlugin("com.vanniktech.maven.publish") {
+            publishing {
+                repositories {
+                    maven {
+                        url = maven_publish_url
+                        credentials {
+                            username = maven_publish_username
+                            password = maven_publish_password
+                        }
+                    }
+                }
+            }
+        }
     }
 }
