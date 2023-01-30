@@ -20,7 +20,7 @@ Conductor is architecture-agnostic and does not try to force any design decision
 ## Installation
 
 ```gradle
-def conductorVersion = '3.1.9'
+def conductorVersion = '3.2.0'
 
 implementation "com.bluelinelabs:conductor:$conductorVersion"
 
@@ -42,7 +42,7 @@ implementation "com.bluelinelabs:conductor-archlifecycle:$conductorVersion"
 
 **SNAPSHOT**
 
-Just use `3.2.0-SNAPSHOT` as your version number in any of the dependencies above and add the url to the snapshot repository:
+Just use `3.2.1-SNAPSHOT` as your version number in any of the dependencies above and add the url to the snapshot repository:
 
 ```gradle
 allprojects {
