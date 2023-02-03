@@ -3,7 +3,7 @@ package com.bluelinelabs.conductor.demo
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import com.bluelinelabs.conductor.Conductor.attachRouter
+import com.bluelinelabs.conductor.Conductor
 import com.bluelinelabs.conductor.Router
 import com.bluelinelabs.conductor.Router.PopRootControllerMode
 import com.bluelinelabs.conductor.RouterTransaction.Companion.with
@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity(), ToolbarProvider {
     binding = ActivityMainBinding.inflate(layoutInflater)
     setContentView(binding.root)
 
-    router = attachRouter(this, binding.controllerContainer, savedInstanceState)
+    router = Conductor.attachRouter(this, binding.controllerContainer, savedInstanceState)
       .setPopRootControllerMode(PopRootControllerMode.NEVER)
 
     if (!router.hasRootController()) {

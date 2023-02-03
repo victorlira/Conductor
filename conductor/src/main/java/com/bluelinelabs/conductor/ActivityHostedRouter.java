@@ -85,7 +85,7 @@ public class ActivityHostedRouter extends Router {
 
     @Override
     void startActivityForResult(@NonNull String instanceId, @NonNull Intent intent, int requestCode) {
-        lifecycleHandler.startActivityForResult(instanceId, intent, requestCode);
+        lifecycleHandler.startActivityForResult(instanceId, intent, requestCode, null);
     }
 
     @Override

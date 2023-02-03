@@ -153,6 +153,13 @@ class HomeController : BaseController(R.layout.controller_home) {
             .popChangeHandler(HorizontalChangeHandler())
         )
       }
+      DemoModel.MULTIPLE_CHILD_ROUTERS -> {
+        router.pushController(
+          RouterTransaction.with(MultipleChildRouterController())
+            .pushChangeHandler(FadeChangeHandler())
+            .popChangeHandler(FadeChangeHandler())
+        )
+      }
       DemoModel.MASTER_DETAIL -> {
         router.pushController(
           RouterTransaction.with(MasterDetailListController())
