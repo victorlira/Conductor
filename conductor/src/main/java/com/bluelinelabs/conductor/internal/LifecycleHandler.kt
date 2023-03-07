@@ -542,6 +542,12 @@ private interface LifecycleHandlerDelegate : ActivityLifecycleCallbacks {
     }
   }
 
+  override fun onActivityPreDestroyed(activity: Activity) {
+    if (data.activity === activity) {
+      handleOnDestroy()
+    }
+  }
+
   override fun onActivityDestroyed(activity: Activity) {
     activeLifecycleHandlers.remove(activity)
   }
