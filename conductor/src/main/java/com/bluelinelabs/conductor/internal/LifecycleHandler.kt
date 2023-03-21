@@ -543,7 +543,7 @@ private interface LifecycleHandlerDelegate : ActivityLifecycleCallbacks {
   }
 
   override fun onActivityPreDestroyed(activity: Activity) {
-    if (data.activity === activity) {
+    if (data.activity === activity && !activity.isChangingConfigurations) {
       handleOnDestroy()
     }
   }
