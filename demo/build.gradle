@@ -27,7 +27,7 @@ android {
         compose = true
     }
 
-    compileSdkVersion 32
+    compileSdkVersion 33
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

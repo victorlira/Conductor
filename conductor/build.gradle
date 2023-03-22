@@ -18,6 +18,7 @@ android {
 }
 
 dependencies {
+    api libs.androidx.activity
     api libs.androidx.appcompat
     api libs.androidx.savedstate.ktx
     testImplementation libs.junit

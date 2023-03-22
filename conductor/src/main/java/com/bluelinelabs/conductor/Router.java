@@ -187,7 +187,7 @@ public abstract class Router {
             RouterTransaction nextTransaction = null;
             Iterator<RouterTransaction> iterator = backstack.iterator();
             ControllerChangeHandler topPushHandler = topTransaction != null ? topTransaction.pushChangeHandler() : null;
-            final boolean needsNextTransactionAttach = topPushHandler != null ? !topPushHandler.removesFromViewOnPush() : false;
+            final boolean needsNextTransactionAttach = topPushHandler != null ? !topPushHandler.getRemovesFromViewOnPush() : false;
 
             while (iterator.hasNext()) {
                 RouterTransaction transaction = iterator.next();
@@ -249,8 +249,8 @@ public abstract class Router {
         final ControllerChangeHandler handler = transaction.pushChangeHandler();
         if (topTransaction != null) {
             //noinspection ConstantConditions
-            final boolean oldHandlerRemovedViews = topTransaction.pushChangeHandler() == null || topTransaction.pushChangeHandler().removesFromViewOnPush();
-            final boolean newHandlerRemovesViews = handler == null || handler.removesFromViewOnPush();
+            final boolean oldHandlerRemovedViews = topTransaction.pushChangeHandler() == null || topTransaction.pushChangeHandler().getRemovesFromViewOnPush();
+            final boolean newHandlerRemovesViews = handler == null || handler.getRemovesFromViewOnPush();
             if (!oldHandlerRemovedViews && newHandlerRemovesViews) {
                 for (RouterTransaction visibleTransaction : getVisibleTransactions(backstack.iterator(), true)) {
                     performControllerChange(null, visibleTransaction, true, handler);
@@ -933,7 +933,7 @@ public abstract class Router {
                 to.setNeedsAttach(true);
             }
             pendingControllerChanges.add(transaction);
-        } else if (from != null && (changeHandler == null || changeHandler.removesFromViewOnPush()) && !containerFullyAttached) {
+        } else if (from != null && (changeHandler == null || changeHandler.getRemovesFromViewOnPush()) && !containerFullyAttached) {
             // If the change handler will remove the from view, we have to make sure the container is fully attached first so we avoid NPEs
             // within ViewGroup (details on issue #287). Post this to the container to ensure the attach is complete before we try to remove
             // anything.
@@ -1058,7 +1058,7 @@ public abstract class Router {
                 transactions.add(transaction);
             }
 
-            visible = transaction.pushChangeHandler() != null && !transaction.pushChangeHandler().removesFromViewOnPush();
+            visible = transaction.pushChangeHandler() != null && !transaction.pushChangeHandler().getRemovesFromViewOnPush();
 
             if (onlyTop && !visible) {
                 break;
