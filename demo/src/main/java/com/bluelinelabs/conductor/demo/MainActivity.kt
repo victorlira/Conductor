@@ -25,24 +25,12 @@ class MainActivity : AppCompatActivity(), ToolbarProvider {
 
     router = Conductor.attachRouter(this, binding.controllerContainer, savedInstanceState)
       .setPopRootControllerMode(PopRootControllerMode.NEVER)
-      .setOnBackPressedDispatcherEnabled(UseOnBackPressedDispatcher)
+      .setOnBackPressedDispatcherEnabled(true)
 
     if (!router.hasRootController()) {
       router.setRoot(RouterTransaction.with(HomeController()))
     }
   }
 
-  override fun onBackPressed() {
-    // This method shouldn't be overridden at all if we're using the OnBackPressedDispatcher
-    if (UseOnBackPressedDispatcher) {
-      super.onBackPressed()
-      return
-    }
-
-    if (!router.handleBack()) {
-      super.onBackPressed()
-    }
-  }
 }
 
-private const val UseOnBackPressedDispatcher = true
