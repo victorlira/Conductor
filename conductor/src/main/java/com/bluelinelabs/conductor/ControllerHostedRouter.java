@@ -46,6 +46,7 @@ class ControllerHostedRouter extends Router {
     final void setHostController(@NonNull Controller controller) {
         if (hostController == null) {
             hostController = controller;
+            setOnBackPressedDispatcherEnabled(controller.onBackPressedDispatcherEnabled);
         }
     }
 
@@ -59,6 +60,7 @@ class ControllerHostedRouter extends Router {
 
             hostController = controller;
             this.container = container;
+            setOnBackPressedDispatcherEnabled(controller.onBackPressedDispatcherEnabled);
 
             for (RouterTransaction transaction : backstack) {
                 transaction.controller().setParentController(controller);
@@ -127,7 +129,7 @@ class ControllerHostedRouter extends Router {
         // If we're pushing a transaction that will detach controllers to an unattached child
         // router, we need mark all other controllers as NOT needing to be reattached.
         if (to != null && !hostController.isAttached()) {
-            if (to.pushChangeHandler() == null || to.pushChangeHandler().removesFromViewOnPush()) {
+            if (to.pushChangeHandler() == null || to.pushChangeHandler().getRemovesFromViewOnPush()) {
                 for (RouterTransaction transaction : backstack) {
                     transaction.controller().setNeedsAttach(false);
                 }

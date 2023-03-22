@@ -1,12 +1,12 @@
 package com.bluelinelabs.conductor.viewpager.util
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.viewpager.widget.ViewPager
 import com.bluelinelabs.conductor.Conductor
 import com.bluelinelabs.conductor.Controller
@@ -15,7 +15,7 @@ import com.bluelinelabs.conductor.RouterTransaction
 import com.bluelinelabs.conductor.asTransaction
 import com.bluelinelabs.conductor.viewpager.RouterPagerAdapter
 
-class TestActivity : Activity() {
+class TestActivity : FragmentActivity() {
 
   private lateinit var router: Router
 

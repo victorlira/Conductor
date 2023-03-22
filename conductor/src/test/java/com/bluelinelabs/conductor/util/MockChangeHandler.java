@@ -1,10 +1,11 @@
 package com.bluelinelabs.conductor.util;
 
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.bluelinelabs.conductor.ControllerChangeHandler;
 
@@ -92,7 +93,7 @@ public class MockChangeHandler extends ControllerChangeHandler {
     }
 
     @Override
-    public boolean removesFromViewOnPush() {
+    public boolean getRemovesFromViewOnPush() {
         return removesFromViewOnPush;
     }
 

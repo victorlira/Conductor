@@ -1,7 +1,8 @@
 package com.bluelinelabs.conductor
 
 import android.os.Bundle
-import java.util.*
+import java.util.ArrayDeque
+import java.util.Deque
 
 internal class Backstack : Iterable<RouterTransaction> {
 
@@ -10,6 +11,8 @@ internal class Backstack : Iterable<RouterTransaction> {
   val isEmpty: Boolean get() = backstack.isEmpty()
 
   val size: Int get() = backstack.size
+
+  var onBackstackUpdatedListener: OnBackstackUpdatedListener? = null
 
   fun root(): RouterTransaction? = backstack.lastOrNull()
 
@@ -34,6 +37,7 @@ internal class Backstack : Iterable<RouterTransaction> {
 
   fun pop(): RouterTransaction {
     return backstack.pop().also {
+      onBackstackUpdatedListener?.onBackstackUpdated()
       it.controller.destroy()
     }
   }
@@ -42,6 +46,7 @@ internal class Backstack : Iterable<RouterTransaction> {
 
   fun push(transaction: RouterTransaction) {
     backstack.push(transaction)
+    onBackstackUpdatedListener?.onBackstackUpdated()
   }
 
   fun popAll(): List<RouterTransaction> {
@@ -57,6 +62,8 @@ internal class Backstack : Iterable<RouterTransaction> {
     backstack.forEach { transaction ->
       this.backstack.push(transaction)
     }
+
+    onBackstackUpdatedListener?.onBackstackUpdated()
   }
 
   operator fun contains(controller: Controller): Boolean {
@@ -81,6 +88,12 @@ internal class Backstack : Iterable<RouterTransaction> {
         backstack.push(RouterTransaction(transactionBundle!!))
       }
     }
+
+    onBackstackUpdatedListener?.onBackstackUpdated()
+  }
+
+  fun interface OnBackstackUpdatedListener {
+    fun onBackstackUpdated()
   }
 
   companion object {

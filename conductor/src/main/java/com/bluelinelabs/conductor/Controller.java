@@ -1,6 +1,5 @@
 package com.bluelinelabs.conductor;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +16,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.ComponentActivity;
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.OnBackPressedDispatcher;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,7 +34,6 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -80,6 +81,7 @@ public abstract class Controller {
     private boolean awaitingParentAttach;
     private boolean hasSavedViewState;
     boolean isDetachFrozen;
+    boolean onBackPressedDispatcherEnabled;
     private ControllerChangeHandler overriddenPushHandler;
     private ControllerChangeHandler overriddenPopHandler;
     private RetainViewMode retainViewMode = RetainViewMode.RELEASE_DETACH;
@@ -91,6 +93,23 @@ public abstract class Controller {
     private WeakReference<View> destroyedView;
     private boolean isPerformingExitTransition;
     private boolean isContextAvailable;
+
+    final OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            // Root-level routers should have PopRootControllerMode.NEVER, and so should never return false here.
+            // This is meant to handle higher-level pops only, where the predictive back gesture doesn't come into play.
+            if (!router.getRootRouter().handleBackDispatch()) {
+                // Disable to ensure we don't have an infinite call loop.
+                setEnabled(false);
+                getOnBackPressedDispatcher().onBackPressed();
+
+                if (!isBeingDestroyed) {
+                    setEnabled(true);
+                }
+            }
+        }
+    };
 
     @NonNull
     static Controller newInstance(@NonNull Bundle bundle) {
@@ -311,6 +330,17 @@ public abstract class Controller {
     @Nullable
     public final Activity getActivity() {
         return router != null ? router.getActivity() : null;
+    }
+
+    /**
+     * Returns the OnBackPressedDispatcher for this Controller's {@link Router} or {@code null} if:
+     *   - This Router has not yet been attached to an Activity
+     *   - The attached Activity does not extend ComponentActivity
+     *   - The Activity has been destroyed
+     */
+    @Nullable
+    public final OnBackPressedDispatcher getOnBackPressedDispatcher() {
+        return router != null ? router.getOnBackPressedDispatcher() : null;
     }
 
     /**
@@ -541,36 +571,21 @@ public abstract class Controller {
      * Calls startActivity(Intent) from this Controller's host Activity.
      */
     public final void startActivity(@NonNull final Intent intent) {
-        executeWithRouter(new RouterRequiringFunc() {
-            @Override
-            public void execute() {
-                router.startActivity(intent);
-            }
-        });
+        executeWithRouter(() -> router.startActivity(intent));
     }
 
     /**
      * Calls startActivityForResult(Intent, int) from this Controller's host Activity.
      */
     public final void startActivityForResult(@NonNull final Intent intent, final int requestCode) {
-        executeWithRouter(new RouterRequiringFunc() {
-            @Override
-            public void execute() {
-                router.startActivityForResult(instanceId, intent, requestCode);
-            }
-        });
+        executeWithRouter(() -> router.startActivityForResult(instanceId, intent, requestCode));
     }
 
     /**
      * Calls startActivityForResult(Intent, int, Bundle) from this Controller's host Activity.
      */
     public final void startActivityForResult(@NonNull final Intent intent, final int requestCode, @Nullable final Bundle options) {
-        executeWithRouter(new RouterRequiringFunc() {
-            @Override
-            public void execute() {
-                router.startActivityForResult(instanceId, intent, requestCode, options);
-            }
-        });
+        executeWithRouter(() -> router.startActivityForResult(instanceId, intent, requestCode, options));
     }
 
     /**
@@ -588,12 +603,7 @@ public abstract class Controller {
      * @param requestCode The request code being registered for.
      */
     public final void registerForActivityResult(final int requestCode) {
-        executeWithRouter(new RouterRequiringFunc() {
-            @Override
-            public void execute() {
-                router.registerForActivityResult(instanceId, requestCode);
-            }
-        });
+        executeWithRouter(() -> router.registerForActivityResult(instanceId, requestCode));
     }
 
     /**
@@ -612,16 +622,10 @@ public abstract class Controller {
      * including {@link #shouldShowRequestPermissionRationale(String)} and
      * {@link #onRequestPermissionsResult(int, String[], int[])} will be forwarded back to this Controller by the system.
      */
-    @TargetApi(Build.VERSION_CODES.M)
     public final void requestPermissions(@NonNull final String[] permissions, final int requestCode) {
         requestedPermissions.addAll(Arrays.asList(permissions));
 
-        executeWithRouter(new RouterRequiringFunc() {
-            @Override
-            public void execute() {
-                router.requestPermissions(instanceId, permissions, requestCode);
-            }
-        });
+        executeWithRouter(() -> router.requestPermissions(instanceId, permissions, requestCode));
     }
 
     /**
@@ -647,8 +651,11 @@ public abstract class Controller {
     /**
      * Should be overridden if this Controller needs to handle the back button being pressed.
      *
+     * Note: This method has been deprecated and should be replaced with registering an OnBackPressedCallback.
+     *
      * @return True if this Controller has consumed the back button press, otherwise false
      */
+    @Deprecated
     public boolean handleBack() {
         List<RouterTransaction> childTransactions = new ArrayList<>();
 
@@ -656,12 +663,7 @@ public abstract class Controller {
             childTransactions.addAll(childRouter.getBackstack());
         }
 
-        Collections.sort(childTransactions, new Comparator<RouterTransaction>() {
-            @Override
-            public int compare(RouterTransaction o1, RouterTransaction o2) {
-                return o2.getTransactionIndex() - o1.getTransactionIndex();
-            }
-        });
+        Collections.sort(childTransactions, (t1, t2) -> t2.getTransactionIndex() - t1.getTransactionIndex());
 
         for (RouterTransaction transaction : childTransactions) {
             Controller childController = transaction.controller();
@@ -858,6 +860,14 @@ public abstract class Controller {
                 lifecycleListener.preContextAvailable(this);
             }
 
+            onBackPressedDispatcherEnabled = router.onBackPressedDispatcherEnabled;
+            if (onBackPressedDispatcherEnabled) {
+                if (!(context instanceof ComponentActivity)) {
+                    throw new IllegalStateException("Host activities must extend ComponentActivity when enabling OnBackPressedDispatcher support.");
+                }
+                getOnBackPressedDispatcher().addCallback(onBackPressedCallback);
+            }
+
             isContextAvailable = true;
             onContextAvailable(context);
 
@@ -885,6 +895,10 @@ public abstract class Controller {
 
             isContextAvailable = false;
             onContextUnavailable();
+
+            if (onBackPressedDispatcherEnabled) {
+                onBackPressedCallback.remove();
+            }
 
             listeners = new ArrayList<>(lifecycleListeners);
             for (LifecycleListener lifecycleListener : listeners) {

@@ -113,7 +113,7 @@ public abstract class TransitionChangeHandler extends ControllerChangeHandler {
     }
 
     @Override
-    public boolean removesFromViewOnPush() {
+    public boolean getRemovesFromViewOnPush() {
         return true;
     }
 
@@ -142,7 +142,7 @@ public abstract class TransitionChangeHandler extends ControllerChangeHandler {
      * @param isPush     True if this is a push transaction, false if it's a pop
      */
     public void executePropertyChanges(@NonNull ViewGroup container, @Nullable View from, @Nullable View to, @Nullable Transition transition, boolean isPush) {
-        if (from != null && (removesFromViewOnPush() || !isPush) && from.getParent() == container) {
+        if (from != null && (getRemovesFromViewOnPush() || !isPush) && from.getParent() == container) {
             container.removeView(from);
         }
         if (to != null && to.getParent() == null) {

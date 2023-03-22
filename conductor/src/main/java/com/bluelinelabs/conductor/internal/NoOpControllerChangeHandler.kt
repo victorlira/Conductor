@@ -6,6 +6,8 @@ import com.bluelinelabs.conductor.ControllerChangeHandler
 
 class NoOpControllerChangeHandler : ControllerChangeHandler() {
 
+  override val isReusable = true
+
   override fun performChange(
     container: ViewGroup,
     from: View?,
@@ -17,6 +19,4 @@ class NoOpControllerChangeHandler : ControllerChangeHandler() {
   }
 
   override fun copy(): ControllerChangeHandler = NoOpControllerChangeHandler()
-
-  override fun isReusable() = true
 }

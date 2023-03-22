@@ -1,26 +1,27 @@
 [versions]
 minsdk = "16"
-compilesdk = "28"
+compilesdk = "33"
 targetsdk = "28"
 
-activity-compose = "1.3.0"
-agp = "7.2.1" # Note: update lint version whenever this is updated
+agp = "7.4.2" # Note: update lint version whenever this is updated
+androidx-activity = "1.6.1"
 androidx-annotation = "1.1.0"
-androidx-appcompat = "1.3.0"
+androidx-appcompat = "1.4.2"
 androidx-collection = "1.1.0"
 androidx-core = "1.3.2"
-androidx-lifecycle = "2.3.1"
-androidx-savedstate = "1.1.0"
+androidx-lifecycle = "2.6.0"
+androidx-savedstate = "1.2.0"
 androidx-transition = "1.3.1"
 androidx-viewpager2 = "1.0.0"
 autodispose = "1.0.0"
-compose = "1.1.0"
-dokka = "1.4.32"
+compose = "1.3.1"
+compose-compiler = "1.4.3"
+dokka = "1.8.10"
 junit = "4.13"
 kotest = "4.6.0"
-kotlin = "1.6.10"
+kotlin = "1.8.10"
 leakCanary = "2.7"
-lint = "30.2.1" # Should always be agp + 23
+lint = "30.4.2" # Should always be agp + 23
 material = "1.2.1"
 mvnpublish = "0.23.2"
 picasso = "2.5.2"
@@ -28,8 +29,9 @@ robolectric = "4.5.1"
 rxjava2 = "2.1.14"
 
 [libraries]
-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
+activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
 agp = { module = "com.android.tools.build:gradle", version.ref = "agp" }
+androidx-activity = { module = "androidx.activity:activity", version.ref = "androidx-activity" }
 androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidx-annotation" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 androidx-collection = { module = "androidx.collection:collection", version.ref = "androidx-collection" }

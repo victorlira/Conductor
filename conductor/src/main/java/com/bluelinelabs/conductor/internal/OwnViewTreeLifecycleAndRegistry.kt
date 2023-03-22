@@ -6,10 +6,11 @@ import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
-import androidx.savedstate.ViewTreeSavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.bluelinelabs.conductor.Controller
 import com.bluelinelabs.conductor.ControllerChangeHandler
 import com.bluelinelabs.conductor.ControllerChangeType
@@ -29,6 +30,10 @@ internal class OwnViewTreeLifecycleAndRegistry private constructor(
 
   private var hasSavedState = false
   private var savedRegistryState = Bundle.EMPTY
+  override val lifecycle: LifecycleRegistry
+    get() = lifecycleRegistry
+
+  override val savedStateRegistry: SavedStateRegistry get() = savedStateRegistryController.savedStateRegistry
 
   init {
     controller.addLifecycleListener(object : Controller.LifecycleListener() {
@@ -54,11 +59,8 @@ internal class OwnViewTreeLifecycleAndRegistry private constructor(
           view.getTag(R.id.view_tree_lifecycle_owner) == null &&
           view.getTag(R.id.view_tree_saved_state_registry_owner) == null
         ) {
-          ViewTreeLifecycleOwner.set(view, this@OwnViewTreeLifecycleAndRegistry)
-          ViewTreeSavedStateRegistryOwner.set(
-            view,
-            this@OwnViewTreeLifecycleAndRegistry
-          )
+          view.setViewTreeLifecycleOwner(this@OwnViewTreeLifecycleAndRegistry)
+          view.setViewTreeSavedStateRegistryOwner(this@OwnViewTreeLifecycleAndRegistry)
         }
 
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
@@ -77,7 +79,7 @@ internal class OwnViewTreeLifecycleAndRegistry private constructor(
         if (
           controller === changeController &&
           changeType.isEnter &&
-          changeHandler.removesFromViewOnPush() &&
+          changeHandler.removesFromViewOnPush &&
           changeController.view?.windowToken != null &&
           lifecycleRegistry.currentState == Lifecycle.State.STARTED
         ) {
@@ -127,8 +129,8 @@ internal class OwnViewTreeLifecycleAndRegistry private constructor(
         if (controller.isBeingDestroyed && controller.router.backstackSize == 0) {
           val parent = view.parent as? View
           parent?.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-            override fun onViewAttachedToWindow(v: View?) = Unit
-            override fun onViewDetachedFromWindow(v: View?) {
+            override fun onViewAttachedToWindow(v: View) = Unit
+            override fun onViewDetachedFromWindow(v: View) {
               parent.removeOnAttachStateChangeListener(this)
               lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
             }
@@ -147,10 +149,6 @@ internal class OwnViewTreeLifecycleAndRegistry private constructor(
       }
     })
   }
-
-  override fun getLifecycle() = lifecycleRegistry
-
-  override fun getSavedStateRegistry() = savedStateRegistryController.savedStateRegistry
 
   private fun listenForAncestorChangeStart(controller: Controller) {
     GlobalChangeStartListener.subscribe(controller, controller.ancestors()) { ancestor, changeHandler, changeType ->
@@ -184,7 +182,7 @@ internal class OwnViewTreeLifecycleAndRegistry private constructor(
     if (
       targetController === changeController &&
       !changeType.isEnter &&
-      changeHandler.removesFromViewOnPush() &&
+      changeHandler.removesFromViewOnPush &&
       changeController.view != null &&
       lifecycleRegistry.currentState == Lifecycle.State.RESUMED
     ) {

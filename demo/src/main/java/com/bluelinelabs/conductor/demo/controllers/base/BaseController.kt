@@ -9,12 +9,13 @@ import androidx.appcompat.widget.Toolbar
 import com.bluelinelabs.conductor.Controller
 import com.bluelinelabs.conductor.ControllerChangeHandler
 import com.bluelinelabs.conductor.ControllerChangeType
+import com.bluelinelabs.conductor.archlifecycle.LifecycleController
 import com.bluelinelabs.conductor.demo.ToolbarProvider
 
 abstract class BaseController(
   @LayoutRes private val layoutRes: Int,
   args: Bundle? = null
-) : Controller(args) {
+) : LifecycleController(args) {
 
   init {
     watchForLeaks()

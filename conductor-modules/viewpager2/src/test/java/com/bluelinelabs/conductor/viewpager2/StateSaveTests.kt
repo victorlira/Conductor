@@ -1,9 +1,9 @@
 package com.bluelinelabs.conductor.viewpager2
 
-import android.app.Activity
 import android.os.Looper.getMainLooper
 import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.bluelinelabs.conductor.Conductor
 import com.bluelinelabs.conductor.Router
@@ -26,7 +26,7 @@ class StateSaveTests {
   private val destroyedItems = mutableListOf<Int>()
 
   init {
-    val activityController = Robolectric.buildActivity(Activity::class.java).setup()
+    val activityController = Robolectric.buildActivity(FragmentActivity::class.java).setup()
     val layout = FrameLayout(activityController.get())
     activityController.get().setContentView(layout)
     val router = Conductor.attachRouter(activityController.get(), FrameLayout(activityController.get()), null)

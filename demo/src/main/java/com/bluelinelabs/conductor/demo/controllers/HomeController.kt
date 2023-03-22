@@ -1,7 +1,6 @@
 package com.bluelinelabs.conductor.demo.controllers
 
 import android.content.Intent
-import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Bundle
 import android.text.SpannableString
@@ -14,6 +13,8 @@ import android.view.ViewGroup
 import androidx.annotation.ColorRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.BlendModeColorFilterCompat
+import androidx.core.graphics.BlendModeCompat
 import androidx.core.text.buildSpannedString
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -112,7 +113,7 @@ class HomeController : BaseController(R.layout.controller_home) {
       }
       DemoModel.CHILD_CONTROLLERS -> {
         router.pushController(
-          RouterTransaction.with(ParentController())
+          RouterTransaction.with(MultipleChildRouterController())
             .pushChangeHandler(FadeChangeHandler())
             .popChangeHandler(FadeChangeHandler())
         )
@@ -150,13 +151,6 @@ class HomeController : BaseController(R.layout.controller_home) {
           RouterTransaction.with(ExternalModulesController())
             .pushChangeHandler(HorizontalChangeHandler())
             .popChangeHandler(HorizontalChangeHandler())
-        )
-      }
-      DemoModel.MULTIPLE_CHILD_ROUTERS -> {
-        router.pushController(
-          RouterTransaction.with(MultipleChildRouterController())
-            .pushChangeHandler(FadeChangeHandler())
-            .popChangeHandler(FadeChangeHandler())
         )
       }
       DemoModel.MASTER_DETAIL -> {
@@ -219,7 +213,6 @@ private enum class DemoModel(val title: String, @ColorRes val color: Int) {
   VIEW_PAGER("ViewPager", R.color.green_300),
   VIEW_PAGER_2("ViewPager2", R.color.pink_300),
   TARGET_CONTROLLER("Target Controller", R.color.deep_orange_300),
-  MULTIPLE_CHILD_ROUTERS("Multiple Child Routers", R.color.grey_300),
   MASTER_DETAIL("Master Detail", R.color.lime_300),
   DRAG_DISMISS("Drag Dismiss", R.color.teal_300),
   EXTERNAL_MODULES("Bonus Modules", R.color.deep_purple_300)
@@ -251,9 +244,9 @@ private class HomeAdapter(
 
     fun bind(position: Int, item: DemoModel) {
       binding.title.text = item.title
-      binding.dot.drawable.setColorFilter(
+      binding.dot.drawable.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
         ContextCompat.getColor(binding.root.context, item.color),
-        PorterDuff.Mode.SRC_ATOP
+        BlendModeCompat.SRC_ATOP,
       )
       binding.root.setOnClickListener { modelClickListener(item, position) }
 

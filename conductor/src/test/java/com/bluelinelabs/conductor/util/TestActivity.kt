@@ -1,11 +1,11 @@
 package com.bluelinelabs.conductor.util
 
-import android.app.Activity
 import android.os.Bundle
+import androidx.fragment.app.FragmentActivity
 import com.bluelinelabs.conductor.Conductor
 import com.bluelinelabs.conductor.Router
 
-class TestActivity : Activity() {
+class TestActivity : FragmentActivity() {
 
   lateinit var router: Router
 

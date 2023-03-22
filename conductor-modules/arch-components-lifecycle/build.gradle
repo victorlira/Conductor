@@ -15,9 +15,9 @@ android {
 }
 
 dependencies {
-    api libs.androidx.lifecycle.runtime
-
     implementation project(':conductor')
+
+    api libs.androidx.lifecycle.runtime
 }
 
 ext.artifactId = 'conductor-arch-components-lifecycle'

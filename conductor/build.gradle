@@ -1,6 +1,7 @@
 plugins {
     id("com.android.library")
     id("kotlin-android")
+    id("kotlin-parcelize")
     alias(libs.plugins.mvnpublish)
 }
 
@@ -17,12 +18,14 @@ android {
 }
 
 dependencies {
-    implementation libs.androidx.savedstate.ktx
+    api libs.androidx.activity
+    api libs.androidx.appcompat
+    api libs.androidx.savedstate.ktx
     testImplementation libs.junit
     testImplementation libs.robolectric
     testImplementation libs.kotest
 
-    implementation libs.androidx.lifecycle.runtime
+    api libs.androidx.lifecycle.runtime
 
     api libs.androidx.annotation
     api libs.kotlin.stdlib

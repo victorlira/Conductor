@@ -9,7 +9,6 @@
 *.ipr
 *.iws
 /.idea/*
-!/.idea/codeStyles/
 !/.idea/scopes/
 classes
 gen-external-apklibs

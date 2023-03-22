@@ -27,7 +27,7 @@ android {
         compose = true
     }
 
-    compileSdkVersion 31
+    compileSdkVersion 33
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -39,7 +39,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion libs.versions.compose.get()
+        kotlinCompilerExtensionVersion libs.versions.compose.compiler.get()
     }
 }
 

@@ -19,6 +19,10 @@ Conductor is architecture-agnostic and does not try to force any design decision
 
 ## Installation
 
+Conductor 4.0 is coming soon. It is already being used in production with many, many millions of users. It is, however, not guaranteed to be API stable. As such, it is being released as a preview rather than a standard release. Preview in this context is _not_ a commentary on stability. It is considered to be up to the same quality standards as the current 3.x stable release.
+Changes in Conductor 4 are available in the [GitHub releases](https://github.com/bluelinelabs/Conductor/releases/). In preparation for the release of the next version, there are currently 3 installation options:
+
+### Latest Stable 3.x
 ```gradle
 def conductorVersion = '3.2.0'
 
@@ -40,9 +44,11 @@ implementation "com.bluelinelabs:conductor-autodispose:$conductorVersion"
 implementation "com.bluelinelabs:conductor-archlifecycle:$conductorVersion"
 ```
 
-**SNAPSHOT**
+### 4.0 Preview
+Use `4.0.0-preview-1` as your version number in any of the dependencies above.
 
-Just use `3.2.1-SNAPSHOT` as your version number in any of the dependencies above and add the url to the snapshot repository:
+### SNAPSHOT
+Use `4.0.0-SNAPSHOT` as your version number in any of the dependencies above and add the url to the snapshot repository:
 
 ```gradle
 allprojects {
@@ -65,48 +71,43 @@ __RouterTransaction__ | Transactions are used to define data about adding Contro
 
 ### Minimal Activity implementation
 
-```java
-public class MainActivity extends Activity {
+```kotlin
+class MainActivity : AppCompatActivity() {
 
-    private Router router;
+    private lateinit var router: Router
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    override fun onCreate(savedInstanceState: Bundle?) {
+      super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_main);
+      setContentView(R.layout.activity_main)
 
-        ViewGroup container = (ViewGroup) findViewById(R.id.controller_container);
+      val container = findViewById<ViewGroup>(R.id.controller_container)
 
-        router = Conductor.attachRouter(this, container, savedInstanceState)
-            .setPopRootControllerMode(PopRootControllerMode.NEVER);
-        if (!router.hasRootController()) {
-            router.setRoot(RouterTransaction.with(new HomeController()));
-        }
+      router = Conductor.attachRouter(this, binding.controllerContainer, savedInstanceState)
+        .setPopRootControllerMode(PopRootControllerMode.NEVER)
+        .setOnBackPressedDispatcherEnabled(true)
+
+      if (!router.hasRootController()) {
+        router.setRoot(RouterTransaction.with(HomeController()))
+      }
     }
-
-    @Override
-    public void onBackPressed() {
-        if (!router.handleBack()) {
-            super.onBackPressed();
-        }
-    }
-
 }
 ```
 
 ### Minimal Controller implementation
 
-```java
-public class HomeController extends Controller {
+```kotlin
+class HomeController : Controller() {
 
-    @Override
-    protected View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container, @Nullable Bundle savedViewState) {
-        View view = inflater.inflate(R.layout.controller_home, container, false);
-        ((TextView) view.findViewById(R.id.tv_title)).setText("Hello World");
-        return view;
-    }
-
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup,
+    savedViewState: Bundle?
+  ): View {
+    val view = inflater.inflate(R.layout.controller_home, container, false)
+    view.findViewById<TextView>(R.id.tv_title).text = "Hello World"
+    return view  
+  }
 }
 ```
 
