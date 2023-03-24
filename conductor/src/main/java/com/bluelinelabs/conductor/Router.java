@@ -47,7 +47,7 @@ public abstract class Router {
     private final List<ChangeTransaction> pendingControllerChanges = new ArrayList<>();
     final List<Controller> destroyingControllers = new ArrayList<>();
 
-    PopRootControllerMode popRootControllerMode = PopRootControllerMode.POP_ROOT_CONTROLLER_BUT_NOT_VIEW;
+    PopRootControllerMode popRootControllerMode;
     boolean onBackPressedDispatcherEnabled;
     boolean containerFullyAttached = false;
     boolean isActivityStopped = false;
@@ -320,7 +320,7 @@ public abstract class Router {
 
     /**
      * Sets the method this router will use to handle back presses when there is only one controller left in the backstack.
-     * Defaults to POP_ROOT_CONTROLLER_LEAVING_VIEW so that the developer can either finish its containing Activity or
+     * Defaults to POP_ROOT_CONTROLLER_BUT_NOT_VIEW so that the developer can either finish its containing Activity or
      * otherwise hide its parent view without any strange artifacting.
      */
     @NonNull
@@ -1109,7 +1109,7 @@ public abstract class Router {
     public enum PopRootControllerMode {
         /**
          * The Router will not pop the final controller left on the backstack when the back button is pressed
-         * or when pop events are called. This mode should generally be used for Activity-hosted routers.
+         * or when pop events are called. This mode is the default for Activity-hosted routers.
          */
         NEVER,
         /**

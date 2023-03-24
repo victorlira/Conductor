@@ -21,6 +21,10 @@ public class ActivityHostedRouter extends Router {
     private LifecycleHandler lifecycleHandler;
     private final TransactionIndexer transactionIndexer = new TransactionIndexer();
 
+    public ActivityHostedRouter() {
+        popRootControllerMode = PopRootControllerMode.NEVER;
+    }
+
     public final void setHost(@NonNull LifecycleHandler lifecycleHandler, @NonNull ViewGroup container) {
         if (this.lifecycleHandler != lifecycleHandler || this.container != container) {
             if (this.container != null && this.container instanceof ControllerChangeListener) {

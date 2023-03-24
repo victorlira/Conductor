@@ -343,6 +343,8 @@ class RouterTests {
 
   @Test
   fun testRearrangeTransactionBackstack() {
+    router.setPopRootControllerMode(Router.PopRootControllerMode.POP_ROOT_CONTROLLER_AND_VIEW)
+
     val transaction1 = TestController().asTransaction()
     val transaction2 = TestController().asTransaction()
     var backstack = listOf(transaction1, transaction2)

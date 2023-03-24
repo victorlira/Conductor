@@ -36,5 +36,6 @@ object Conductor {
     return LifecycleHandler.install(activity, allowAndroidXBacking = allowExperimentalAndroidXBacking)
       .getRouter(container, savedInstanceState)
       .also { it.rebindIfNeeded() }
+      .setPopRootControllerMode(Router.PopRootControllerMode.NEVER)
   }
 }

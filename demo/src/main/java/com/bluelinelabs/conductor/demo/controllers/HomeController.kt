@@ -21,9 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bluelinelabs.conductor.RouterTransaction
 import com.bluelinelabs.conductor.asTransaction
 import com.bluelinelabs.conductor.changehandler.FadeChangeHandler
-import com.bluelinelabs.conductor.changehandler.HorizontalChangeHandler
 import com.bluelinelabs.conductor.demo.R
-import com.bluelinelabs.conductor.demo.changehandler.ArcFadeMoveChangeHandler
 import com.bluelinelabs.conductor.demo.changehandler.FabToDialogTransitionChangeHandler
 import com.bluelinelabs.conductor.demo.controllers.NavigationDemoController.DisplayUpMode
 import com.bluelinelabs.conductor.demo.controllers.base.BaseController
@@ -118,25 +116,11 @@ class HomeController : BaseController(R.layout.controller_home) {
             .popChangeHandler(FadeChangeHandler())
         )
       }
-      DemoModel.SHARED_ELEMENT_TRANSITIONS -> {
-        val titleSharedElementName =
-          resources!!.getString(R.string.transition_tag_title_indexed, position)
-        val dotSharedElementName =
-          resources!!.getString(R.string.transition_tag_dot_indexed, position)
+      DemoModel.ON_BACK_PRESSED_CALLBACK -> {
         router.pushController(
-          RouterTransaction.with(CityGridController(model.title, model.color, position))
-            .pushChangeHandler(
-              ArcFadeMoveChangeHandler(
-                titleSharedElementName,
-                dotSharedElementName
-              )
-            )
-            .popChangeHandler(
-              ArcFadeMoveChangeHandler(
-                titleSharedElementName,
-                dotSharedElementName
-              )
-            )
+          RouterTransaction.with(OnBackPressedCallbackController())
+            .pushChangeHandler(FadeChangeHandler())
+            .popChangeHandler(FadeChangeHandler())
         )
       }
       DemoModel.DRAG_DISMISS -> {
@@ -144,13 +128,6 @@ class HomeController : BaseController(R.layout.controller_home) {
           RouterTransaction.with(DragDismissController())
             .pushChangeHandler(FadeChangeHandler(false))
             .popChangeHandler(FadeChangeHandler())
-        )
-      }
-      DemoModel.EXTERNAL_MODULES -> {
-        router.pushController(
-          RouterTransaction.with(ExternalModulesController())
-            .pushChangeHandler(HorizontalChangeHandler())
-            .popChangeHandler(HorizontalChangeHandler())
         )
       }
       DemoModel.MASTER_DETAIL -> {
@@ -208,14 +185,13 @@ private enum class DemoModel(val title: String, @ColorRes val color: Int) {
   COMPOSE("Jetpack Compose", R.color.amber_500),
   NAVIGATION("Navigation Demos", R.color.red_300),
   TRANSITIONS("Transition Demos", R.color.blue_grey_300),
-  SHARED_ELEMENT_TRANSITIONS("Shared Element Demos", R.color.purple_300),
+  ON_BACK_PRESSED_CALLBACK("Back Handling", R.color.purple_300),
   CHILD_CONTROLLERS("Child Controllers", R.color.orange_300),
   VIEW_PAGER("ViewPager", R.color.green_300),
   VIEW_PAGER_2("ViewPager2", R.color.pink_300),
   TARGET_CONTROLLER("Target Controller", R.color.deep_orange_300),
   MASTER_DETAIL("Master Detail", R.color.lime_300),
   DRAG_DISMISS("Drag Dismiss", R.color.teal_300),
-  EXTERNAL_MODULES("Bonus Modules", R.color.deep_purple_300)
 }
 
 private class HomeAdapter(

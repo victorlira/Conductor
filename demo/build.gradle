@@ -51,13 +51,9 @@ dependencies {
 
     implementation libs.picasso
 
-    implementation libs.autodispose.ktx
-
     implementation project(':conductor')
     implementation project(':conductor-modules:viewpager')
     implementation project(':conductor-modules:viewpager2')
-    implementation project(':conductor-modules:autodispose')
-    implementation project(':conductor-modules:arch-components-lifecycle')
     implementation project(':conductor-modules:androidx-transition')
 
     implementation libs.compose.ui

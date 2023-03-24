@@ -20,7 +20,6 @@ class MultipleChildRouterController : BaseController(R.layout.controller_multipl
 
     childContainers.forEach { container ->
       val childRouter = getChildRouter(container).setPopRootControllerMode(PopRootControllerMode.POP_ROOT_CONTROLLER_BUT_NOT_VIEW)
-        .setPopRootControllerMode(PopRootControllerMode.NEVER)
       if (!childRouter.hasRootController()) {
         childRouter.setRoot(RouterTransaction.with(NavigationDemoController(0, NavigationDemoController.DisplayUpMode.HIDE)))
       }

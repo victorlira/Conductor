@@ -32,9 +32,12 @@ class ControllerHostedRouter extends Router {
     private boolean isDetachFrozen;
     private boolean boundToContainer;
 
-    ControllerHostedRouter() { }
+    ControllerHostedRouter() {
+        popRootControllerMode = PopRootControllerMode.POP_ROOT_CONTROLLER_BUT_NOT_VIEW;
+    }
 
     ControllerHostedRouter(int hostId, @Nullable String tag, boolean boundToContainer) {
+        this();
         if (!boundToContainer && tag == null) {
             throw new IllegalStateException("ControllerHostedRouter can't be created without a tag if not bounded to its container");
         }

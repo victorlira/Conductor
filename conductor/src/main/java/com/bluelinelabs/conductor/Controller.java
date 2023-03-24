@@ -22,8 +22,10 @@ import androidx.activity.OnBackPressedDispatcher;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.bluelinelabs.conductor.internal.ClassUtils;
+import com.bluelinelabs.conductor.internal.ControllerLifecycleOwner;
 import com.bluelinelabs.conductor.internal.OwnViewTreeLifecycleAndRegistry;
 import com.bluelinelabs.conductor.internal.RouterRequiringFunc;
 import com.bluelinelabs.conductor.internal.ViewAttachHandler;
@@ -110,6 +112,8 @@ public abstract class Controller {
             }
         }
     };
+
+    public final LifecycleOwner lifecycleOwner = new ControllerLifecycleOwner(this);
 
     @NonNull
     static Controller newInstance(@NonNull Bundle bundle) {

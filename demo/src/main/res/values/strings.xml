@@ -5,9 +5,6 @@
     <!-- Home Controller -->
     <string name="about">About</string>
 
-    <!-- Additional Modules Controller -->
-    <string name="additional_modules_explanation">The following modules are provided as additional dependencies, and are not a part of the core library. If you\'ve made a module you want to see included, let us know!</string>
-
     <!-- Navigation Demo -->
     <string name="pop_to_root">Pop to Root</string>
     <string name="go_up">Go Up</string>
