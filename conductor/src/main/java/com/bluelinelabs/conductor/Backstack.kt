@@ -16,11 +16,11 @@ internal class Backstack : Iterable<RouterTransaction> {
 
   fun root(): RouterTransaction? = backstack.lastOrNull()
 
-  override fun iterator(): MutableIterator<RouterTransaction> {
-    return backstack.iterator()
-  }
+  override fun iterator(): Iterator<RouterTransaction> = backstack.toTypedArray().iterator()
 
-  fun reverseIterator(): Iterator<RouterTransaction> = backstack.descendingIterator()
+  fun reverseIterator(): Iterator<RouterTransaction> = backstack.reversed().iterator()
+
+  fun remove(transaction: RouterTransaction) = backstack.remove(transaction)
 
   fun popTo(transaction: RouterTransaction): List<RouterTransaction> {
     if (transaction in backstack) {

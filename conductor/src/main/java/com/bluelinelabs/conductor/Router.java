@@ -193,7 +193,7 @@ public abstract class Router {
                 RouterTransaction transaction = iterator.next();
                 if (transaction.controller() == controller) {
                     trackDestroyingController(transaction);
-                    iterator.remove();
+                    backstack.remove(transaction);
                     removedTransaction = transaction;
                 } else if (removedTransaction != null) {
                     if (needsNextTransactionAttach && !transaction.controller().isAttached()) {
