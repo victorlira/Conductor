@@ -1387,11 +1387,17 @@ public abstract class Controller {
         if (isDetachFrozen != frozen) {
             isDetachFrozen = frozen;
 
+            boolean detach = !frozen && view != null && viewWasDetached;
+
             for (ControllerHostedRouter router : childRouters) {
+                if (detach) {
+                    router.prepareForHostDetach();
+                }
+
                 router.setDetachFrozen(frozen);
             }
 
-            if (!frozen && view != null && viewWasDetached) {
+            if (detach) {
                 View aView = view;
                 detach(view, false, false);
                 if (view == null && aView.getParent() == router.container) {
