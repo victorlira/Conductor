@@ -39,7 +39,7 @@ implementation "com.bluelinelabs:conductor-viewpager2:$conductorVersion"
 ```
 
 ### 4.0 Preview
-Use `4.0.0-preview-2` as your version number in any of the dependencies above.
+Use `4.0.0-preview-4` as your version number in any of the dependencies above.
 
 ### SNAPSHOT
 Use `4.0.0-SNAPSHOT` as your version number in any of the dependencies above and add the url to the snapshot repository:
