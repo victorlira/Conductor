@@ -3,6 +3,7 @@ package com.bluelinelabs.conductor
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.BackEventCompat
 import androidx.annotation.RestrictTo
 import com.bluelinelabs.conductor.changehandler.SimpleSwapChangeHandler
 import com.bluelinelabs.conductor.internal.ClassUtils
@@ -49,6 +50,8 @@ abstract class ControllerChangeHandler {
   open val removesFromViewOnPush: Boolean = true
 
   private var hasBeenUsed = false
+
+  open val enableOnBackGestureCallbacks = false
 
   init {
     try {
@@ -112,9 +115,9 @@ abstract class ControllerChangeHandler {
    */
   open fun copy(): ControllerChangeHandler = fromBundle(toBundle())!!
 
-  open fun handleOnBackStarted(container: ViewGroup, to: View?, from: View, swipeEdge: Int) {}
+  open fun handleOnBackStarted(container: ViewGroup, to: View?, from: View, event: BackEventCompat) {}
 
-  open fun handleOnBackProgressed(container: ViewGroup, to: View?, from: View, progress: Float, swipeEdge: Int) {}
+  open fun handleOnBackProgressed(container: ViewGroup, to: View?, from: View, event: BackEventCompat) {}
 
   open fun handleOnBackCancelled(container: ViewGroup, to: View?, from: View) {}
 

@@ -8,6 +8,7 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.BackEventCompat;
 import androidx.activity.ComponentActivity;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
@@ -24,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 
+import com.bluelinelabs.conductor.internal.BackGestureViewState;
 import com.bluelinelabs.conductor.internal.ClassUtils;
 import com.bluelinelabs.conductor.internal.ControllerLifecycleOwner;
 import com.bluelinelabs.conductor.internal.OwnViewTreeLifecycleAndRegistry;
@@ -97,6 +100,9 @@ public abstract class Controller {
     private boolean isContextAvailable;
 
     final OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+        ControllerChangeHandler.ChangeTransaction popTransaction = null;
+        List<BackGestureViewState> viewsForGesture = null;
+
         @Override
         public void handleOnBackPressed() {
             // Root-level routers should have PopRootControllerMode.NEVER, and so should never return false here.
@@ -110,6 +116,102 @@ public abstract class Controller {
                     setEnabled(true);
                 }
             }
+        }
+
+        @Override
+        public void handleOnBackStarted(@NonNull BackEventCompat backEvent) {
+            Log.d("KUCK", "it has begun");
+            ControllerChangeHandler.ChangeTransaction transaction = getPopTransaction();
+            if (transaction != null && transaction.changeHandler != null && transaction.changeHandler.getEnableOnBackGestureCallbacks()) {
+                if (transaction.to != null && transaction.to.view == null) {
+                    viewsForGesture = viewsForGesture(transaction, new ArrayList<>());
+                }
+
+                for (int i = viewsForGesture.size() - 1; i > 0; i--) {
+                    transaction.container.addView(viewsForGesture.get(i).getView());
+                }
+
+                transaction.changeHandler.handleOnBackStarted(
+                    transaction.container,
+                    transaction.to != null ? transaction.to.view : null,
+                    transaction.from.view,
+                    backEvent
+                );
+            }
+        }
+
+        @Override
+        public void handleOnBackProgressed(@NonNull BackEventCompat backEvent) {
+            Log.d("KUCK", "it has progressed");
+
+            ControllerChangeHandler.ChangeTransaction transaction = getPopTransaction();
+            if (transaction != null && transaction.changeHandler != null && transaction.changeHandler.getEnableOnBackGestureCallbacks()) {
+                transaction.changeHandler.handleOnBackProgressed(
+                    transaction.container,
+                    transaction.to != null ? transaction.to.view : null,
+                    transaction.from.view,
+                    backEvent
+                );
+            }
+        }
+
+        @Override
+        public void handleOnBackCancelled() {
+            Log.d("KUCK", "it has canceled");
+
+            ControllerChangeHandler.ChangeTransaction transaction = getPopTransaction();
+            if (transaction != null && transaction.changeHandler != null && transaction.changeHandler.getEnableOnBackGestureCallbacks()) {
+                transaction.changeHandler.handleOnBackCancelled(
+                    transaction.container,
+                    transaction.to != null ? transaction.to.view : null,
+                    transaction.from.view
+                );
+            }
+
+            for (int i = 0; i < viewsForGesture.size(); i++) {
+                BackGestureViewState state = viewsForGesture.get(i);
+                ViewGroup parent = (ViewGroup) state.getView().getParent();
+                if (parent != null) {
+                    parent.removeView(state.getView());
+                }
+
+                if (state.getInflatedForGesture()) {
+                    state.getController().removeViewReference(state.getView().getContext());
+                }
+            }
+
+            viewsForGesture.clear();
+        }
+
+        private ControllerChangeHandler.ChangeTransaction getPopTransaction() {
+            if (popTransaction == null) {
+                popTransaction = router.popTransaction(Controller.this);
+            }
+            return popTransaction;
+        }
+
+        private List<BackGestureViewState> viewsForGesture(
+            ControllerChangeHandler.ChangeTransaction transaction,
+            List<BackGestureViewState> aggregator
+        ) {
+            if (transaction.to != null) {
+                View view = transaction.to.view;
+                boolean inflated = false;
+                if (view == null) {
+                    view = transaction.to.inflate(transaction.container);
+                    inflated = true;
+                } else if (view.getParent() != null) {
+                    return aggregator;
+                }
+
+                aggregator.add(new BackGestureViewState(transaction.to, view, inflated));
+
+                if (!transaction.changeHandler.getRemovesFromViewOnPush()) {
+                    viewsForGesture(router.popTransaction(transaction.to), aggregator);
+                }
+            }
+
+            return aggregator;
         }
     };
 

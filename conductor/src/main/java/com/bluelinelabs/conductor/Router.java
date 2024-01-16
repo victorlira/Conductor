@@ -804,6 +804,37 @@ public abstract class Router {
         }
     }
 
+    @Nullable
+    ChangeTransaction popTransaction(@NonNull Controller controller) {
+        RouterTransaction from = null;
+        RouterTransaction to = null;
+
+        Iterator<RouterTransaction> iterator = backstack.iterator();
+        while (iterator.hasNext()) {
+            RouterTransaction transaction = iterator.next();
+            if (transaction.controller() == controller) {
+                from = transaction;
+                if (iterator.hasNext()) {
+                    to = iterator.next();
+                }
+                break;
+            }
+        }
+
+        if (from == null) {
+            return null;
+        }
+
+        return new ChangeTransaction(
+            to != null ? to.controller() : null,
+            from.controller(),
+            false,
+            container,
+            from.popChangeHandler(),
+            Collections.emptyList()
+        );
+    }
+
     void watchContainerAttach() {
         container.post(new Runnable() {
             @Override

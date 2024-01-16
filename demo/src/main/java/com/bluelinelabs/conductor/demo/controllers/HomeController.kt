@@ -10,6 +10,7 @@ import android.text.style.URLSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.BackEventCompat
 import androidx.annotation.ColorRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -18,6 +19,7 @@ import androidx.core.graphics.BlendModeCompat
 import androidx.core.text.buildSpannedString
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bluelinelabs.conductor.ControllerChangeHandler
 import com.bluelinelabs.conductor.RouterTransaction
 import com.bluelinelabs.conductor.asTransaction
 import com.bluelinelabs.conductor.changehandler.FadeChangeHandler
@@ -76,12 +78,13 @@ class HomeController : BaseController(R.layout.controller_home) {
   }
 
   private fun onModelRowClick(model: DemoModel, position: Int) {
+    println("onModelRowClick")
     when (model) {
       DemoModel.NAVIGATION -> {
         router.pushController(
           RouterTransaction.with(NavigationDemoController(0, DisplayUpMode.SHOW_FOR_CHILDREN_ONLY))
-            .pushChangeHandler(FadeChangeHandler())
-            .popChangeHandler(FadeChangeHandler())
+            .pushChangeHandler(WhateverChangeHandler())
+            .popChangeHandler(WhateverChangeHandler())
             .tag(NavigationDemoController.TAG_UP_TRANSACTION)
         )
       }
@@ -231,5 +234,49 @@ private class HomeAdapter(
       binding.dot.transitionName =
         binding.root.resources.getString(R.string.transition_tag_dot_indexed, position)
     }
+  }
+}
+
+class WhateverChangeHandler : ControllerChangeHandler() {
+  override val enableOnBackGestureCallbacks = true
+
+  override fun handleOnBackStarted(container: ViewGroup, to: View?, from: View, event: BackEventCompat) {
+    println("handleOnBackStarted")
+    to?.let { container.addView(it) }
+  }
+
+  override fun handleOnBackProgressed(container: ViewGroup, to: View?, from: View, event: BackEventCompat) {
+    if (event.swipeEdge == BackEventCompat.EDGE_LEFT) {
+      from.translationX = event.progress * container.width
+      to?.translationX = -container.width + event.progress * container.width
+    } else {
+      from.translationX = -event.progress * container.width
+      to?.translationX = container.width + -event.progress * container.width
+    }
+  }
+
+  override fun handleOnBackCancelled(container: ViewGroup, to: View?, from: View) {
+    to?.let { container.removeView(it) }
+  }
+
+  override fun performChange(
+    container: ViewGroup,
+    from: View?,
+    to: View?,
+    isPush: Boolean,
+    changeListener: ControllerChangeCompletedListener,
+  ) {
+    from?.translationX = 0f
+    to?.translationX = 0f
+    println("perform change called")
+    if (isPush) {
+      to?.let { container.addView(it) }
+      from?.let { container.removeView(it) }
+    } else {
+      to?.let { if (it.parent == null) container.addView(it) }
+      from?.let { container.removeView(it) }
+    }
+
+    changeListener.onChangeCompleted()
   }
 }

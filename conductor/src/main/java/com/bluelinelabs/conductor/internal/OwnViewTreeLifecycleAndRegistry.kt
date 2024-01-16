@@ -14,7 +14,6 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.bluelinelabs.conductor.Controller
 import com.bluelinelabs.conductor.ControllerChangeHandler
 import com.bluelinelabs.conductor.ControllerChangeType
-import com.bluelinelabs.conductor.R
 
 /**
  * This class sets the [ViewTreeLifecycleOwner] and [ViewTreeSavedStateRegistryOwner] which is
@@ -56,8 +55,8 @@ internal class OwnViewTreeLifecycleAndRegistry private constructor(
          * it on purpose.
          */
         if (
-          view.getTag(R.id.view_tree_lifecycle_owner) == null &&
-          view.getTag(R.id.view_tree_saved_state_registry_owner) == null
+          view.getTag(androidx.lifecycle.runtime.R.id.view_tree_lifecycle_owner) == null &&
+          view.getTag(androidx.savedstate.R.id.view_tree_saved_state_registry_owner) == null
         ) {
           view.setViewTreeLifecycleOwner(this@OwnViewTreeLifecycleAndRegistry)
           view.setViewTreeSavedStateRegistryOwner(this@OwnViewTreeLifecycleAndRegistry)
