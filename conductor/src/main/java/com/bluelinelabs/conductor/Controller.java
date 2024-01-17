@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 
+import com.bluelinelabs.conductor.internal.BackGestureControllerView;
 import com.bluelinelabs.conductor.internal.BackGestureViewState;
 import com.bluelinelabs.conductor.internal.ClassUtils;
 import com.bluelinelabs.conductor.internal.ControllerLifecycleOwner;
@@ -101,7 +102,7 @@ public abstract class Controller {
 
     final OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
         ControllerChangeHandler.ChangeTransaction popTransaction = null;
-        List<BackGestureViewState> viewsForGesture = null;
+        BackGestureViewState backGestureViewState = null;
 
         @Override
         public void handleOnBackPressed() {
@@ -123,18 +124,23 @@ public abstract class Controller {
             Log.d("KUCK", "it has begun");
             ControllerChangeHandler.ChangeTransaction transaction = getPopTransaction();
             if (transaction != null && transaction.changeHandler != null && transaction.changeHandler.getEnableOnBackGestureCallbacks()) {
+                List<BackGestureControllerView> toViews;
                 if (transaction.to != null && transaction.to.view == null) {
-                    viewsForGesture = viewsForGesture(transaction, new ArrayList<>());
+                    toViews = toViewsForGesture(transaction, new ArrayList<>());
+                } else {
+                    toViews = Collections.emptyList();
                 }
 
-                for (int i = viewsForGesture.size() - 1; i > 0; i--) {
-                    transaction.container.addView(viewsForGesture.get(i).getView());
+                for (int i = toViews.size() - 1; i > 0; i--) {
+                    transaction.container.addView(toViews.get(i).getView());
                 }
+
+                backGestureViewState = new BackGestureViewState(transaction.from.view, toViews);
 
                 transaction.changeHandler.handleOnBackStarted(
                     transaction.container,
-                    transaction.to != null ? transaction.to.view : null,
-                    transaction.from.view,
+                    getToView(),
+                    backGestureViewState.getFromView(),
                     backEvent
                 );
             }
@@ -148,8 +154,8 @@ public abstract class Controller {
             if (transaction != null && transaction.changeHandler != null && transaction.changeHandler.getEnableOnBackGestureCallbacks()) {
                 transaction.changeHandler.handleOnBackProgressed(
                     transaction.container,
-                    transaction.to != null ? transaction.to.view : null,
-                    transaction.from.view,
+                    getToView(),
+                    backGestureViewState.getFromView(),
                     backEvent
                 );
             }
@@ -163,24 +169,24 @@ public abstract class Controller {
             if (transaction != null && transaction.changeHandler != null && transaction.changeHandler.getEnableOnBackGestureCallbacks()) {
                 transaction.changeHandler.handleOnBackCancelled(
                     transaction.container,
-                    transaction.to != null ? transaction.to.view : null,
-                    transaction.from.view
+                    getToView(),
+                    backGestureViewState.getFromView()
                 );
+
+                for (int i = 0; i < backGestureViewState.getToViews().size(); i++) {
+                    BackGestureControllerView state = backGestureViewState.getToViews().get(i);
+                    ViewGroup parent = (ViewGroup) state.getView().getParent();
+                    if (parent != null) {
+                        parent.removeView(state.getView());
+                    }
+
+                    if (state.getInflatedForGesture()) {
+                        state.getController().removeViewReference(state.getView().getContext());
+                    }
+                }
             }
 
-            for (int i = 0; i < viewsForGesture.size(); i++) {
-                BackGestureViewState state = viewsForGesture.get(i);
-                ViewGroup parent = (ViewGroup) state.getView().getParent();
-                if (parent != null) {
-                    parent.removeView(state.getView());
-                }
-
-                if (state.getInflatedForGesture()) {
-                    state.getController().removeViewReference(state.getView().getContext());
-                }
-            }
-
-            viewsForGesture.clear();
+            backGestureViewState = null;
         }
 
         private ControllerChangeHandler.ChangeTransaction getPopTransaction() {
@@ -190,9 +196,9 @@ public abstract class Controller {
             return popTransaction;
         }
 
-        private List<BackGestureViewState> viewsForGesture(
+        private List<BackGestureControllerView> toViewsForGesture(
             ControllerChangeHandler.ChangeTransaction transaction,
-            List<BackGestureViewState> aggregator
+            List<BackGestureControllerView> aggregator
         ) {
             if (transaction.to != null) {
                 View view = transaction.to.view;
@@ -204,14 +210,23 @@ public abstract class Controller {
                     return aggregator;
                 }
 
-                aggregator.add(new BackGestureViewState(transaction.to, view, inflated));
+                aggregator.add(new BackGestureControllerView(transaction.to, view, inflated));
 
                 if (!transaction.changeHandler.getRemovesFromViewOnPush()) {
-                    viewsForGesture(router.popTransaction(transaction.to), aggregator);
+                    toViewsForGesture(router.popTransaction(transaction.to), aggregator);
                 }
             }
 
             return aggregator;
+        }
+
+        @Nullable
+        private View getToView() {
+            if (backGestureViewState.getToViews().size() == 0) {
+                return null;
+            } else {
+                return backGestureViewState.getToViews().get(0).getView();
+            }
         }
     };
 
